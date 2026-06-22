@@ -16,7 +16,7 @@ function mergeUrls(initial) {
   return [];
 }
 
-export default function JournalForm({ tradeId, userId, initial, prefs = null }) {
+export default function JournalForm({ tradeId, userId, initial, prefs = null, onSaved = null }) {
   const EMOTIONS = resolveEmotions(prefs);
   const router = useRouter();
   const [note, setNote] = useState((initial && initial.note) || '');
@@ -78,13 +78,13 @@ export default function JournalForm({ tradeId, userId, initial, prefs = null }) 
     } else {
       setMsg('Journal saved.');
       router.refresh();
+      if (onSaved) setTimeout(() => onSaved(), 500);
     }
     setSaving(false);
   }
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-      <div className="mb-4 font-display text-base font-semibold">Journal</div>
+    <div>
 
       <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-white/40">How did you feel?</label>
       <div className="mb-5 flex flex-wrap gap-2">
