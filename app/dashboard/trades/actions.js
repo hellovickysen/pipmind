@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { analyzeTradeWithAI } from '@/lib/ai';
 
 function toNum(v) {
   if (v === '' || v === null || v === undefined) return null;
@@ -94,6 +95,50 @@ export async function saveJournal(tradeId, payload) {
     error = res.error;
   } else {
     const res = await supabase.from('journal_entries').insert(entry);
+    error = res.error;
+  }
+  if (error) return { error: error.message };
+  revalidatePath('/dashboard/trades/' + tradeId);
+  return { ok: true };
+}
+
+export async function analyzeTrade(tradeId) {
+  const { supabase, user } = await getCtx();
+  if (!user) return { error: 'You must be signed in.' };
+
+  const { data: trade } = await supabase.from('trades').select('*').eq('id', tradeId).maybeSingle();
+  if (!trade) return { error: 'Trade not found.' };
+  const { data: journal } = await supabase.from('journal_entries').select('*').eq('trade_id', tradeId).maybeSingle();
+
+  let analysis;
+  try {
+    analysis = await analyzeTradeWithAI(trade, journal);
+  } catch (e) {
+    return { error: (e && e.message) || 'AI analysis failed.' };
+  }
+
+  const row = {
+    user_id: user.id,
+    trade_id: tradeId,
+    type: 'trade_analysis',
+    summary: analysis.summary || null,
+    mistakes: analysis,
+    severity: Number.isFinite(Number(analysis.execution_score)) ? Math.round(Number(analysis.execution_score)) : null,
+  };
+
+  const { data: existing } = await supabase
+    .from('ai_insights')
+    .select('id')
+    .eq('trade_id', tradeId)
+    .eq('type', 'trade_analysis')
+    .maybeSingle();
+
+  let error;
+  if (existing) {
+    const res = await supabase.from('ai_insights').update(row).eq('id', existing.id);
+    error = res.error;
+  } else {
+    const res = await supabase.from('ai_insights').insert(row);
     error = res.error;
   }
   if (error) return { error: error.message };

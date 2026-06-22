@@ -4,8 +4,12 @@ import { createClient } from '@/lib/supabase/server';
 import { fmtMoney, fmtR, num } from '@/lib/stats';
 import JournalForm from '@/components/JournalForm';
 import DeleteTradeButton from '@/components/DeleteTradeButton';
+import AiInsight from '@/components/AiInsight';
+import AnalyzeButton from '@/components/AnalyzeButton';
 
 export const dynamic = 'force-dynamic';
+
+const gradientText = { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' };
 
 function fmtDateTime(d) {
   if (!d) return '—';
@@ -34,6 +38,12 @@ export default async function TradeDetailPage({ params }) {
   const { data: trade } = await supabase.from('trades').select('*').eq('id', id).maybeSingle();
   if (!trade) notFound();
   const { data: journal } = await supabase.from('journal_entries').select('*').eq('trade_id', id).maybeSingle();
+  const { data: insight } = await supabase
+    .from('ai_insights')
+    .select('*')
+    .eq('trade_id', id)
+    .eq('type', 'trade_analysis')
+    .maybeSingle();
 
   const win = num(trade.pnl) >= 0;
 
@@ -81,12 +91,17 @@ export default async function TradeDetailPage({ params }) {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-violet-500/10 to-cyan-500/5 p-6">
-            <div className="font-display text-base font-semibold" style={{ background: 'linear-gradient(120deg,#a78bfa,#22d3ee)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
-              &#10022; AI Coach
+          {insight ? (
+            <AiInsight insight={insight} tradeId={id} />
+          ) : (
+            <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-violet-500/10 to-cyan-500/5 p-6">
+              <div className="font-display text-base font-semibold" style={gradientText}>&#10022; AI Coach</div>
+              <p className="mb-4 mt-2 text-sm leading-relaxed text-white/55">
+                Get an instant AI breakdown of this trade — your mistakes, what went well, and the one fix that matters most. Add your journal first for sharper insight.
+              </p>
+              <AnalyzeButton tradeId={id} />
             </div>
-            <p className="mt-2 text-sm text-white/50">Per-trade AI analysis (mistake detection + psychology) arrives in the next sprint. Your journal below is what powers it.</p>
-          </div>
+          )}
         </div>
 
         <JournalForm tradeId={id} userId={user.id} initial={journal} />
