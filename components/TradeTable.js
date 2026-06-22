@@ -42,7 +42,7 @@ export default function TradeTable({ rows }) {
                     {(t.direction || '').toUpperCase()}
                   </span>
                 </td>
-                <td className="px-3 py-3 font-mono text-white/60">{fmtDate(t.closed_at || t.created_at)}</td>
+                <td className="px-3 py-3 font-mono text-white/60">{fmtDate(t.trade_date || t.closed_at || t.created_at)}{t.session ? <span className="ml-1.5 text-[10px] text-white/30">{t.session}</span> : null}</td>
                 <td className="px-3 py-3 font-mono text-white/60">{t.entry_price != null ? t.entry_price : '—'}</td>
                 <td className="px-3 py-3 font-mono text-white/60">{t.exit_price != null ? t.exit_price : '—'}</td>
                 <td className={'px-3 py-3 font-mono ' + (win ? 'text-emerald-400' : 'text-red-400')}>{fmtR(t.r_multiple)}</td>

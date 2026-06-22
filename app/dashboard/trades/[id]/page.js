@@ -92,8 +92,8 @@ export default async function TradeDetailPage({ params }) {
               <Fact label="Lot" value={trade.lot_size != null ? trade.lot_size : '—'} />
               <Fact label="Timeframe" value={trade.timeframe || '—'} />
               <Fact label="Setup" value={trade.setup || '—'} />
-              <Fact label="Opened" value={fmtDateTime(trade.opened_at)} />
-              <Fact label="Closed" value={fmtDateTime(trade.closed_at)} />
+              <Fact label="Session" value={trade.session || '—'} />
+              <Fact label="Date" value={trade.trade_date || fmtDateTime(trade.closed_at || trade.created_at)} />
             </div>
           </div>
 

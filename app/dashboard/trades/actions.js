@@ -32,6 +32,8 @@ function buildRow(user, payload) {
     r_multiple: toNum(payload.r_multiple),
     setup: payload.setup || null,
     timeframe: payload.timeframe || null,
+    session: payload.session || null,
+    trade_date: payload.trade_date || null,
     opened_at: payload.opened_at || null,
     closed_at: payload.closed_at || null,
   };

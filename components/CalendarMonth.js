@@ -19,7 +19,7 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
   // Index trades by day
   const byDay = {};
   (trades || []).forEach((t) => {
-    const raw = t.closed_at || t.created_at;
+    const raw = t.trade_date || t.closed_at || t.created_at;
     if (!raw) return;
     const d = new Date(raw);
     if (d.getUTCFullYear() !== year || d.getUTCMonth() !== month) return;

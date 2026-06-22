@@ -7,24 +7,18 @@ import { createClient } from '@/lib/supabase/client';
 import { createTrade, updateTrade } from '@/app/dashboard/trades/actions';
 import { DEFAULT_EMOTIONS, resolveEmotions } from '@/lib/emotions';
 
-const PAIRS = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'XAU/USD', 'GBP/JPY', 'AUD/USD', 'USD/CAD', 'NZD/USD'];
+const PAIRS = ['XAU/USD', 'EUR/USD', 'GBP/USD', 'USD/JPY', 'GBP/JPY', 'AUD/USD', 'USD/CAD', 'NZD/USD'];
 const TIMEFRAMES = ['M5', 'M15', 'H1', 'H4', 'D1'];
+const SESSIONS = ['Asian', 'London', 'New York'];
 
-function toLocalInput(v) {
-  if (!v) return '';
-  try {
-    const d = new Date(v);
-    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
-    return local.toISOString().slice(0, 16);
-  } catch (e) {
-    return '';
-  }
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
 }
 
 export default function TradeForm({ mode = 'create', tradeId = null, initial = null, prefs = null }) {
   const router = useRouter();
   const [form, setForm] = useState({
-    pair: (initial && initial.pair) || 'EUR/USD',
+    pair: (initial && initial.pair) || 'XAU/USD',
     direction: (initial && initial.direction) || 'long',
     entry_price: initial && initial.entry_price != null ? initial.entry_price : '',
     exit_price: initial && initial.exit_price != null ? initial.exit_price : '',
@@ -34,9 +28,9 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
     pnl: initial && initial.pnl != null ? initial.pnl : '',
     r_multiple: initial && initial.r_multiple != null ? initial.r_multiple : '',
     setup: (initial && initial.setup) || '',
-    timeframe: (initial && initial.timeframe) || 'H1',
-    opened_at: toLocalInput(initial && initial.opened_at),
-    closed_at: toLocalInput(initial && initial.closed_at),
+    timeframe: (initial && initial.timeframe) || 'M5',
+    session: (initial && initial.session) || '',
+    trade_date: (initial && initial.trade_date) || todayStr(),
   });
 
   // Journal fields (create mode only)
@@ -182,8 +176,22 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
               </select>
             </div>
             <div><label className={labelCls}>Setup</label><input className={field} value={form.setup} onChange={(e) => set('setup', e.target.value)} placeholder="e.g. London breakout" /></div>
-            <div><label className={labelCls}>Opened</label><input type="datetime-local" className={field} value={form.opened_at} onChange={(e) => set('opened_at', e.target.value)} /></div>
-            <div><label className={labelCls}>Closed</label><input type="datetime-local" className={field} value={form.closed_at} onChange={(e) => set('closed_at', e.target.value)} /></div>
+            <div>
+              <label className={labelCls}>Session</label>
+              <div className="flex gap-2">
+                {SESSIONS.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => set('session', form.session === s ? '' : s)}
+                    className={'flex-1 rounded-lg border px-3 py-2.5 text-sm font-semibold ' + (form.session === s ? 'border-cyan-400/50 bg-cyan-500/15 text-cyan-300' : 'border-white/10 bg-black/30 text-white/50')}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div><label className={labelCls}>Trade date</label><input type="date" className={field} value={form.trade_date} onChange={(e) => set('trade_date', e.target.value)} /></div>
           </div>
 
           {/* Journal section — create mode only */}
