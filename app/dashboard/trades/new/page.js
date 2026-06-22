@@ -148,7 +148,7 @@ export default function NewTradePage() {
             {hasR ? (rNum >= 0 ? '+' : '-') + Math.abs(rNum).toFixed(2) + 'R' : '—R'}
           </div>
           <div className="mt-4 font-mono text-xs text-white/40">
-            {hasPnl ? (pnlNum >= 0 ? 'Win' : 'Loss') : 'Enter P&amp;L to preview'}
+            {hasPnl ? (pnlNum >= 0 ? 'Win' : 'Loss') : 'Enter P&L to preview'}
           </div>
         </div>
       </div>
