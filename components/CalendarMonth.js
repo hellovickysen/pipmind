@@ -16,6 +16,9 @@ function fmtPnl(v) {
 }
 
 export default function CalendarMonth({ trades, year, month, selected, monthParam }) {
+  // Today detection
+  const now = new Date();
+  const todayDay = (now.getUTCFullYear() === year && now.getUTCMonth() === month) ? now.getUTCDate() : null;
   const byDay = {};
   (trades || []).forEach((t) => {
     const raw = t.trade_date || t.closed_at || t.created_at;
@@ -89,16 +92,19 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
                       : 'border-red-400/30';
                   }
 
+                  const isWeekend = di === 0 || di === 6;
+
                   if (d === null) {
                     return (
                       <td key={di} className={borderB + ' ' + borderR + ' border-white/[0.06] p-0'}>
-                        <div className="h-28 bg-white/[0.01]" />
+                        <div className={'h-28 ' + (isWeekend ? 'bg-white/[0.02]' : 'bg-white/[0.01]')} />
                       </td>
                     );
                   }
 
                   const dateStr = year + '-' + pad2(month + 1) + '-' + pad2(d);
                   const isSel = selected === dateStr;
+                  const isToday = d === todayDay;
 
                   const cellContent = (
                     <div
@@ -108,9 +114,19 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
                         (isSel ? ' bg-white/[0.06]' : '')
                       }
                     >
-                      <span className={'text-sm font-medium ' + (e ? 'text-white/60' : 'text-white/25')}>
-                        {d}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className={
+                          'text-sm font-medium ' +
+                          (isToday
+                            ? 'grid h-7 w-7 place-items-center rounded-full text-white font-bold'
+                            : (e ? 'text-white/60' : 'text-white/25'))
+                        }
+                        style={isToday ? { background: 'linear-gradient(135deg,#a78bfa,#22d3ee)' } : {}}
+                        >
+                          {d}
+                        </span>
+                        {isToday && !e && <span className="text-[10px] text-white/40">Today</span>}
+                      </div>
 
                       {e && (
                         <div

@@ -131,78 +131,105 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
     <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
       <div className="space-y-6">
         <form onSubmit={onSubmit} id="trade-form" className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className={labelCls}>Pair</label>
-              <input className={field} list="pairs" value={form.pair} onChange={(e) => set('pair', e.target.value)} />
-              <datalist id="pairs">
-                {PAIRS.map((p) => (
-                  <option key={p} value={p} />
-                ))}
-              </datalist>
-            </div>
-            <div>
-              <label className={labelCls}>Direction</label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => set('direction', 'long')}
-                  className={'flex-1 rounded-lg border px-3 py-2.5 text-sm font-semibold ' + (form.direction === 'long' ? 'border-emerald-400/50 bg-emerald-500/15 text-emerald-300' : 'border-white/10 bg-black/30 text-white/50')}
-                >
-                  &#9650; Long
-                </button>
-                <button
-                  type="button"
-                  onClick={() => set('direction', 'short')}
-                  className={'flex-1 rounded-lg border px-3 py-2.5 text-sm font-semibold ' + (form.direction === 'short' ? 'border-red-400/50 bg-red-500/15 text-red-300' : 'border-white/10 bg-black/30 text-white/50')}
-                >
-                  &#9660; Short
-                </button>
+          {/* Section 1: Trade Details */}
+          <div className="mb-5">
+            <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-white/50">
+              <span className="grid h-5 w-5 place-items-center rounded-md text-[10px]" style={{ background: 'linear-gradient(135deg,rgba(139,92,246,0.3),rgba(34,211,238,0.2))' }}>1</span>
+              Trade details
+            </h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className={labelCls}>Pair</label>
+                <input className={field} list="pairs" value={form.pair} onChange={(e) => set('pair', e.target.value)} />
+                <datalist id="pairs">
+                  {PAIRS.map((p) => (
+                    <option key={p} value={p} />
+                  ))}
+                </datalist>
               </div>
-            </div>
-            <div><label className={labelCls}>Entry price</label><input className={field} value={form.entry_price} onChange={(e) => set('entry_price', e.target.value)} inputMode="decimal" /></div>
-            <div><label className={labelCls}>Exit price</label><input className={field} value={form.exit_price} onChange={(e) => set('exit_price', e.target.value)} inputMode="decimal" /></div>
-            <div><label className={labelCls}>Stop loss</label><input className={field} value={form.stop_loss} onChange={(e) => set('stop_loss', e.target.value)} inputMode="decimal" /></div>
-            <div><label className={labelCls}>Take profit</label><input className={field} value={form.take_profit} onChange={(e) => set('take_profit', e.target.value)} inputMode="decimal" /></div>
-            <div><label className={labelCls}>Lot size</label><input className={field} value={form.lot_size} onChange={(e) => set('lot_size', e.target.value)} inputMode="decimal" /></div>
-            <div><label className={labelCls}>P&amp;L ($) *</label><input className={field} value={form.pnl} onChange={(e) => set('pnl', e.target.value)} inputMode="decimal" placeholder="e.g. 145 or -90" /></div>
-            <div><label className={labelCls}>R multiple (optional)</label><input className={field} value={form.r_multiple} onChange={(e) => set('r_multiple', e.target.value)} inputMode="decimal" placeholder="e.g. 1.5 or -1" /></div>
-            <div>
-              <label className={labelCls}>Timeframe</label>
-              <select className={field} value={form.timeframe} onChange={(e) => set('timeframe', e.target.value)}>
-                {TIMEFRAMES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelCls}>Setup</label>
-              <select className={field} value={form.setup} onChange={(e) => set('setup', e.target.value)}>
-                <option value="">Select setup…</option>
-                {(prefs && prefs.custom_setups && prefs.custom_setups.length > 0
-                  ? prefs.custom_setups
-                  : ['Fib Level', 'London Low Sweep', 'London High Sweep', 'ChoCh On Line']
-                ).map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelCls}>Session</label>
-              <div className="flex gap-2">
-                {SESSIONS.map((s) => (
+              <div>
+                <label className={labelCls}>Direction</label>
+                <div className="flex gap-2">
                   <button
-                    key={s}
                     type="button"
-                    onClick={() => set('session', form.session === s ? '' : s)}
-                    className={'flex-1 rounded-lg border px-3 py-2.5 text-sm font-semibold ' + (form.session === s ? 'border-cyan-400/50 bg-cyan-500/15 text-cyan-300' : 'border-white/10 bg-black/30 text-white/50')}
+                    onClick={() => set('direction', 'long')}
+                    className={'flex-1 rounded-lg border px-3 py-2.5 text-sm font-semibold ' + (form.direction === 'long' ? 'border-emerald-400/50 bg-emerald-500/15 text-emerald-300' : 'border-white/10 bg-black/30 text-white/50')}
                   >
-                    {s}
+                    &#9650; Long
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    onClick={() => set('direction', 'short')}
+                    className={'flex-1 rounded-lg border px-3 py-2.5 text-sm font-semibold ' + (form.direction === 'short' ? 'border-red-400/50 bg-red-500/15 text-red-300' : 'border-white/10 bg-black/30 text-white/50')}
+                  >
+                    &#9660; Short
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className={labelCls}>Session</label>
+                <div className="flex gap-2">
+                  {SESSIONS.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => set('session', form.session === s ? '' : s)}
+                      className={'flex-1 rounded-lg border px-3 py-2.5 text-sm font-semibold ' + (form.session === s ? 'border-cyan-400/50 bg-cyan-500/15 text-cyan-300' : 'border-white/10 bg-black/30 text-white/50')}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div><label className={labelCls}>Trade date</label><input type="date" className={field} value={form.trade_date} onChange={(e) => set('trade_date', e.target.value)} /></div>
+              <div>
+                <label className={labelCls}>Timeframe</label>
+                <select className={field} value={form.timeframe} onChange={(e) => set('timeframe', e.target.value)}>
+                  {TIMEFRAMES.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={labelCls}>Setup</label>
+                <select className={field} value={form.setup} onChange={(e) => set('setup', e.target.value)}>
+                  <option value="">Select setup…</option>
+                  {(prefs && prefs.custom_setups && prefs.custom_setups.length > 0
+                    ? prefs.custom_setups
+                    : ['Fib Level', 'London Low Sweep', 'London High Sweep', 'ChoCh On Line']
+                  ).map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
               </div>
             </div>
-            <div><label className={labelCls}>Trade date</label><input type="date" className={field} value={form.trade_date} onChange={(e) => set('trade_date', e.target.value)} /></div>
+          </div>
+
+          {/* Section 2: Price Data */}
+          <div className="mb-5 border-t border-white/[0.06] pt-5">
+            <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-white/50">
+              <span className="grid h-5 w-5 place-items-center rounded-md text-[10px]" style={{ background: 'linear-gradient(135deg,rgba(139,92,246,0.3),rgba(34,211,238,0.2))' }}>2</span>
+              Price data
+            </h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div><label className={labelCls}>Entry price</label><input className={field} value={form.entry_price} onChange={(e) => set('entry_price', e.target.value)} inputMode="decimal" /></div>
+              <div><label className={labelCls}>Exit price</label><input className={field} value={form.exit_price} onChange={(e) => set('exit_price', e.target.value)} inputMode="decimal" /></div>
+              <div><label className={labelCls}>Stop loss</label><input className={field} value={form.stop_loss} onChange={(e) => set('stop_loss', e.target.value)} inputMode="decimal" /></div>
+              <div><label className={labelCls}>Take profit</label><input className={field} value={form.take_profit} onChange={(e) => set('take_profit', e.target.value)} inputMode="decimal" /></div>
+              <div><label className={labelCls}>Lot size</label><input className={field} value={form.lot_size} onChange={(e) => set('lot_size', e.target.value)} inputMode="decimal" /></div>
+            </div>
+          </div>
+
+          {/* Section 3: Result */}
+          <div className="border-t border-white/[0.06] pt-5">
+            <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-white/50">
+              <span className="grid h-5 w-5 place-items-center rounded-md text-[10px]" style={{ background: 'linear-gradient(135deg,rgba(139,92,246,0.3),rgba(34,211,238,0.2))' }}>3</span>
+              Result
+            </h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div><label className={labelCls}>P&amp;L ($) *</label><input className={field} value={form.pnl} onChange={(e) => set('pnl', e.target.value)} inputMode="decimal" placeholder="e.g. 145 or -90" /></div>
+              <div><label className={labelCls}>R multiple (optional)</label><input className={field} value={form.r_multiple} onChange={(e) => set('r_multiple', e.target.value)} inputMode="decimal" placeholder="e.g. 1.5 or -1" /></div>
+            </div>
           </div>
 
           {/* Journal section — create mode only */}
