@@ -10,6 +10,8 @@ function pad2(n) {
   return String(n).padStart(2, '0');
 }
 
+const MONTHS_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
 export default async function CalendarPage({ searchParams }) {
   const now = new Date();
   let year = now.getUTCFullYear();
@@ -30,8 +32,8 @@ export default async function CalendarPage({ searchParams }) {
   const { data: trades } = await supabase.from('trades').select('*').order('created_at', { ascending: false });
   const list = trades || [];
 
-  const monthName = new Date(Date.UTC(year, month, 1)).toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
   const monthParam = year + '-' + pad2(month + 1);
+  const isCurrentMonth = year === now.getUTCFullYear() && month === now.getUTCMonth();
 
   function shift(delta) {
     let m = month + delta;
@@ -73,19 +75,35 @@ export default async function CalendarPage({ searchParams }) {
 
   return (
     <div className="px-4 py-8 sm:px-6">
-      <h1 className="font-display text-2xl font-bold">Calendar</h1>
-
-      <div className="mb-4 mt-4 flex items-center justify-between">
-        <Link href={'/dashboard/calendar?month=' + shift(-1)} className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/70 hover:text-white">&larr; Prev</Link>
-        <div className="font-display text-base font-semibold">{monthName}</div>
-        <Link href={'/dashboard/calendar?month=' + shift(1)} className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/70 hover:text-white">Next &rarr;</Link>
+      {/* Header with month navigation and tab toggle */}
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold">Calendar</h1>
+          <div className="mt-1 flex items-center gap-2 font-mono text-xs text-white/40">
+            <Link href={'/dashboard/calendar?month=' + shift(-1)} className="hover:text-white/70">‹</Link>
+            <span className="text-white/60">{MONTHS_FULL[month]} {year}</span>
+            <Link href={'/dashboard/calendar?month=' + shift(1)} className="hover:text-white/70">›</Link>
+            {!isCurrentMonth && (
+              <>
+                <span className="text-white/20">·</span>
+                <Link href="/dashboard/calendar" className="text-cyan-400 hover:text-cyan-300">Current Month</Link>
+              </>
+            )}
+          </div>
+        </div>
+        <div className="flex gap-1 rounded-lg border border-white/10 bg-white/[0.03] p-0.5">
+          <span className="rounded-md bg-white/10 px-3 py-1.5 text-xs font-semibold text-white">Calendar</span>
+          <Link href="/dashboard/trades" className="rounded-md px-3 py-1.5 text-xs text-white/40 hover:text-white/70">Trades</Link>
+        </div>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      {/* Calendar grid */}
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
         <CalendarMonth trades={list} year={year} month={month} selected={selected} monthParam={monthParam} />
       </div>
 
-      {selected ? (
+      {/* Selected day trades */}
+      {selected && dayTrades.length > 0 && (
         <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <div className="font-display text-base font-semibold">Trades on {selected}</div>
@@ -95,8 +113,6 @@ export default async function CalendarPage({ searchParams }) {
           </div>
           <TradeTable rows={dayTrades} />
         </div>
-      ) : (
-        <p className="mt-4 px-1 font-mono text-xs text-white/40">Tip: click any day with trades to see them here.</p>
       )}
     </div>
   );
