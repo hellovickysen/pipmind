@@ -75,7 +75,7 @@ export default async function CalendarPage({ searchParams }) {
 
   return (
     <div className="px-4 py-8 sm:px-6">
-      {/* Header with month navigation and tab toggle */}
+      {/* Header */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold">Calendar</h1>
@@ -98,7 +98,7 @@ export default async function CalendarPage({ searchParams }) {
       </div>
 
       {/* Calendar grid */}
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden">
         <CalendarMonth trades={list} year={year} month={month} selected={selected} monthParam={monthParam} />
       </div>
 
