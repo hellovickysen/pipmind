@@ -35,10 +35,21 @@ export default function TradeTable({ rows, showFilters = false }) {
           {rows.map((t) => {
             const win = num(t.pnl) >= 0;
             const emotions = (t._journal && t._journal.emotions) || [];
+            const hasNote = t._journal && t._journal.hasNote;
+            const hasImages = t._journal && t._journal.hasImages;
+            const hasJournal = hasNote || hasImages;
             return (
               <tr key={t.id} className="border-t border-white/5 hover:bg-white/[0.02]">
                 <td className="px-3 py-3 font-display font-semibold">
-                  <Link href={'/dashboard/trades/' + t.id} className="hover:text-cyan-400">{t.pair}</Link>
+                  <Link href={'/dashboard/trades/' + t.id} className="hover:text-cyan-400">
+                    {t.pair}
+                    {hasJournal && (
+                      <span className="ml-1.5 inline-flex gap-1 align-middle">
+                        {hasNote && <span className="text-[11px] text-amber-400/70" title="Has journal note">📝</span>}
+                        {hasImages && <span className="text-[11px] text-cyan-400/70" title="Has screenshots">🖼</span>}
+                      </span>
+                    )}
+                  </Link>
                 </td>
                 <td className="px-3 py-3">
                   <span className={'rounded px-2 py-0.5 font-mono text-[11px] ' + (t.direction === 'long' ? 'bg-emerald-500/15 text-emerald-300' : 'bg-red-500/15 text-red-300')}>

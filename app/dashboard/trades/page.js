@@ -19,10 +19,16 @@ export default async function TradesPage() {
   if (tradeIds.length > 0) {
     const { data: journals } = await supabase
       .from('journal_entries')
-      .select('trade_id, emotions')
+      .select('trade_id, emotions, note, screenshot_url, screenshot_urls')
       .in('trade_id', tradeIds);
     (journals || []).forEach((j) => {
-      journalMap[j.trade_id] = { emotions: j.emotions || [] };
+      const urls = Array.isArray(j.screenshot_urls) ? j.screenshot_urls.filter(Boolean) : [];
+      const hasImages = urls.length > 0 || (j.screenshot_url && j.screenshot_url !== '');
+      journalMap[j.trade_id] = {
+        emotions: j.emotions || [],
+        hasNote: !!(j.note && j.note.trim()),
+        hasImages,
+      };
     });
   }
 
