@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { computeStats, equitySeries, fmtMoney, fmtR } from '@/lib/stats';
 import TradeTable from '@/components/TradeTable';
+import PnlCalendar from '@/components/PnlCalendar';
 
 export const dynamic = 'force-dynamic';
 
@@ -108,9 +109,14 @@ export default async function DashboardPage() {
         <Stat label="Trades" value={String(s.n)} />
       </div>
 
-      <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-        <div className="mb-3 font-display text-base font-semibold">Equity curve</div>
-        <EquityCurve series={series} />
+      <div className="mb-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          <div className="mb-3 font-display text-base font-semibold">Equity curve</div>
+          <EquityCurve series={series} />
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          <PnlCalendar trades={list} />
+        </div>
       </div>
 
       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
