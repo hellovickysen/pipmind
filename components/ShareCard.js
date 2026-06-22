@@ -124,7 +124,6 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
             <>
               {data.entry_price != null && <StatPill label="Entry" value={data.entry_price} />}
               {data.exit_price != null && <StatPill label="Exit" value={data.exit_price} />}
-              {data.setup && <StatPill label="Setup" value={data.setup} />}
               {data.session && <StatPill label="Session" value={data.session} />}
             </>
           )}
