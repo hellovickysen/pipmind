@@ -4,48 +4,75 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { saveJournal } from '@/app/dashboard/trades/actions';
+import Lightbox from '@/components/Lightbox';
 
 const EMOTIONS = ['Disciplined', 'Calm', 'Confident', 'FOMO', 'Fear', 'Greed', 'Revenge', 'Boredom'];
+
+/** Merge legacy screenshot_url + new screenshot_urls into one array. */
+function mergeUrls(initial) {
+  if (!initial) return [];
+  const arr = Array.isArray(initial.screenshot_urls) ? initial.screenshot_urls.filter(Boolean) : [];
+  if (arr.length > 0) return arr;
+  if (initial.screenshot_url) return [initial.screenshot_url];
+  return [];
+}
 
 export default function JournalForm({ tradeId, userId, initial }) {
   const router = useRouter();
   const [note, setNote] = useState((initial && initial.note) || '');
   const [emotions, setEmotions] = useState((initial && initial.emotions) || []);
   const [confidence, setConfidence] = useState((initial && initial.confidence) || 0);
-  const [screenshotUrl, setScreenshotUrl] = useState((initial && initial.screenshot_url) || '');
+  const [screenshotUrls, setScreenshotUrls] = useState(mergeUrls(initial));
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState(null);
   const [error, setError] = useState(null);
+  const [lightboxIdx, setLightboxIdx] = useState(null);
 
   function toggleEmotion(e) {
     setEmotions((cur) => (cur.includes(e) ? cur.filter((x) => x !== e) : [...cur, e]));
   }
 
-  async function onFile(e) {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
+  function removeScreenshot(i) {
+    setScreenshotUrls((cur) => cur.filter((_, idx) => idx !== i));
+  }
+
+  async function onFiles(e) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
     setUploading(true);
     setError(null);
     const supabase = createClient();
-    const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const path = userId + '/' + tradeId + '/' + Date.now() + '_' + safe;
-    const up = await supabase.storage.from('screenshots').upload(path, file, { upsert: true });
-    if (up.error) {
-      setError('Upload failed: ' + up.error.message);
-      setUploading(false);
-      return;
+    const newUrls = [];
+
+    for (const file of files) {
+      const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const path = userId + '/' + tradeId + '/' + Date.now() + '_' + safe;
+      const up = await supabase.storage.from('screenshots').upload(path, file, { upsert: true });
+      if (up.error) {
+        setError('Upload failed: ' + up.error.message);
+        setUploading(false);
+        return;
+      }
+      const pub = supabase.storage.from('screenshots').getPublicUrl(path);
+      newUrls.push(pub.data.publicUrl);
     }
-    const pub = supabase.storage.from('screenshots').getPublicUrl(path);
-    setScreenshotUrl(pub.data.publicUrl);
+
+    setScreenshotUrls((cur) => [...cur, ...newUrls]);
     setUploading(false);
+    e.target.value = '';
   }
 
   async function onSave() {
     setSaving(true);
     setError(null);
     setMsg(null);
-    const res = await saveJournal(tradeId, { note, emotions, confidence, screenshot_url: screenshotUrl });
+    const res = await saveJournal(tradeId, {
+      note,
+      emotions,
+      confidence,
+      screenshot_urls: screenshotUrls,
+    });
     if (res && res.error) {
       setError(res.error);
     } else {
@@ -94,13 +121,33 @@ export default function JournalForm({ tradeId, userId, initial }) {
         placeholder="Your reasoning, what went well, what you'd change..."
       />
 
-      <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-white/40">Chart screenshot</label>
-      {screenshotUrl ? (
-        <div className="mb-3">
-          <img src={screenshotUrl} alt="trade screenshot" className="max-h-64 w-full rounded-lg border border-white/10 object-contain" />
+      <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-white/40">Chart screenshots</label>
+      {screenshotUrls.length > 0 && (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {screenshotUrls.map((url, i) => (
+            <div key={i} className="group relative cursor-pointer" onClick={() => setLightboxIdx(i)}>
+              <img src={url} alt={`Screenshot ${i + 1}`} className="h-24 w-24 rounded-lg border border-white/10 object-cover transition-opacity hover:opacity-80" />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeScreenshot(i);
+                }}
+                className="absolute -right-1.5 -top-1.5 hidden h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white group-hover:flex"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
         </div>
-      ) : null}
-      <input type="file" accept="image/*" onChange={onFile} className="mb-1 block w-full text-sm text-white/60 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:text-white" />
+      )}
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={onFiles}
+        className="mb-1 block w-full text-sm text-white/60 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:text-white"
+      />
       {uploading ? <p className="text-xs text-cyan-400">Uploading…</p> : null}
 
       {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
@@ -114,6 +161,10 @@ export default function JournalForm({ tradeId, userId, initial }) {
       >
         {saving ? 'Saving…' : 'Save journal'}
       </button>
+
+      {lightboxIdx !== null && (
+        <Lightbox images={screenshotUrls} startIndex={lightboxIdx} onClose={() => setLightboxIdx(null)} />
+      )}
     </div>
   );
 }

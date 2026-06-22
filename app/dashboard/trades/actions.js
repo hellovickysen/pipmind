@@ -37,13 +37,36 @@ function buildRow(user, payload) {
   };
 }
 
+/** Normalize screenshot data into a flat array of URL strings. */
+function normalizeScreenshots(urls, legacyUrl) {
+  const arr = Array.isArray(urls) ? urls.filter(Boolean) : [];
+  if (arr.length === 0 && legacyUrl) return [legacyUrl];
+  return arr;
+}
+
 export async function createTrade(payload) {
   const { supabase, user } = await getCtx();
   if (!user) return { error: 'You must be signed in.' };
   if (toNum(payload.pnl) === null) return { error: 'Please enter the trade P&L.' };
   if (!payload.pair) return { error: 'Please enter a pair.' };
-  const { error } = await supabase.from('trades').insert(buildRow(user, payload));
+  const { data, error } = await supabase.from('trades').insert(buildRow(user, payload)).select('id').single();
   if (error) return { error: error.message };
+
+  // If journal fields were included, create the journal entry too
+  const j = payload.journal;
+  if (j && (j.note || (j.emotions && j.emotions.length) || j.confidence || (j.screenshot_urls && j.screenshot_urls.length))) {
+    const entry = {
+      user_id: user.id,
+      trade_id: data.id,
+      note: j.note || null,
+      emotions: Array.isArray(j.emotions) ? j.emotions : [],
+      confidence: toNum(j.confidence),
+      screenshot_url: normalizeScreenshots(j.screenshot_urls)[0] || null,
+      screenshot_urls: normalizeScreenshots(j.screenshot_urls),
+    };
+    await supabase.from('journal_entries').insert(entry);
+  }
+
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/trades');
   return { ok: true };
@@ -76,13 +99,15 @@ export async function deleteTrade(id) {
 export async function saveJournal(tradeId, payload) {
   const { supabase, user } = await getCtx();
   if (!user) return { error: 'You must be signed in.' };
+  const urls = normalizeScreenshots(payload.screenshot_urls, payload.screenshot_url);
   const entry = {
     user_id: user.id,
     trade_id: tradeId,
     note: payload.note || null,
     emotions: Array.isArray(payload.emotions) ? payload.emotions : [],
     confidence: toNum(payload.confidence),
-    screenshot_url: payload.screenshot_url || null,
+    screenshot_url: urls[0] || null,
+    screenshot_urls: urls,
   };
   const { data: existing } = await supabase
     .from('journal_entries')
