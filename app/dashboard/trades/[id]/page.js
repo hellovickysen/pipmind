@@ -45,6 +45,12 @@ export default async function TradeDetailPage({ params }) {
     .eq('type', 'trade_analysis')
     .maybeSingle();
 
+  const { data: prefs } = await supabase
+    .from('user_preferences')
+    .select('custom_emotions, default_confidence')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
   const win = num(trade.pnl) >= 0;
 
   return (
@@ -104,7 +110,7 @@ export default async function TradeDetailPage({ params }) {
           )}
         </div>
 
-        <JournalForm tradeId={id} userId={user.id} initial={journal} />
+        <JournalForm tradeId={id} userId={user.id} initial={journal} prefs={prefs} />
       </div>
     </div>
   );

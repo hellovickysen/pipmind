@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { createTrade, updateTrade } from '@/app/dashboard/trades/actions';
+import { DEFAULT_EMOTIONS, resolveEmotions } from '@/lib/emotions';
 
 const PAIRS = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'XAU/USD', 'GBP/JPY', 'AUD/USD', 'USD/CAD', 'NZD/USD'];
 const TIMEFRAMES = ['M5', 'M15', 'H1', 'H4', 'D1'];
-const EMOTIONS = ['Disciplined', 'Calm', 'Confident', 'FOMO', 'Fear', 'Greed', 'Revenge', 'Boredom'];
 
 function toLocalInput(v) {
   if (!v) return '';
@@ -21,7 +21,7 @@ function toLocalInput(v) {
   }
 }
 
-export default function TradeForm({ mode = 'create', tradeId = null, initial = null }) {
+export default function TradeForm({ mode = 'create', tradeId = null, initial = null, prefs = null }) {
   const router = useRouter();
   const [form, setForm] = useState({
     pair: (initial && initial.pair) || 'EUR/USD',
@@ -40,9 +40,10 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
   });
 
   // Journal fields (create mode only)
+  const EMOTIONS = resolveEmotions(prefs);
   const [journalOpen, setJournalOpen] = useState(false);
   const [emotions, setEmotions] = useState([]);
-  const [confidence, setConfidence] = useState(0);
+  const [confidence, setConfidence] = useState((prefs && prefs.default_confidence) || 0);
   const [note, setNote] = useState('');
   const [screenshotUrls, setScreenshotUrls] = useState([]);
   const [uploading, setUploading] = useState(false);
