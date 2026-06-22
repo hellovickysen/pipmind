@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { completeOnboarding } from '@/app/dashboard/onboarding/actions';
+import { completeOnboarding } from '@/app/onboarding/actions';
 
 const DEFAULT_EMOTIONS = ['Disciplined', 'Calm', 'Confident', 'FOMO', 'Fear', 'Greed', 'Revenge', 'Boredom'];
 
