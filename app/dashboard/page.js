@@ -45,6 +45,18 @@ function EquityCurve({ series }) {
   );
 }
 
+function HeroStat({ label, value, tone }) {
+  const color = tone === 'pos' ? 'text-emerald-400' : tone === 'neg' ? 'text-red-400' : 'text-white';
+  const glowColor = tone === 'pos' ? 'rgba(52,211,153,0.08)' : tone === 'neg' ? 'rgba(248,113,113,0.08)' : 'transparent';
+  const borderColor = tone === 'pos' ? 'border-emerald-400/20' : tone === 'neg' ? 'border-red-400/20' : 'border-white/10';
+  return (
+    <div className={'rounded-xl border p-5 col-span-2 sm:col-span-1 ' + borderColor} style={{ background: glowColor }}>
+      <div className="font-mono text-xs uppercase tracking-wider text-white/55">{label}</div>
+      <div className={'mt-2 font-display text-3xl font-bold ' + color}>{value}</div>
+    </div>
+  );
+}
+
 function Stat({ label, value, tone }) {
   const color = tone === 'pos' ? 'text-emerald-400' : tone === 'neg' ? 'text-red-400' : 'text-white';
   return (
@@ -132,7 +144,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <Stat label="Net P&amp;L" value={fmtMoney(s.net)} tone={s.net >= 0 ? 'pos' : 'neg'} />
+        <HeroStat label="Net P&amp;L" value={fmtMoney(s.net)} tone={s.net >= 0 ? 'pos' : 'neg'} />
         <Stat label="Win rate" value={s.winRate.toFixed(0) + '%'} />
         <Stat label="Profit factor" value={s.profitFactor === null ? '—' : s.profitFactor.toFixed(2)} />
         <Stat label="Avg R" value={fmtR(s.avgR)} tone={s.avgR === null ? '' : s.avgR >= 0 ? 'pos' : 'neg'} />
