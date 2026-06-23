@@ -33,6 +33,7 @@ export default function PublicProfileSettings({ prefs }) {
   const toast = useToast();
   const [shareCode, setShareCode] = useState(prefs?.share_code || '');
   const [showCalendar, setShowCalendar] = useState(prefs?.show_calendar || false);
+  const [showTrades, setShowTrades] = useState(prefs?.show_trades || false);
   const [showPayouts, setShowPayouts] = useState(prefs?.show_payouts || false);
   const [showTrophies, setShowTrophies] = useState(prefs?.show_trophies || false);
   const [calendarMode, setCalendarMode] = useState(prefs?.calendar_mode || 'rolling');
@@ -59,6 +60,7 @@ export default function PublicProfileSettings({ prefs }) {
 
   async function handleToggle(key, value) {
     if (key === 'show_calendar') setShowCalendar(value);
+    if (key === 'show_trades') setShowTrades(value);
     if (key === 'show_payouts') setShowPayouts(value);
     if (key === 'show_trophies') setShowTrophies(value);
     await updateProfileSettings({ [key]: value });
@@ -120,6 +122,12 @@ export default function PublicProfileSettings({ prefs }) {
           onChange={(v) => handleToggle('show_calendar', v)}
         />
         <Toggle
+          label="Trade List"
+          desc="Show recent trades (pair, direction, P&L, date)"
+          checked={showTrades}
+          onChange={(v) => handleToggle('show_trades', v)}
+        />
+        <Toggle
           label="Total Payouts"
           desc="Show payout amounts and firm breakdown"
           checked={showPayouts}
@@ -133,10 +141,10 @@ export default function PublicProfileSettings({ prefs }) {
         />
       </div>
 
-      {/* Calendar date range — only if calendar is enabled */}
-      {showCalendar && (
+      {/* Calendar date range — only if calendar or trades is enabled */}
+      {(showCalendar || showTrades) && (
         <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-          <label className={labelCls}>Calendar date range</label>
+          <label className={labelCls}>Date range (for calendar &amp; trades)</label>
           <div className="mb-3 flex gap-2">
             {[
               { v: 'rolling', l: 'Rolling window' },
@@ -187,7 +195,7 @@ export default function PublicProfileSettings({ prefs }) {
             disabled={saving}
             className="mt-3 rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/70 hover:text-white disabled:opacity-60"
           >
-            {saving ? 'Saving...' : 'Save calendar settings'}
+            {saving ? 'Saving...' : 'Save date settings'}
           </button>
         </div>
       )}

@@ -17,7 +17,6 @@ export async function generateShareCode() {
   const { supabase, user } = await getCtx();
   if (!user) return { error: 'Not signed in.' };
 
-  // Check if already has a code
   const { data: prefs } = await supabase
     .from('user_preferences')
     .select('share_code')
@@ -45,6 +44,7 @@ export async function updateProfileSettings(payload) {
 
   const updates = {};
   if (payload.show_calendar !== undefined) updates.show_calendar = !!payload.show_calendar;
+  if (payload.show_trades !== undefined) updates.show_trades = !!payload.show_trades;
   if (payload.show_payouts !== undefined) updates.show_payouts = !!payload.show_payouts;
   if (payload.show_trophies !== undefined) updates.show_trophies = !!payload.show_trophies;
   if (payload.calendar_mode !== undefined) {
