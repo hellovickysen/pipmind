@@ -49,35 +49,116 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="relative overflow-hidden px-6 pb-20 pt-16 text-center sm:px-10 sm:pt-24">
+      <section className="hero-product-stage relative overflow-hidden px-6 pb-24 pt-16 sm:px-10 sm:pt-20">
         <HeroParticles />
-        <div className="pointer-events-none absolute -left-32 -top-32 h-[60vw] w-[60vw] rounded-full" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.2), transparent 60%)', filter: 'blur(60px)' }} />
-        <div className="pointer-events-none absolute -bottom-32 -right-32 h-[50vw] w-[50vw] rounded-full" style={{ background: 'radial-gradient(circle, rgba(34,211,238,0.15), transparent 60%)', filter: 'blur(50px)' }} />
+        <div className="pointer-events-none absolute -left-40 top-10 h-[36rem] w-[36rem] rounded-full bg-violet-500/15 blur-3xl" />
+        <div className="pointer-events-none absolute -right-40 top-20 h-[34rem] w-[34rem] rounded-full bg-cyan-400/12 blur-3xl" />
 
-        <div className="relative z-10 mx-auto max-w-3xl" data-reveal>
-          <div className="mb-6 inline-block rounded-full border border-violet-400/30 bg-violet-500/10 px-4 py-1.5 text-xs font-semibold text-violet-200 shadow-[0_0_28px_rgba(167,139,250,0.18)]">
-            Free beta — all live features unlocked
+        <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="text-center lg:text-left" data-reveal>
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-1.5 text-xs font-semibold text-cyan-100 shadow-[0_0_28px_rgba(34,211,238,0.12)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(52,211,153,0.85)]" />
+              Free beta — built for prop firm traders
+            </div>
+
+            <h1 className="font-display text-4xl font-extrabold leading-[1.02] tracking-tight sm:text-5xl lg:text-6xl">
+              Find the pattern costing you{' '}
+              <span className="gradient-shimmer">funded accounts.</span>
+            </h1>
+
+            <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-white/62 sm:text-lg lg:mx-0">
+              PropJournal is an AI-powered trading journal built for prop firm traders. Log trades, track your psychology, manage challenge expenses, showcase payouts, and get coaching that finds the one pattern costing you funded accounts.
+            </p>
+
+            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
+              <Link href="/login?mode=signup" className="cta-glow rounded-xl px-8 py-3.5 text-base font-semibold text-[#08080f] transition-transform hover:-translate-y-0.5" style={gradientBtn}>
+                Start journaling free →
+              </Link>
+              <Link href="#how-it-works" className="rounded-xl border border-white/15 bg-white/5 px-8 py-3.5 text-base font-semibold text-white/72 transition hover:border-white/25 hover:bg-white/10 hover:text-white">
+                See how it works
+              </Link>
+            </div>
+
+            <div className="mt-7 flex flex-wrap justify-center gap-2 text-xs text-white/55 lg:justify-start">
+              {['No credit card', 'AI coach reports', 'Expense tracking', 'Payout proof'].map((chip) => (
+                <span key={chip} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5">
+                  {chip}
+                </span>
+              ))}
+            </div>
           </div>
 
-          <h1 className="font-display text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
-            The journal that tells you{' '}
-            <span className="gradient-shimmer">why you lose challenges.</span>
-          </h1>
+          <div className="relative" data-reveal style={{ '--reveal-delay': '120ms' }}>
+            <div className="product-mockup relative mx-auto max-w-xl rounded-[2rem] border border-white/12 bg-[#0b0b14]/85 p-4 shadow-2xl shadow-cyan-950/30 backdrop-blur-xl">
+              <div className="mb-4 flex items-center justify-between border-b border-white/8 pb-4">
+                <div>
+                  <div className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/35">Today’s coaching</div>
+                  <div className="mt-1 font-display text-lg font-bold text-white">Pattern detected</div>
+                </div>
+                <div className="rounded-full border border-amber-300/25 bg-amber-300/10 px-3 py-1 text-xs font-semibold text-amber-200">Medium risk</div>
+              </div>
 
-          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-white/60 sm:text-lg">
-            PropJournal is an AI-powered trading journal built for prop firm traders. Log trades, track your psychology, manage challenge expenses, showcase payouts, and get coaching that finds the one pattern costing you funded accounts.
-          </p>
+              <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-cyan-200/55">AI insight</div>
+                        <p className="mt-2 text-sm leading-relaxed text-white/78">You give back profits after two losses, mostly during London close.</p>
+                      </div>
+                      <span className="rounded-xl bg-red-400/12 px-2.5 py-1 text-xs font-bold text-red-300">-2.4R</span>
+                    </div>
+                    <div className="mt-4 rounded-xl border border-cyan-300/15 bg-cyan-300/8 p-3 text-xs leading-relaxed text-cyan-50/75">
+                      Fix: stop trading for 20 minutes after back-to-back losses. Only take A+ setup screenshots.
+                    </div>
+                  </div>
 
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Link href="/login?mode=signup" className="cta-glow rounded-xl px-8 py-3.5 text-base font-semibold text-[#08080f] transition-transform hover:-translate-y-0.5" style={gradientBtn}>
-              Start journaling free →
-            </Link>
-            <Link href="/login" className="rounded-xl border border-white/15 bg-white/5 px-8 py-3.5 text-base font-semibold text-white/70 transition hover:border-white/25 hover:bg-white/10 hover:text-white">
-              Log in
-            </Link>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { label: 'Win rate', value: '57%' },
+                      { label: 'Discipline', value: '82' },
+                      { label: 'Payouts', value: '$1.2k' },
+                    ].map((stat) => (
+                      <div key={stat.label} className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                        <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/32">{stat.label}</div>
+                        <div className="mt-1 font-display text-lg font-bold text-white">{stat.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">P&L calendar</span>
+                      <span className="text-xs text-emerald-300">+$420</span>
+                    </div>
+                    <div className="grid grid-cols-7 gap-1.5">
+                      {['', '', 'g', 'r', 'g', '', 'g', 'r', 'g', 'g', '', 'r', 'g', ''].map((day, i) => (
+                        <span key={i} className={`h-6 rounded-md ${day === 'g' ? 'bg-emerald-400/35' : day === 'r' ? 'bg-red-400/35' : 'bg-white/[0.07]'}`} />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">Trade tags</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {['FOMO', 'No setup', 'London', 'Revenge'].map((tag) => (
+                        <span key={tag} className="rounded-full border border-violet-300/20 bg-violet-300/10 px-2.5 py-1 text-[11px] text-violet-100">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="floating-card floating-card-one hidden rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-100 shadow-2xl shadow-emerald-950/20 backdrop-blur-xl sm:block">
+              Setup followed: 8-day streak
+            </div>
+            <div className="floating-card floating-card-two hidden rounded-2xl border border-cyan-300/20 bg-cyan-300/10 px-4 py-3 text-sm text-cyan-100 shadow-2xl shadow-cyan-950/20 backdrop-blur-xl sm:block">
+              Challenge leak found: -$200
+            </div>
           </div>
-
-          <p className="mt-4 text-xs text-white/35">No credit card required. Free during beta.</p>
         </div>
       </section>
 
@@ -99,7 +180,7 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-      <section className="px-6 py-16 sm:px-10" data-reveal>
+      <section id="how-it-works" className="px-6 py-16 sm:px-10" data-reveal>
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="font-display text-2xl font-bold sm:text-3xl">How PropJournal works</h2>
           <p className="mx-auto mt-3 max-w-lg text-sm text-white/50">Three steps to becoming a more disciplined trader.</p>
