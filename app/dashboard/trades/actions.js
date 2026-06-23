@@ -3,7 +3,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { analyzeTradeWithAI } from '@/lib/ai';
-import { checkAndRewardReferral } from '@/app/dashboard/referrals/actions';
 
 /** Input validation limits */
 const MAX_PAIR_LENGTH = 20;
@@ -118,8 +117,6 @@ export async function createTrade(payload) {
     await supabase.from('journal_entries').insert(entry);
   }
 
-  // Check referral reward (triggers on 3rd trade) — must await, Vercel kills bg promises
-  try { await checkAndRewardReferral(supabase, user.id); } catch (e) { /* non-blocking */ }
 
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/trades');
