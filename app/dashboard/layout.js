@@ -25,10 +25,10 @@ export default async function DashboardLayout({ children }) {
   }
 
   const today = new Date().toISOString().slice(0, 10);
-  const { data: trades } = await supabase.from('trades').select('pnl, closed_at, created_at');
+  const { data: trades } = await supabase.from('trades').select('pnl, trade_date, closed_at, created_at');
   let todayPnl = 0;
   (trades || []).forEach((t) => {
-    const raw = String(t.closed_at || t.created_at || '');
+    const raw = String(t.trade_date || t.closed_at || t.created_at || '');
     if (raw.slice(0, 10) === today) todayPnl += num(t.pnl);
   });
   const tone = todayPnl >= 0 ? 'text-emerald-400' : 'text-red-400';
