@@ -3,8 +3,8 @@ import PostHogProvider from '@/components/PostHogProvider';
 import { ToastProvider } from '@/components/Toast';
 
 export const metadata = {
-  title: 'PipMind — AI Forex Trading Journal',
-  description: 'Log your forex trades and let AI find your costliest mistake, decode your psychology, and coach you to fix it.',
+  title: 'PropJournal — AI Trading Journal for Prop Firm Traders',
+  description: 'The AI-powered trading journal built for prop firm traders. Log trades, track your psychology, manage challenge expenses, and get AI coaching that finds the patterns costing you money.',
 };
 
 export default function RootLayout({ children }) {

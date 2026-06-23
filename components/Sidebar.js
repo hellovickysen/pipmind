@@ -8,7 +8,6 @@ const NAV = [
   { label: 'Trades', icon: '☰', href: '/dashboard/trades' },
   { label: 'Calendar', icon: '📅', href: '/dashboard/calendar' },
   { label: 'AI Coach', icon: '✦', href: '/dashboard/coach' },
-  { label: 'Accounts', icon: '⇄', href: '/dashboard/accounts' },
   { label: 'Settings', icon: '⚙', href: '/dashboard/settings' },
 ];
 
@@ -29,7 +28,7 @@ export default function Sidebar() {
           >
             &#9670;
           </span>
-          <span className="font-display text-lg font-bold tracking-tight">PipMind</span>
+          <span className="font-display text-lg font-bold tracking-tight">PropJournal</span>
         </Link>
       </div>
 
@@ -79,7 +78,7 @@ export default function Sidebar() {
 
       {/* Bottom: subtle brand line */}
       <div className="border-t border-white/[0.06] px-5 py-4">
-        <p className="font-mono text-[10px] text-white/25">AI Trading Journal</p>
+        <p className="font-mono text-[10px] text-white/25">AI Prop Firm Journal</p>
       </div>
     </aside>
   );

@@ -40,8 +40,8 @@ export default async function DashboardLayout({ children }) {
         <header className="relative flex items-center justify-between border-b border-white/10 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
             <MobileNav />
-            <span className="font-display text-base font-bold sm:hidden">PipMind</span>
-            <span className="hidden font-mono text-xs uppercase tracking-wider text-white/55 sm:block">PipMind</span>
+            <span className="font-display text-base font-bold sm:hidden">PropJournal</span>
+            <span className="hidden font-mono text-xs uppercase tracking-wider text-white/55 sm:block">PropJournal</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 sm:gap-2 sm:px-3 sm:py-1.5">

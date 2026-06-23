@@ -62,7 +62,7 @@ export default function OnboardingFlow({ userEmail }) {
               <div className="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-2xl text-3xl" style={{ background: 'linear-gradient(120deg, rgba(139,92,246,0.25), rgba(34,211,238,0.15))', border: '1px solid rgba(255,255,255,0.12)' }}>
                 &#9670;
               </div>
-              <h1 className="font-display text-2xl font-bold">Welcome to PipMind</h1>
+              <h1 className="font-display text-2xl font-bold">Welcome to PropJournal</h1>
               <p className="mt-3 text-sm leading-relaxed text-white/55">
                 Your AI-powered forex trading journal. Log trades, track your emotions, and get coaching that helps you find — and fix — the patterns costing you money.
               </p>
@@ -76,7 +76,7 @@ export default function OnboardingFlow({ userEmail }) {
           {/* Step 1: How it works */}
           {step === 1 && (
             <div>
-              <h2 className="font-display text-xl font-bold">How PipMind works</h2>
+              <h2 className="font-display text-xl font-bold">How PropJournal works</h2>
               <p className="mt-2 mb-6 text-sm text-white/50">Three steps to better trading.</p>
 
               <div className="space-y-4">

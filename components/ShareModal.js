@@ -49,7 +49,7 @@ export default function ShareModal({ type, data, onClose }) {
       });
       const link = document.createElement('a');
       const dateStr = (data.date || data.trade_date || 'trade').replace(/\//g, '-');
-      link.download = 'pipmind-' + type + '-' + dateStr + '-' + ratio.replace(':', 'x') + '.png';
+      link.download = 'propjournal-' + type + '-' + dateStr + '-' + ratio.replace(':', 'x') + '.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
     } catch (e) {

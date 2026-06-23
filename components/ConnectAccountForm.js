@@ -54,7 +54,7 @@ export default function ConnectAccountForm() {
         </div>
       </div>
 
-      <p className="mt-4 font-mono text-[11px] text-white/40">🔒 Use your INVESTOR (read-only) password — it can view trades but never trade or withdraw. It is stored by MetaApi, not in PipMind.</p>
+      <p className="mt-4 font-mono text-[11px] text-white/40">🔒 Use your INVESTOR (read-only) password — it can view trades but never trade or withdraw. It is stored by MetaApi, not in PropJournal.</p>
 
       {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
       {ok ? <p className="mt-3 text-sm text-emerald-400">Account connected. Give MetaApi a couple of minutes, then hit Sync.</p> : null}

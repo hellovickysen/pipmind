@@ -68,7 +68,7 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div style={{ width: 28, height: 28, borderRadius: 8, background: 'linear-gradient(120deg,#a78bfa,#22d3ee)', display: 'grid', placeItems: 'center', fontSize: 14, boxShadow: '0 0 16px rgba(139,92,246,0.5)' }}>◆</div>
-            <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em' }}>PipMind</span>
+            <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em' }}>PropJournal</span>
           </div>
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'JetBrains Mono', monospace" }}>
             {fmtDate(data.date || data.trade_date)}
@@ -126,7 +126,7 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
         {/* Watermark */}
         <div style={{ textAlign: 'center', marginTop: isStory ? 20 : 12 }}>
           <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em' }}>
-            pipmind.app · AI Trading Journal
+            pipmind.app · AI Prop Firm Journal
           </span>
         </div>
       </div>
