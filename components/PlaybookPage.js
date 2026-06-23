@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSetup, updateSetup, deleteSetup, seedDefaultSetups } from '@/app/dashboard/playbook/actions';
 import { useToast } from '@/components/Toast';
+import { PlaybookEmptyIcon } from '@/components/EmptyStates';
+
 
 const labelCls = 'mb-1.5 block font-mono text-xs uppercase tracking-wider text-white/55';
 const field = 'w-full rounded-lg border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm outline-none focus:border-cyan-400/60';
@@ -175,12 +177,7 @@ export default function PlaybookPage({ setups }) {
         <p className="mt-1 text-sm text-white/55">Define your trading setups and rules. Each setup is a rule in your playbook.</p>
 
         <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
-          <div
-            className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl text-2xl"
-            style={{ background: 'linear-gradient(120deg, rgba(139,92,246,0.2), rgba(34,211,238,0.1))', border: '1px solid rgba(255,255,255,0.12)' }}
-          >
-            &#128214;
-          </div>
+          <PlaybookEmptyIcon />
           <h2 className="font-display text-xl font-bold">Build your playbook</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-white/55">
             Your playbook is your trading rulebook. Define the setups you trade, with clear rules for each one.

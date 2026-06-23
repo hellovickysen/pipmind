@@ -4,6 +4,8 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createExpense, deleteExpense, createPayout, deletePayout } from '@/app/dashboard/expenses/actions';
 import { useToast } from '@/components/Toast';
+import { ExpensesEmptyIcon } from '@/components/EmptyStates';
+
 
 const gradientText = { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' };
 const TABS = ['Dashboard', 'Accounts', 'Payouts'];
@@ -373,11 +375,12 @@ export default function ExpenseTracker({ expenses, payouts }) {
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <div className="mb-4 font-display text-base font-semibold">Recent activity</div>
             {expenses.length === 0 && payouts.length === 0 ? (
-              <p className="py-4 text-center text-sm text-white/40">No activity yet. Add your first expense or payout.</p>
+              <div className="py-4 text-center"><ExpensesEmptyIcon /><p className="mt-4 text-sm text-white/40">No activity yet. Add your first expense or payout.</p></div>
             ) : (
               <div className="space-y-3">
                 {[...expenses.slice(0, 5).map((e) => ({ type: 'expense', ...e, date: e.expense_date, amt: e.total_cost })),
-                  ...payouts.slice(0, 5).map((p) => ({ type: 'payout', ...p, date: p.payout_date, amt: p.amount }))]
+                  ...payouts.slice(0, 5).map((p) => ({ type: 'payout', ...p, date: p.payout_date, amt: p.amount }))
+                ]
                   .sort((a, b) => new Date(b.date || b.created_at) - new Date(a.date || a.created_at))
                   .slice(0, 8)
                   .map((item, i) => (
@@ -417,7 +420,7 @@ export default function ExpenseTracker({ expenses, payouts }) {
 
           {firms.length === 0 ? (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
-              <p className="text-sm text-white/40">No expenses yet. Add your first prop firm expense.</p>
+              <div className="text-center"><ExpensesEmptyIcon /><p className="mt-4 text-sm text-white/40">No expenses yet. Add your first prop firm expense.</p></div>
             </div>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
@@ -483,7 +486,7 @@ export default function ExpenseTracker({ expenses, payouts }) {
 
           {payouts.length === 0 ? (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
-              <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl text-xl" style={{ background: 'linear-gradient(120deg, rgba(52,211,153,0.15), rgba(34,211,238,0.1))' }}>&#128176;</div>
+              <ExpensesEmptyIcon />
               <p className="text-sm text-white/40">No payouts recorded yet. Add your first payout!</p>
             </div>
           ) : (

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { createTrophy, deleteTrophy, togglePublic } from '@/app/dashboard/trophies/actions';
 import { useToast } from '@/components/Toast';
+import { TrophyEmptyIcon } from '@/components/EmptyStates';
+
 
 const gradientText = { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' };
 const field = 'w-full rounded-lg border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm outline-none focus:border-cyan-400/60';
@@ -261,12 +263,7 @@ export default function TrophyWall({ trophies }) {
         <p className="mt-1 text-sm text-white/55">Showcase your trading achievements</p>
 
         <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
-          <div
-            className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl text-2xl"
-            style={{ background: 'linear-gradient(120deg, rgba(139,92,246,0.2), rgba(34,211,238,0.1))', border: '1px solid rgba(255,255,255,0.12)' }}
-          >
-            &#127942;
-          </div>
+          <TrophyEmptyIcon />
           <h2 className="font-display text-xl font-bold">No trophies yet</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-white/55">
             Upload your payout certificates, challenge passes, and funded account proofs.

@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { generateReferralCode } from '@/app/dashboard/referrals/actions';
 import { useToast } from '@/components/Toast';
+import { ReferralEmptyIcon } from '@/components/EmptyStates';
+
 
 const gradientText = { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' };
 const field = 'w-full rounded-lg border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm outline-none';
@@ -118,9 +120,10 @@ export default function ReferralDashboard({ code, referrals, balance }) {
       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
         <h2 className="mb-4 font-display text-base font-semibold">Your referrals</h2>
         {referrals.length === 0 ? (
-          <p className="py-4 text-center text-sm text-white/40">
-            No referrals yet. Share your link to get started!
-          </p>
+          <div className="py-6 text-center">
+            <ReferralEmptyIcon />
+            <p className="mt-4 text-sm text-white/40">No referrals yet. Share your link to get started!</p>
+          </div>
         ) : (
           <div className="space-y-2">
             {referrals.map((r) => (
