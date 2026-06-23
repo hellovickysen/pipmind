@@ -12,6 +12,7 @@ const PURCHASE_LABELS = { new: 'New Purchase', renewal: 'Renewal', activation: '
 const PURCHASE_COLORS = { new: 'bg-cyan-500/15 text-cyan-300 border-cyan-400/30', renewal: 'bg-amber-500/15 text-amber-300 border-amber-400/30', activation: 'bg-violet-500/15 text-violet-300 border-violet-400/30' };
 const field = 'w-full rounded-lg border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm outline-none focus:border-cyan-400/60';
 const labelCls = 'mb-1.5 block font-mono text-xs uppercase tracking-wider text-white/55';
+const dateStyle = { colorScheme: 'dark' };
 
 function fmtCurrency(v) {
   const n = Number(v) || 0;
@@ -30,6 +31,12 @@ function firmInitial(name) {
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
+}
+
+/** Capitalize first letter of each word */
+function capitalizeWords(str) {
+  if (!str) return '';
+  return str.trim().replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 /* ─── Stat Cards ─────────────────────────────────────────────── */
@@ -83,10 +90,29 @@ function AddExpenseForm({ onSave, onCancel, existingFirms }) {
 
   function set(k, v) { setF((p) => ({ ...p, [k]: v })); }
 
+  /** Update cost fields with auto-calculation */
+  function setCostField(k, v) {
+    setF((p) => {
+      const next = { ...p, [k]: v };
+      const cost = Number(next.account_cost) || 0;
+      const count = Number(next.num_accounts) || 1;
+      next.total_cost = cost > 0 ? (cost * count).toFixed(2) : '';
+      return next;
+    });
+  }
+
+  function adjustAccounts(delta) {
+    setF((p) => {
+      const count = Math.max(1, Math.min(100, (p.num_accounts || 1) + delta));
+      const cost = Number(p.account_cost) || 0;
+      return { ...p, num_accounts: count, total_cost: cost > 0 ? (cost * count).toFixed(2) : '' };
+    });
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);
-    await onSave(f);
+    await onSave({ ...f, firm_name: capitalizeWords(f.firm_name) });
     setSaving(false);
   }
 
@@ -121,7 +147,7 @@ function AddExpenseForm({ onSave, onCancel, existingFirms }) {
         </div>
         <div>
           <label className={labelCls}>Date</label>
-          <input type="date" className={field} value={f.expense_date} onChange={(e) => set('expense_date', e.target.value)} />
+          <input type="date" className={field + ' cursor-pointer'} style={dateStyle} value={f.expense_date} onChange={(e) => set('expense_date', e.target.value)} />
         </div>
       </div>
 
@@ -137,28 +163,29 @@ function AddExpenseForm({ onSave, onCancel, existingFirms }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      {/* Cost row — aligned 3 columns */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-4">
         <div>
-          <label className={labelCls}>Cost per acct ($)</label>
-          <input className={field} value={f.account_cost} onChange={(e) => set('account_cost', e.target.value)} inputMode="decimal" placeholder="Optional" />
+          <label className={labelCls}>Cost per acct ($) *</label>
+          <input className={field} value={f.account_cost} onChange={(e) => setCostField('account_cost', e.target.value)} inputMode="decimal" placeholder="0.00" required />
         </div>
         <div>
-          <label className={labelCls}>No. of accounts</label>
-          <div className="flex items-center gap-2">
-            <button type="button" onClick={() => set('num_accounts', Math.max(1, f.num_accounts - 1))} className="grid h-10 w-10 place-items-center rounded-lg border border-white/10 bg-black/30 text-lg text-white/60">−</button>
-            <span className="min-w-[2rem] text-center font-display text-lg font-bold">{f.num_accounts}</span>
-            <button type="button" onClick={() => set('num_accounts', Math.min(100, f.num_accounts + 1))} className="grid h-10 w-10 place-items-center rounded-lg border border-white/10 bg-black/30 text-lg text-white/60">+</button>
+          <label className={labelCls}>Accounts</label>
+          <div className="flex items-center gap-1.5">
+            <button type="button" onClick={() => adjustAccounts(-1)} className="grid h-[42px] w-10 place-items-center rounded-lg border border-white/10 bg-black/30 text-lg text-white/60 hover:text-white">−</button>
+            <span className="grid h-[42px] w-10 place-items-center font-display text-lg font-bold">{f.num_accounts}</span>
+            <button type="button" onClick={() => adjustAccounts(1)} className="grid h-[42px] w-10 place-items-center rounded-lg border border-white/10 bg-black/30 text-lg text-white/60 hover:text-white">+</button>
           </div>
         </div>
         <div>
-          <label className={labelCls}>Total cost ($) *</label>
-          <input className={field} value={f.total_cost} onChange={(e) => set('total_cost', e.target.value)} inputMode="decimal" placeholder="0.00" required />
+          <label className={labelCls}>Total cost ($)</label>
+          <input className={field + ' bg-white/[0.02] text-white/70'} value={f.total_cost} readOnly tabIndex={-1} placeholder="Auto" />
         </div>
       </div>
 
       <div className="flex gap-3 pt-2">
         <button type="button" onClick={onCancel} className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/70">Cancel</button>
-        <button type="submit" disabled={saving} className="flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold text-[#08080f] disabled:opacity-60" style={{ background: 'linear-gradient(120deg,#a78bfa,#22d3ee)' }}>
+        <button type="submit" disabled={saving || !f.account_cost} className="flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold text-[#08080f] disabled:opacity-60" style={{ background: 'linear-gradient(120deg,#a78bfa,#22d3ee)' }}>
           {saving ? 'Saving...' : 'Add Expense'}
         </button>
       </div>
@@ -177,7 +204,7 @@ function AddPayoutForm({ onSave, onCancel, existingFirms }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);
-    await onSave(f);
+    await onSave({ ...f, firm_name: capitalizeWords(f.firm_name) });
     setSaving(false);
   }
 
@@ -197,7 +224,7 @@ function AddPayoutForm({ onSave, onCancel, existingFirms }) {
         </div>
         <div>
           <label className={labelCls}>Date</label>
-          <input type="date" className={field} value={f.payout_date} onChange={(e) => set('payout_date', e.target.value)} />
+          <input type="date" className={field + ' cursor-pointer'} style={dateStyle} value={f.payout_date} onChange={(e) => set('payout_date', e.target.value)} />
         </div>
       </div>
       <div>
@@ -244,7 +271,7 @@ export default function ExpenseTracker({ expenses, payouts }) {
   }, [expenses]);
 
   const firms = useMemo(() => Object.values(firmMap).sort((a, b) => b.totalCost - a.totalCost), [firmMap]);
-  const firmNames = useMemo(() => [...new Set([...expenses.map((e) => e.firm_name), ...payouts.map((p) => p.firm_name)])].sort(), [expenses, payouts]);
+  const firmNames = useMemo(() => [...new Set([...expenses.map((e) => e.firm_name), ...payouts.map((p) => p.firm_name)])].filter(Boolean).sort(), [expenses, payouts]);
 
   // Handlers
   async function handleAddExpense(data) {
@@ -299,21 +326,18 @@ export default function ExpenseTracker({ expenses, payouts }) {
       {/* ─── Dashboard Tab ──────────────────────────────── */}
       {tab === 'Dashboard' && (
         <div className="space-y-6">
-          {/* Hero stats */}
           <div className="grid gap-4 sm:grid-cols-3">
             <HeroStat label="Total Expense" value={fmtCurrency(totalExpense)} tone="red" icon="&#8595;" />
             <HeroStat label="Total Payout" value={fmtCurrency(totalPayout)} tone="green" icon="&#8593;" />
             <HeroStat label="Net P/L" value={(netPL >= 0 ? '+' : '-') + fmtCurrency(Math.abs(netPL))} tone={netPL >= 0 ? 'green' : 'amber'} icon="&#9651;" />
           </div>
 
-          {/* Secondary stats */}
           <div className="grid grid-cols-3 gap-3">
             <SecStat label="Total Firms" value={firms.length} />
             <SecStat label="Total Accounts" value={totalAccounts} />
             <SecStat label="Payouts" value={payouts.length} />
           </div>
 
-          {/* Recent Activity */}
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <div className="mb-4 font-display text-base font-semibold">Recent activity</div>
             {expenses.length === 0 && payouts.length === 0 ? (
@@ -354,7 +378,6 @@ export default function ExpenseTracker({ expenses, payouts }) {
       {/* ─── Accounts Tab ───────────────────────────────── */}
       {tab === 'Accounts' && (
         <div className="space-y-4">
-          {/* Total banner */}
           <div className="rounded-2xl border border-red-400/15 p-5" style={{ background: 'rgba(248,113,113,0.04)' }}>
             <div className="font-mono text-xs uppercase tracking-wider text-white/45">Total Expense</div>
             <div className="mt-1 font-display text-3xl font-bold text-red-400">{fmtCurrency(totalExpense)}</div>
@@ -384,7 +407,6 @@ export default function ExpenseTracker({ expenses, payouts }) {
                     </div>
                   </button>
 
-                  {/* Expanded firm detail */}
                   {expandedFirm === firm.name && (
                     <div className="mt-1 space-y-2 rounded-b-2xl border border-t-0 border-white/10 bg-white/[0.02] p-4">
                       {firm.expenses.map((e) => (
@@ -417,7 +439,6 @@ export default function ExpenseTracker({ expenses, payouts }) {
       {/* ─── Payouts Tab ────────────────────────────────── */}
       {tab === 'Payouts' && (
         <div className="space-y-4">
-          {/* Total banner */}
           <div className="flex items-center justify-between rounded-2xl border border-emerald-400/15 p-5" style={{ background: 'rgba(52,211,153,0.04)' }}>
             <div>
               <div className="font-mono text-xs uppercase tracking-wider text-white/45">Total Payouts</div>

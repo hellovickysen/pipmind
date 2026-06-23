@@ -277,7 +277,7 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
                   ))}
                 </div>
               </div>
-              <div><label className={labelCls}>Trade date</label><input type="date" className={field} value={form.trade_date} onChange={(e) => set('trade_date', e.target.value)} /></div>
+              <div><label className={labelCls}>Trade date</label><input type="date" className={field + ' cursor-pointer'} style={{ colorScheme: 'dark' }} value={form.trade_date} onChange={(e) => set('trade_date', e.target.value)} /></div>
               <div>
                 <label className={labelCls}>Timeframe</label>
                 <select className={field} value={form.timeframe} onChange={(e) => set('timeframe', e.target.value)}>
