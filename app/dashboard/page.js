@@ -5,6 +5,7 @@ import TradeTable from '@/components/TradeTable';
 import PnlCalendar from '@/components/PnlCalendar';
 import DashboardShareButton from '@/components/DashboardShareButton';
 import DisciplineCards from '@/components/DisciplineCards';
+import ReferralCapture from '@/components/ReferralCapture';
 
 export const dynamic = 'force-dynamic';
 
@@ -163,6 +164,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="px-4 py-8 sm:px-6">
+      <ReferralCapture />
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Dashboard</h1>
         <div className="flex items-center gap-2">

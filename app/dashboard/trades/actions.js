@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { analyzeTradeWithAI } from '@/lib/ai';
+import { checkAndRewardReferral } from '@/app/dashboard/referrals/actions';
 
 /** Input validation limits */
 const MAX_PAIR_LENGTH = 20;
@@ -116,6 +117,9 @@ export async function createTrade(payload) {
     };
     await supabase.from('journal_entries').insert(entry);
   }
+
+  // Check referral reward (triggers on 3rd trade)
+  checkAndRewardReferral(user.id).catch(() => {});
 
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/trades');
