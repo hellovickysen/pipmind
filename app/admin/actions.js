@@ -7,22 +7,20 @@ import { revalidatePath } from 'next/cache';
 async function verifyAdmin() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || user.email !== ADMIN_EMAIL) {
-    return { error: 'Unauthorized.' };
-  }
+  if (!user || user.email !== ADMIN_EMAIL) return { error: 'Unauthorized.' };
   return { user };
 }
 
-export async function banUser(userId) {
+export async function banUser(userId, reason) {
   const auth = await verifyAdmin();
   if (auth.error) return auth;
 
   const sb = createAdminClient();
   if (!sb) return { error: 'Admin client unavailable.' };
 
-  // Ban for 100 years (effectively permanent)
   const { error } = await sb.auth.admin.updateUserById(userId, {
     ban_duration: '876000h',
+    user_metadata: { ban_reason: reason || 'No reason provided', banned_at: new Date().toISOString() },
   });
   if (error) return { error: error.message };
 
@@ -39,6 +37,7 @@ export async function unbanUser(userId) {
 
   const { error } = await sb.auth.admin.updateUserById(userId, {
     ban_duration: 'none',
+    user_metadata: { ban_reason: null, banned_at: null },
   });
   if (error) return { error: error.message };
 
