@@ -73,7 +73,6 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
     return { net, count };
   }
 
-  // Shared day number style (same size for all cells including Saturday)
   function dayNumClass(isToday, isOverflow) {
     if (isToday) return 'grid h-6 w-6 place-items-center rounded-full bg-cyan-500 text-xs font-bold text-white';
     if (isOverflow) return 'text-xs text-white/30';
@@ -82,7 +81,6 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
 
   return (
     <div>
-      {/* Monthly P&L header */}
       <div className="py-4 text-center">
         <span className="text-sm text-white/55">Monthly P/L: </span>
         <span className={'text-xl font-bold ' + (monthlyPnl >= 0 ? 'text-emerald-400' : 'text-red-400')}>
@@ -123,7 +121,10 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
                       bgStyle = { background: e.net >= 0 ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.18)' };
                     }
 
-                    // Saturday cell = day number (top) + weekly summary (center/bottom)
+                    // Today cell border
+                    const todayBorder = isToday ? 'border-2 border-cyan-400/50' : 'border border-white/[0.08]';
+
+                    // Saturday cell
                     if (isSaturday) {
                       const satContent = (
                         <div
@@ -134,12 +135,9 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
                           }
                           style={bgStyle}
                         >
-                          {/* Day number — top aligned */}
                           <div className="flex items-center gap-1 px-2 pt-1.5">
                             <span className={dayNumClass(isToday, isOverflow)}>{d}</span>
                           </div>
-
-                          {/* Weekly summary — centered */}
                           <div className="flex flex-1 flex-col items-center justify-center">
                             <span className="text-[10px] font-semibold text-white/50 sm:text-xs">Week {wi + 1}</span>
                             <span className={'font-mono text-base font-extrabold sm:text-lg ' + (ws.count === 0 ? 'text-white/25' : ws.net >= 0 ? 'text-emerald-400' : 'text-red-400')}>
@@ -151,7 +149,7 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
                       );
 
                       return (
-                        <td key={di} className="border border-white/[0.08] p-0">
+                        <td key={di} className={todayBorder + ' p-0'}>
                           {e && dateStr ? (
                             <Link href={'/dashboard/calendar?month=' + monthParam + '&date=' + dateStr}>{satContent}</Link>
                           ) : satContent}
@@ -159,7 +157,7 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
                       );
                     }
 
-                    // Regular day cell — day number top-aligned, P&L centered
+                    // Regular day cell
                     const cellContent = (
                       <div
                         className={
@@ -173,19 +171,18 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
                         {/* Day number — top aligned */}
                         <div className="flex items-center gap-1 px-2 pt-1.5">
                           <span className={dayNumClass(isToday, isOverflow)}>{d}</span>
-                          {hasJournal && (
-                            <span className="text-[10px]" title="Has journal entry">📝</span>
-                          )}
                         </div>
 
-                        {/* P&L — centered in remaining space */}
+                        {/* P&L — centered */}
                         {e ? (
                           <div className="flex flex-1 flex-col items-center justify-center">
                             <span className={'font-mono text-base font-extrabold sm:text-xl ' + (e.net >= 0 ? 'text-emerald-400' : 'text-red-400')}>
                               {fmtPnl(e.net)}
                             </span>
-                            <span className="mt-0.5 text-[10px] text-white/45 sm:text-xs">
+                            {/* Trade count + journal icon together */}
+                            <span className="mt-0.5 flex items-center gap-1 text-[10px] text-white/45 sm:text-xs">
                               {e.count} trade{e.count !== 1 ? 's' : ''}
+                              {hasJournal && <span title="Has journal entry">📝</span>}
                             </span>
                           </div>
                         ) : (
@@ -195,7 +192,7 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
                     );
 
                     return (
-                      <td key={di} className="border border-white/[0.08] p-0">
+                      <td key={di} className={todayBorder + ' p-0'}>
                         {e && dateStr ? (
                           <Link href={'/dashboard/calendar?month=' + monthParam + '&date=' + dateStr}>
                             {cellContent}

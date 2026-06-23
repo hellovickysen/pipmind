@@ -82,7 +82,26 @@ export default async function CalendarPage({ searchParams }) {
     }
   }
 
-  const dayTrades = selected ? list.filter((t) => String(t.trade_date || t.closed_at || t.created_at || '').slice(0, 10) === selected) : [];
+  // Build journal map for all trades (reuse the journal query we already did)
+  let journalMap = {};
+  if (monthTradeIds.length > 0) {
+    const { data: allJournals } = await supabase
+      .from('journal_entries')
+      .select('trade_id, emotions, note, screenshot_url, screenshot_urls')
+      .in('trade_id', monthTradeIds);
+    (allJournals || []).forEach((j) => {
+      const urls = Array.isArray(j.screenshot_urls) ? j.screenshot_urls.filter(Boolean) : [];
+      const hasImages = urls.length > 0 || (j.screenshot_url && j.screenshot_url !== '');
+      journalMap[j.trade_id] = {
+        emotions: j.emotions || [],
+        hasNote: !!(j.note && j.note.trim()),
+        hasImages,
+      };
+    });
+  }
+
+  const dayTradesRaw = selected ? list.filter((t) => String(t.trade_date || t.closed_at || t.created_at || '').slice(0, 10) === selected) : [];
+  const dayTrades = dayTradesRaw.map((t) => ({ ...t, _journal: journalMap[t.id] || null }));
   const dayNet = dayTrades.reduce((a, t) => a + num(t.pnl), 0);
 
   if (list.length === 0) {
