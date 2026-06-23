@@ -15,7 +15,11 @@ export default function TradeFilters({ trades, prefs }) {
 
   const setupOptions = useMemo(() => {
     const fromPrefs = (prefs && prefs.custom_setups) || [];
-    const fromTrades = trades.map((t) => t.setup).filter(Boolean);
+    // Multi-setup: split comma-joined setup names from trades
+    const fromTrades = trades.flatMap((t) => {
+      if (!t.setup) return [];
+      return t.setup.split(', ').filter(Boolean);
+    });
     return [...new Set([...fromPrefs, ...fromTrades])].sort();
   }, [trades, prefs]);
 
@@ -31,8 +35,11 @@ export default function TradeFilters({ trades, prefs }) {
       if (result === 'win' && num(t.pnl) < 0) return false;
       if (result === 'loss' && num(t.pnl) >= 0) return false;
 
-      // Setup filter
-      if (setupFilter && t.setup !== setupFilter) return false;
+      // Setup filter — match any of the trade's setups
+      if (setupFilter) {
+        const tradeSetups = t.setup ? t.setup.split(', ') : [];
+        if (!tradeSetups.includes(setupFilter)) return false;
+      }
 
       // Emotion filter
       if (emotionFilter) {

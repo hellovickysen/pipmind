@@ -8,7 +8,8 @@ import { analyzeTradeWithAI } from '@/lib/ai';
 const MAX_PAIR_LENGTH = 20;
 const MAX_NOTE_LENGTH = 5000;
 const MAX_EMOTIONS = 20;
-const MAX_SETUP_LENGTH = 100;
+const MAX_SETUP_LENGTH = 200;
+const MAX_SETUPS_PER_TRADE = 5;
 const PNL_RANGE = [-1000000, 1000000];
 const MAX_SCREENSHOTS = 10;
 
@@ -56,6 +57,12 @@ function buildRow(user, payload) {
   if (pnl !== null && (pnl < PNL_RANGE[0] || pnl > PNL_RANGE[1])) {
     throw new Error('P&L value out of range.');
   }
+
+  // Multi-setup: validate and store setup_ids array
+  const setupIds = Array.isArray(payload.setup_ids)
+    ? payload.setup_ids.filter((id) => typeof id === 'string' && id.length > 0).slice(0, MAX_SETUPS_PER_TRADE)
+    : [];
+
   return {
     user_id: user.id,
     pair: pair.toUpperCase(),
@@ -69,6 +76,7 @@ function buildRow(user, payload) {
     r_multiple: toNum(payload.r_multiple),
     setup: sanitizeText(payload.setup, MAX_SETUP_LENGTH),
     setup_id: payload.setup_id || null,
+    setup_ids: setupIds,
     setup_followed: VALID_SETUP_FOLLOWED.includes(payload.setup_followed) ? payload.setup_followed : null,
     no_setup_reason: sanitizeText(payload.no_setup_reason, 50) || null,
     timeframe: payload.timeframe || null,

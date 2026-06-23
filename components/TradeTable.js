@@ -42,6 +42,10 @@ export default function TradeTable({ rows, showFilters = false }) {
             const leftBorder = win
               ? 'border-l-[3px] border-l-emerald-400/40'
               : 'border-l-[3px] border-l-red-400/40';
+
+            // Multi-setup: split comma-joined setup names into pills
+            const setupNames = t.setup ? t.setup.split(', ').filter(Boolean) : [];
+
             return (
               <tr
                 key={t.id}
@@ -55,8 +59,8 @@ export default function TradeTable({ rows, showFilters = false }) {
                     {t.pair}
                     {hasJournal && (
                       <span className="ml-1.5 inline-flex gap-1 align-middle">
-                        {hasNote && <span className="text-xs text-amber-400/70" title="Has journal note">📝</span>}
-                        {hasImages && <span className="text-xs text-cyan-400/70" title="Has screenshots">🖼</span>}
+                        {hasNote && <span className="text-xs text-amber-400/70" title="Has journal note">&#128221;</span>}
+                        {hasImages && <span className="text-xs text-cyan-400/70" title="Has screenshots">&#128444;</span>}
                       </span>
                     )}
                   </Link>
@@ -79,8 +83,13 @@ export default function TradeTable({ rows, showFilters = false }) {
                 <td className="px-3 py-3.5 font-mono text-white/60">{t.entry_price != null ? t.entry_price : '—'}</td>
                 <td className="px-3 py-3.5 font-mono text-white/60">{t.exit_price != null ? t.exit_price : '—'}</td>
                 <td className="px-3 py-3.5">
-                  {t.setup ? (
-                    <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2 py-0.5 text-xs text-cyan-300">{t.setup}</span>
+                  {setupNames.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {setupNames.slice(0, 3).map((s, i) => (
+                        <span key={i} className={'rounded-full border px-2 py-0.5 text-xs ' + (s === 'No Setup' ? 'border-red-400/20 bg-red-500/10 text-red-300' : 'border-cyan-400/20 bg-cyan-500/10 text-cyan-300')}>{s}</span>
+                      ))}
+                      {setupNames.length > 3 && <span className="text-xs text-white/50">+{setupNames.length - 3}</span>}
+                    </div>
                   ) : (
                     <span className="text-white/40">—</span>
                   )}

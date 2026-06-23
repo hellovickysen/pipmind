@@ -62,22 +62,34 @@ export default async function TradeDetailPage({ params }) {
     .eq('user_id', user.id)
     .maybeSingle();
 
-  // Resolve setup name from setups table if we have setup_id
-  let setupName = trade.setup || null;
-  if (trade.setup_id) {
-    const { data: setupRow } = await supabase
+  // Resolve setup names — from setup_ids (multi) or setup_id (single) or setup (text)
+  let setupNames = [];
+  const setupIdsList = Array.isArray(trade.setup_ids) && trade.setup_ids.length > 0
+    ? trade.setup_ids
+    : trade.setup_id
+      ? [trade.setup_id]
+      : [];
+
+  if (setupIdsList.length > 0) {
+    const { data: setupRows } = await supabase
       .from('setups')
-      .select('name, direction')
-      .eq('id', trade.setup_id)
-      .maybeSingle();
-    if (setupRow) setupName = setupRow.name;
+      .select('id, name, direction, is_default')
+      .in('id', setupIdsList);
+    setupNames = setupRows || [];
   }
+
+  // Fallback: if no setup rows found, use the text field
+  const displaySetups = setupNames.length > 0
+    ? setupNames.map((s) => s.name)
+    : trade.setup
+      ? trade.setup.split(', ').filter(Boolean)
+      : [];
 
   const win = num(trade.pnl) >= 0;
 
   return (
     <div className="px-4 py-6 sm:px-6">
-      {/* Header — compact */}
+      {/* Header */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link href="/dashboard/trades" className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/5 text-sm text-white/60">&larr;</Link>
@@ -120,13 +132,26 @@ export default async function TradeDetailPage({ params }) {
               <Fact label="Target" value={trade.take_profit != null ? trade.take_profit : '—'} />
               <Fact label="Lot" value={trade.lot_size != null ? trade.lot_size : '—'} />
               <Fact label="Timeframe" value={trade.timeframe || '—'} />
-              <Fact label="Setup" value={setupName || '—'} />
               <Fact label="Session" value={trade.session || '—'} />
               <Fact label="Date" value={trade.trade_date || fmtDateTime(trade.closed_at || trade.created_at)} />
             </div>
+
+            {/* Multi-setup display */}
+            {displaySetups.length > 0 && (
+              <div className="mt-4">
+                <div className="font-mono text-xs uppercase tracking-wider text-white/50">Setups</div>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {displaySetups.map((name, i) => (
+                    <span key={i} className={'rounded-full border px-2.5 py-0.5 text-xs font-semibold ' + (name === 'No Setup' ? 'border-red-400/20 bg-red-500/10 text-red-300' : 'border-cyan-400/20 bg-cyan-500/10 text-cyan-300')}>
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Playbook Discipline — only if setup discipline data exists */}
+          {/* Playbook Discipline badges */}
           {(trade.setup_followed || trade.no_setup_reason) && (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
               <div className="mb-3 font-display text-sm font-semibold" style={gradientText}>Playbook discipline</div>
@@ -159,7 +184,7 @@ export default async function TradeDetailPage({ params }) {
           )}
         </div>
 
-        {/* Right column — journal (view-only by default) */}
+        {/* Right column — journal */}
         <JournalSection tradeId={id} userId={user.id} journal={journal} prefs={prefs} />
       </div>
     </div>

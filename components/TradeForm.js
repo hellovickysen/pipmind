@@ -11,6 +11,7 @@ import { useToast } from '@/components/Toast';
 const PAIRS = ['XAU/USD', 'EUR/USD', 'GBP/USD', 'USD/JPY', 'GBP/JPY', 'AUD/USD', 'USD/CAD', 'NZD/USD'];
 const TIMEFRAMES = ['M5', 'M15', 'H1', 'H4', 'D1'];
 const SESSIONS = ['Asian', 'London', 'New York'];
+const MAX_SETUPS = 5;
 const NO_SETUP_REASONS = [
   { value: 'revenge', label: 'Revenge trade' },
   { value: 'fomo', label: 'FOMO' },
@@ -27,6 +28,15 @@ function todayStr() {
 
 export default function TradeForm({ mode = 'create', tradeId = null, initial = null, prefs = null, setups = null }) {
   const router = useRouter();
+
+  // Resolve initial setup_ids from setup_ids array, or single setup_id, or empty
+  const initialSetupIds =
+    initial && Array.isArray(initial.setup_ids) && initial.setup_ids.length > 0
+      ? initial.setup_ids
+      : initial && initial.setup_id
+        ? [initial.setup_id]
+        : [];
+
   const [form, setForm] = useState({
     pair: (initial && initial.pair) || 'XAU/USD',
     direction: (initial && initial.direction) || 'long',
@@ -39,6 +49,7 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
     r_multiple: initial && initial.r_multiple != null ? initial.r_multiple : '',
     setup: (initial && initial.setup) || '',
     setup_id: (initial && initial.setup_id) || '',
+    setup_ids: initialSetupIds,
     setup_followed: (initial && initial.setup_followed) || '',
     no_setup_reason: (initial && initial.no_setup_reason) || '',
     timeframe: (initial && initial.timeframe) || 'M5',
@@ -63,33 +74,59 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
     setForm((f) => ({ ...f, [k]: v }));
   }
 
-  // Resolve active setups — from DB setups prop, or fall back to prefs
-  const activeSetups = (setups && setups.length > 0)
+  // Resolve active setups from DB
+  const activeSetups = setups && setups.length > 0
     ? setups.filter((s) => s.is_active)
     : null;
 
-  // Find selected setup object
-  const selectedSetup = activeSetups
-    ? activeSetups.find((s) => s.id === form.setup_id)
-    : null;
+  // Find selected setup objects (multi-select)
+  const selectedSetups = activeSetups
+    ? activeSetups.filter((s) => form.setup_ids.includes(s.id))
+    : [];
 
-  const isNoSetup = selectedSetup && selectedSetup.is_default;
+  const hasNoSetup = selectedSetups.some((s) => s.is_default);
 
-  function handleSetupChange(setupId) {
-    if (!activeSetups) {
-      // Legacy mode — plain text
-      set('setup', setupId);
-      return;
-    }
+  function toggleSetup(setupId) {
+    if (!activeSetups) return;
     const chosen = activeSetups.find((s) => s.id === setupId);
-    setForm((f) => ({
-      ...f,
-      setup_id: setupId,
-      setup: chosen ? chosen.name : '',
-      // Reset discipline fields when changing setup
-      setup_followed: '',
-      no_setup_reason: '',
-    }));
+    if (!chosen) return;
+
+    setForm((f) => {
+      let newIds = [...f.setup_ids];
+
+      if (newIds.includes(setupId)) {
+        // Deselect
+        newIds = newIds.filter((id) => id !== setupId);
+      } else {
+        // Select
+        if (chosen.is_default) {
+          // No Setup is exclusive — clear all others
+          newIds = [setupId];
+        } else {
+          // Regular setup: remove No Setup if present, enforce max
+          const noSetupEntry = activeSetups.find((s) => s.is_default);
+          if (noSetupEntry) {
+            newIds = newIds.filter((id) => id !== noSetupEntry.id);
+          }
+          if (newIds.length >= MAX_SETUPS) return f;
+          newIds.push(setupId);
+        }
+      }
+
+      // Resolve names for backward compat
+      const names = newIds
+        .map((id) => (activeSetups.find((s) => s.id === id) || {}).name)
+        .filter(Boolean);
+
+      return {
+        ...f,
+        setup_ids: newIds,
+        setup_id: newIds[0] || '',
+        setup: names.join(', '),
+        setup_followed: '',
+        no_setup_reason: '',
+      };
+    });
   }
 
   function toggleEmotion(e) {
@@ -169,6 +206,7 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
           direction: form.direction,
           has_journal: !!(payload.journal),
           setup: form.setup,
+          setup_count: form.setup_ids.length,
           setup_followed: form.setup_followed,
         });
       }
@@ -249,16 +287,42 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
                 </select>
               </div>
 
-              {/* Setup — Playbook-aware or legacy */}
-              <div>
-                <label className={labelCls}>Setup</label>
+              {/* Setup — multi-select toggle buttons or legacy dropdown */}
+              <div className="sm:col-span-2">
+                <label className={labelCls}>
+                  Setup <span className="text-white/30">(up to {MAX_SETUPS})</span>
+                </label>
                 {activeSetups ? (
-                  <select className={field} value={form.setup_id} onChange={(e) => handleSetupChange(e.target.value)}>
-                    <option value="">Select setup...</option>
-                    {activeSetups.map((s) => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
+                  <div>
+                    <div className="flex flex-wrap gap-2">
+                      {activeSetups.map((s) => {
+                        const selected = form.setup_ids.includes(s.id);
+                        const isNoSetupItem = s.is_default;
+                        return (
+                          <button
+                            key={s.id}
+                            type="button"
+                            onClick={() => toggleSetup(s.id)}
+                            className={
+                              'rounded-full border px-3 py-1.5 text-xs transition-colors ' +
+                              (selected
+                                ? isNoSetupItem
+                                  ? 'border-red-400/50 bg-red-500/15 text-red-200'
+                                  : 'border-cyan-400/50 bg-cyan-500/15 text-cyan-200'
+                                : 'border-white/10 bg-black/30 text-white/50 hover:text-white')
+                            }
+                          >
+                            {s.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {form.setup_ids.length > 0 && (
+                      <p className="mt-1.5 font-mono text-[11px] text-white/40">
+                        {form.setup_ids.length}/{MAX_SETUPS} selected
+                      </p>
+                    )}
+                  </div>
                 ) : (
                   <select className={field} value={form.setup} onChange={(e) => set('setup', e.target.value)}>
                     <option value="">Select setup...</option>
@@ -273,20 +337,28 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
               </div>
             </div>
 
-            {/* Setup direction hint + discipline fields */}
-            {selectedSetup && (
+            {/* Setup directions + discipline fields */}
+            {selectedSetups.length > 0 && (
               <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.02] p-4">
-                {selectedSetup.direction && (
-                  <div className="mb-3">
-                    <div className="font-mono text-[10px] uppercase tracking-wider text-white/40">Rule direction</div>
-                    <p className="mt-1 text-sm leading-relaxed text-white/60">{selectedSetup.direction}</p>
+                {/* Show rule directions for all selected setups */}
+                {selectedSetups.some((s) => s.direction) && (
+                  <div className="mb-3 space-y-2">
+                    <div className="font-mono text-[10px] uppercase tracking-wider text-white/40">Rule directions</div>
+                    {selectedSetups.filter((s) => s.direction).map((s) => (
+                      <div key={s.id} className="rounded-lg bg-white/[0.02] px-3 py-2">
+                        <span className="font-mono text-[10px] uppercase text-cyan-400/60">{s.name}</span>
+                        <p className="mt-0.5 text-sm leading-relaxed text-white/60">{s.direction}</p>
+                      </div>
+                    ))}
                   </div>
                 )}
 
-                {/* Did you follow this setup? */}
-                {!isNoSetup && (
+                {/* Did you follow these setups? — regular setups only */}
+                {!hasNoSetup && (
                   <div>
-                    <label className={labelCls}>Did you follow this setup?</label>
+                    <label className={labelCls}>
+                      Did you follow {selectedSetups.length > 1 ? 'these setups' : 'this setup'}?
+                    </label>
                     <div className="flex gap-2">
                       {[
                         { v: 'yes', l: 'Yes', color: 'emerald' },
@@ -295,7 +367,7 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
                       ].map((opt) => {
                         const active = form.setup_followed === opt.v;
                         const cls = active
-                          ? `border-${opt.color}-400/50 bg-${opt.color}-500/15 text-${opt.color}-300`
+                          ? 'border-' + opt.color + '-400/50 bg-' + opt.color + '-500/15 text-' + opt.color + '-300'
                           : 'border-white/10 bg-black/30 text-white/50';
                         return (
                           <button
@@ -313,7 +385,7 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
                 )}
 
                 {/* No Setup reason */}
-                {isNoSetup && (
+                {hasNoSetup && (
                   <div>
                     <label className={labelCls}>What caused this trade?</label>
                     <div className="flex flex-wrap gap-2">
@@ -380,7 +452,6 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
 
               {journalOpen && (
                 <div className="mt-4 space-y-5">
-                  {/* Emotions */}
                   <div>
                     <label className={labelCls}>How did you feel?</label>
                     <div className="flex flex-wrap gap-2">
@@ -399,8 +470,6 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
                       })}
                     </div>
                   </div>
-
-                  {/* Confidence */}
                   <div>
                     <label className={labelCls}>Confidence at entry</label>
                     <div className="flex gap-1 text-2xl">
@@ -411,8 +480,6 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
                       ))}
                     </div>
                   </div>
-
-                  {/* Notes */}
                   <div>
                     <label className={labelCls}>Notes — what happened & why?</label>
                     <textarea
@@ -423,8 +490,6 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
                       placeholder="Your reasoning, what went well, what you'd change..."
                     />
                   </div>
-
-                  {/* Multi-screenshot upload */}
                   <div>
                     <label className={labelCls}>Chart screenshots</label>
                     {screenshotUrls.length > 0 && (
@@ -437,7 +502,7 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
                               onClick={() => removeScreenshot(i)}
                               className="absolute -right-1.5 -top-1.5 hidden h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white group-hover:flex"
                             >
-                              ✕
+                              &#10005;
                             </button>
                           </div>
                         ))}
@@ -468,6 +533,7 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
         </form>
       </div>
 
+      {/* Preview panel */}
       <div className="h-fit rounded-2xl border border-white/10 bg-white/[0.03] p-5">
         <div className="font-mono text-xs uppercase tracking-wider text-white/55">Preview</div>
         <div className="mt-3 font-display text-lg font-bold">
@@ -475,10 +541,12 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
           <span className={'ml-1 text-xs ' + (form.direction === 'long' ? 'text-emerald-400' : 'text-red-400')}>{form.direction.toUpperCase()}</span>
         </div>
         {form.setup && (
-          <div className="mt-2">
-            <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2 py-0.5 text-xs text-cyan-300">{form.setup}</span>
+          <div className="mt-2 flex flex-wrap gap-1">
+            {form.setup.split(', ').map((s, i) => (
+              <span key={i} className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2 py-0.5 text-xs text-cyan-300">{s}</span>
+            ))}
             {form.setup_followed && (
-              <span className={'ml-2 rounded-full px-2 py-0.5 text-xs ' + (form.setup_followed === 'yes' ? 'bg-emerald-500/15 text-emerald-300' : form.setup_followed === 'partial' ? 'bg-amber-500/15 text-amber-300' : 'bg-red-500/15 text-red-300')}>
+              <span className={'rounded-full px-2 py-0.5 text-xs ' + (form.setup_followed === 'yes' ? 'bg-emerald-500/15 text-emerald-300' : form.setup_followed === 'partial' ? 'bg-amber-500/15 text-amber-300' : 'bg-red-500/15 text-red-300')}>
                 {form.setup_followed === 'yes' ? 'Followed' : form.setup_followed === 'partial' ? 'Partial' : 'Not followed'}
               </span>
             )}
