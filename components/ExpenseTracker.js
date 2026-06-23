@@ -7,6 +7,15 @@ import { useToast } from '@/components/Toast';
 import { ExpensesEmptyIcon } from '@/components/EmptyStates';
 
 
+
+function Spinner() {
+  return (
+    <svg className="inline-block h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="31.4 31.4" />
+    </svg>
+  );
+}
+
 const gradientText = { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' };
 const TABS = ['Dashboard', 'Accounts', 'Payouts'];
 const ACCOUNT_SIZES = ['$5K', '$10K', '$25K', '$50K', '$100K', '$150K', '$200K', '$250K', '$300K', '$400K', '$500K'];
@@ -223,7 +232,7 @@ function AddExpenseForm({ onSave, onCancel, existingFirms }) {
       <div className="flex gap-3 pt-2">
         <button type="button" onClick={onCancel} className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/70">Cancel</button>
         <button type="submit" disabled={saving || !f.account_cost} className="flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold text-[#08080f] disabled:opacity-60" style={{ background: 'linear-gradient(120deg,#a78bfa,#22d3ee)' }}>
-          {saving ? 'Saving...' : 'Add Expense'}
+          {saving ? <><Spinner /> Saving...</> : 'Add Expense'}
         </button>
       </div>
     </form>
@@ -268,7 +277,7 @@ function AddPayoutForm({ onSave, onCancel, existingFirms }) {
       <div className="flex gap-3 pt-2">
         <button type="button" onClick={onCancel} className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/70">Cancel</button>
         <button type="submit" disabled={saving} className="flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold text-[#08080f] disabled:opacity-60" style={{ background: 'linear-gradient(120deg,#34d399,#22d3ee)' }}>
-          {saving ? 'Saving...' : 'Add Payout'}
+          {saving ? <><Spinner /> Saving...</> : 'Add Payout'}
         </button>
       </div>
     </form>
