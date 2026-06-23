@@ -14,9 +14,10 @@ function fmtPnl(v) {
   return sign + '$' + abs.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-export default function CalendarMonth({ trades, year, month, selected, monthParam, monthlyPnl }) {
+export default function CalendarMonth({ trades, year, month, selected, monthParam, monthlyPnl, journalDays }) {
   const now = new Date();
   const todayDay = (now.getUTCFullYear() === year && now.getUTCMonth() === month) ? now.getUTCDate() : null;
+  const jDays = journalDays || {};
 
   // Index trades by day
   const byDay = {};
@@ -33,19 +34,16 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
   });
 
   // Build week rows (Sunday-first) with overflow days
-  const firstDow = new Date(Date.UTC(year, month, 1)).getUTCDay(); // 0=Sun
+  const firstDow = new Date(Date.UTC(year, month, 1)).getUTCDay();
   const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
   const prevMonthDays = new Date(Date.UTC(year, month, 0)).getUTCDate();
 
   const weeks = [];
   let currentWeek = [];
 
-  // Fill overflow from previous month
   for (let i = 0; i < firstDow; i++) {
     currentWeek.push({ day: prevMonthDays - firstDow + 1 + i, overflow: true });
   }
-
-  // Fill current month days
   for (let d = 1; d <= daysInMonth; d++) {
     if (currentWeek.length === 7) {
       weeks.push(currentWeek);
@@ -53,15 +51,11 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
     }
     currentWeek.push({ day: d, overflow: false });
   }
-
-  // Fill overflow from next month
   let nextDay = 1;
   while (currentWeek.length < 7) {
     currentWeek.push({ day: nextDay++, overflow: true });
   }
   weeks.push(currentWeek);
-
-  // Add one more overflow week if fewer than 6 rows (for consistent height)
   while (weeks.length < 6) {
     const extraWeek = [];
     for (let i = 0; i < 7; i++) {
@@ -93,7 +87,7 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
         </span>
       </div>
 
-      {/* Calendar table */}
+      {/* Calendar table — 7 columns, no separate weekly column */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse" style={{ tableLayout: 'fixed' }}>
           <thead>
@@ -103,8 +97,6 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
                   {d}
                 </th>
               ))}
-              <th className="hidden w-28 border border-white/[0.08] px-1 py-2 text-center text-xs font-normal text-white/45 sm:table-cell">
-              </th>
             </tr>
           </thead>
           <tbody>
@@ -117,19 +109,59 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
                     const isOverflow = cell.overflow;
                     const e = !isOverflow ? byDay[d] : null;
                     const isToday = !isOverflow && d === todayDay;
+                    const isSaturday = di === 6;
+                    const hasJournal = !isOverflow && jDays[d];
                     const dateStr = !isOverflow
                       ? year + '-' + pad2(month + 1) + '-' + pad2(d)
                       : null;
                     const isSel = dateStr && selected === dateStr;
 
                     // Cell background
-                    let cellBg = '';
+                    let bgStyle = {};
                     if (e) {
-                      cellBg = e.net >= 0
-                        ? 'background: rgba(34, 197, 94, 0.15);'
-                        : 'background: rgba(239, 68, 68, 0.18);';
+                      bgStyle = { background: e.net >= 0 ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.18)' };
                     }
 
+                    // Saturday cell = day content + weekly summary
+                    if (isSaturday) {
+                      const satContent = (
+                        <div
+                          className={
+                            'flex h-20 flex-col items-center justify-start pt-1.5 sm:h-24 ' +
+                            (isOverflow ? 'opacity-25' : '') +
+                            (isSel ? ' ring-1 ring-inset ring-cyan-400/50' : '')
+                          }
+                          style={bgStyle}
+                        >
+                          {/* Day number */}
+                          <span className={
+                            'text-[10px] ' +
+                            (isToday ? 'grid h-5 w-5 place-items-center rounded-full bg-cyan-500 font-bold text-white' : isOverflow ? 'text-white/30' : 'text-white/50')
+                          }>
+                            {d}
+                          </span>
+
+                          {/* Weekly summary */}
+                          <div className="mt-auto flex flex-col items-center pb-1.5">
+                            <span className="text-[9px] font-medium text-white/45 sm:text-[10px]">Week {wi + 1}</span>
+                            <span className={'font-mono text-xs font-bold sm:text-sm ' + (ws.count === 0 ? 'text-white/25' : ws.net >= 0 ? 'text-emerald-400' : 'text-red-400')}>
+                              {fmtPnl(ws.net)}
+                            </span>
+                            <span className="text-[9px] text-white/40">{ws.count} trades</span>
+                          </div>
+                        </div>
+                      );
+
+                      return (
+                        <td key={di} className="border border-white/[0.08] p-0">
+                          {e && dateStr ? (
+                            <Link href={'/dashboard/calendar?month=' + monthParam + '&date=' + dateStr}>{satContent}</Link>
+                          ) : satContent}
+                        </td>
+                      );
+                    }
+
+                    // Regular day cell
                     const cellContent = (
                       <div
                         className={
@@ -138,21 +170,22 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
                           (isSel ? ' ring-1 ring-inset ring-cyan-400/50' : '') +
                           (e ? ' cursor-pointer' : '')
                         }
-                        style={cellBg ? { background: cellBg.split(': ')[1].replace(';', '') } : {}}
+                        style={bgStyle}
                       >
-                        {/* Day number */}
-                        <span
-                          className={
-                            'mb-1 text-xs ' +
+                        {/* Day number + journal icon */}
+                        <div className="mb-0.5 flex items-center gap-1">
+                          <span className={
+                            'text-xs ' +
                             (isToday
                               ? 'grid h-6 w-6 place-items-center rounded-full bg-cyan-500 font-bold text-white'
-                              : isOverflow
-                              ? 'text-white/30'
-                              : 'text-white/50')
-                          }
-                        >
-                          {d}
-                        </span>
+                              : isOverflow ? 'text-white/30' : 'text-white/50')
+                          }>
+                            {d}
+                          </span>
+                          {hasJournal && (
+                            <span className="text-[10px]" title="Has journal entry">📝</span>
+                          )}
+                        </div>
 
                         {/* P&L */}
                         {e && (
@@ -180,21 +213,6 @@ export default function CalendarMonth({ trades, year, month, selected, monthPara
                       </td>
                     );
                   })}
-
-                  {/* Weekly summary */}
-                  <td className="hidden border border-white/[0.08] p-0 sm:table-cell">
-                    <div className="flex h-20 flex-col items-center justify-center sm:h-24">
-                      <span className="text-[10px] font-medium text-white/45">
-                        Week {wi + 1}
-                      </span>
-                      <span className={'mt-0.5 font-mono text-sm font-bold ' + (ws.count === 0 ? 'text-white/25' : ws.net >= 0 ? 'text-emerald-400' : 'text-red-400')}>
-                        {fmtPnl(ws.net)}
-                      </span>
-                      <span className="text-[10px] text-white/40">
-                        {ws.count} trade{ws.count !== 1 ? 's' : ''}
-                      </span>
-                    </div>
-                  </td>
                 </tr>
               );
             })}

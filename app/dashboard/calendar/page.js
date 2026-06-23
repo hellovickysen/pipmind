@@ -52,6 +52,36 @@ export default async function CalendarPage({ searchParams }) {
   });
   const monthlyPnl = monthTrades.reduce((a, t) => a + num(t.pnl), 0);
 
+  // Fetch journal entries to build a day-has-journal map
+  const monthTradeIds = monthTrades.map((t) => t.id);
+  let journalDays = {};
+  if (monthTradeIds.length > 0) {
+    const { data: journals } = await supabase
+      .from('journal_entries')
+      .select('trade_id, note, screenshot_url, screenshot_urls')
+      .in('trade_id', monthTradeIds);
+    if (journals) {
+      // Build a set of trade_ids that have journal content
+      const journalTradeIds = new Set();
+      journals.forEach((j) => {
+        const hasContent = (j.note && j.note.trim()) ||
+          (j.screenshot_url && j.screenshot_url !== '') ||
+          (Array.isArray(j.screenshot_urls) && j.screenshot_urls.filter(Boolean).length > 0);
+        if (hasContent) journalTradeIds.add(j.trade_id);
+      });
+      // Map trade_id back to day number
+      monthTrades.forEach((t) => {
+        if (journalTradeIds.has(t.id)) {
+          const raw = t.trade_date || t.closed_at || t.created_at;
+          if (raw) {
+            const d = new Date(raw).getUTCDate();
+            journalDays[d] = true;
+          }
+        }
+      });
+    }
+  }
+
   const dayTrades = selected ? list.filter((t) => String(t.trade_date || t.closed_at || t.created_at || '').slice(0, 10) === selected) : [];
   const dayNet = dayTrades.reduce((a, t) => a + num(t.pnl), 0);
 
@@ -110,19 +140,25 @@ export default async function CalendarPage({ searchParams }) {
               <span className="rounded-md bg-white/10 px-3 py-1 text-xs font-semibold text-white">Calendar</span>
               <Link href="/dashboard/trades" className="rounded-md px-3 py-1 text-xs text-white/50 hover:text-white/70">Trades</Link>
             </div>
-            {!isCurrentMonth && (
-              <Link
-                href="/dashboard/calendar"
-                className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/60 hover:text-white"
-              >
-                Today
-              </Link>
-            )}
+            <Link
+              href="/dashboard/calendar"
+              className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/60 hover:text-white"
+            >
+              Today
+            </Link>
           </div>
         </div>
 
         {/* Calendar grid */}
-        <CalendarMonth trades={list} year={year} month={month} selected={selected} monthParam={monthParam} monthlyPnl={monthlyPnl} />
+        <CalendarMonth
+          trades={list}
+          year={year}
+          month={month}
+          selected={selected}
+          monthParam={monthParam}
+          monthlyPnl={monthlyPnl}
+          journalDays={journalDays}
+        />
       </div>
 
       {/* Selected day trades */}
