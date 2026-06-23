@@ -5,6 +5,59 @@ import ProfileTradeList from '@/components/ProfileTradeList';
 
 export const dynamic = 'force-dynamic';
 
+export async function generateMetadata({ params }) {
+  const code = params.code;
+  const supabase = createClient();
+  const { data: prefs } = await supabase
+    .from('user_preferences')
+    .select('user_id, calendar_rolling_days')
+    .eq('share_code', code)
+    .maybeSingle();
+
+  if (!prefs) return { title: 'Profile Not Found' };
+
+  const days = prefs.calendar_rolling_days || 30;
+  const from = new Date();
+  from.setDate(from.getDate() - days);
+  const { data: trades } = await supabase
+    .from('trades')
+    .select('pnl')
+    .eq('user_id', prefs.user_id)
+    .gte('trade_date', from.toISOString().slice(0, 10));
+  const { data: payouts } = await supabase
+    .from('payouts')
+    .select('amount')
+    .eq('user_id', prefs.user_id);
+
+  const list = trades || [];
+  const pnl = list.reduce((a, t) => a + (Number(t.pnl) || 0), 0);
+  const wins = list.filter((t) => (Number(t.pnl) || 0) > 0).length;
+  const wr = list.length > 0 ? Math.round((wins / list.length) * 100) : 0;
+  const totalPayout = (payouts || []).reduce((a, p) => a + (Number(p.amount) || 0), 0);
+
+  const abs = Math.abs(pnl);
+  const sign = pnl >= 0 ? '+' : '-';
+  const pnlStr = abs >= 10000 ? sign + '$' + (abs / 1000).toFixed(1) + 'K' : sign + '$' + abs.toFixed(2);
+
+  const desc = `${pnlStr} P&L | ${wr}% Win Rate | ${list.length} Trades` + (totalPayout > 0 ? ` | $${totalPayout.toLocaleString()} Payouts` : '') + ` — Last ${days} days`;
+
+  return {
+    title: 'Trader Profile — PropJournal',
+    description: desc,
+    openGraph: {
+      title: 'Trader Profile — PropJournal',
+      description: desc,
+      siteName: 'PropJournal',
+      type: 'profile',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Trader Profile — PropJournal',
+      description: desc,
+    },
+  };
+}
+
 function fmtCurrency(v) {
   const n = Number(v) || 0;
   const sign = n >= 0 ? '+' : '-';
