@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -15,13 +16,17 @@ const NAV = [
   { label: 'Settings',  icon: '⚙', href: '/dashboard/settings' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ email, credits }) {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   function isActive(href) {
     if (href === '/dashboard') return pathname === '/dashboard';
     return pathname === href || pathname.startsWith(href + '/');
   }
+
+  // Get initials from email
+  const initial = email ? email.charAt(0).toUpperCase() : '?';
 
   return (
     <aside className="hidden w-[200px] flex-shrink-0 border-r border-white/10 bg-[#0b0b14] sm:block">
@@ -73,6 +78,48 @@ export default function Sidebar() {
             );
           })}
         </nav>
+
+        {/* Avatar menu — pinned to bottom */}
+        <div className="relative mt-4 border-t border-white/[0.06] pt-3">
+          <button
+            onClick={() => setMenuOpen((o) => !o)}
+            className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-all hover:bg-white/[0.04]"
+          >
+            <div
+              className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full text-sm font-bold text-[#08080f]"
+              style={{ background: 'linear-gradient(135deg,#a78bfa,#22d3ee)' }}
+            >
+              {initial}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-xs text-white/70">{email || 'Account'}</div>
+            </div>
+            <span className={'text-[10px] text-white/30 transition-transform ' + (menuOpen ? 'rotate-180' : '')}>&#9650;</span>
+          </button>
+
+          {/* Popup menu */}
+          {menuOpen && (
+            <div className="absolute bottom-full left-2 right-2 mb-2 rounded-xl border border-white/10 bg-[#12121a] p-3 shadow-xl">
+              {/* Email */}
+              <div className="mb-2 truncate px-1 font-mono text-[11px] text-white/50">{email}</div>
+
+              {/* Credits */}
+              {credits != null && (
+                <div className="mb-2 flex items-center justify-between rounded-lg bg-white/[0.04] px-3 py-2">
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-white/40">Credits</span>
+                  <span className="font-display text-sm font-bold text-emerald-400">${Number(credits).toFixed(2)}</span>
+                </div>
+              )}
+
+              {/* Sign out */}
+              <form action="/auth/signout" method="post">
+                <button className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-left text-xs text-white/60 transition-colors hover:bg-white/[0.06] hover:text-white">
+                  Sign out
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
       </div>
     </aside>
   );

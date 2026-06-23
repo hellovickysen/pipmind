@@ -18,7 +18,7 @@ export default async function DashboardLayout({ children }) {
 
   const { data: prefs } = await supabase
     .from('user_preferences')
-    .select('onboarding_complete, referred_by')
+    .select('onboarding_complete, referred_by, referral_balance')
     .eq('user_id', user.id)
     .maybeSingle();
   if (!prefs || !prefs.onboarding_complete) {
@@ -82,7 +82,7 @@ export default async function DashboardLayout({ children }) {
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
+      <Sidebar email={user.email} credits={prefs.referral_balance} />
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="relative flex items-center justify-between border-b border-white/10 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
@@ -96,9 +96,6 @@ export default async function DashboardLayout({ children }) {
               <span className={'font-mono text-xs font-semibold sm:text-sm ' + tone}>{fmtMoney(todayPnl)}</span>
             </div>
             <span className="hidden font-mono text-xs text-white/55 sm:block">{user.email}</span>
-            <form action="/auth/signout" method="post">
-              <button className="rounded-lg border border-white/15 bg-white/5 px-2 py-1 text-xs text-white/70 transition-colors hover:text-white sm:px-3 sm:py-1.5 sm:text-sm">Sign out</button>
-            </form>
           </div>
         </header>
         <main className="flex-1">{children}</main>
