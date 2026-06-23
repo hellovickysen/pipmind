@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { computeStats, equitySeries, fmtMoney, fmtR, num, computeDisciplineStats } from '@/lib/stats';
+import { computeStats, equitySeries, fmtMoney, fmtR, num, computeDisciplineStats, computeWeeklyScore, computeAchievements } from '@/lib/stats';
 import TradeTable from '@/components/TradeTable';
 import PnlCalendar from '@/components/PnlCalendar';
 import DashboardShareButton from '@/components/DashboardShareButton';
@@ -87,7 +87,7 @@ export default async function DashboardPage() {
   const report = coach && coach.mistakes ? coach.mistakes : null;
   const topMistake = report && Array.isArray(report.recurring_mistakes) ? report.recurring_mistakes[0] : null;
 
-  // Fetch journal entries for discipline stats
+  // Fetch journal entries for discipline stats + weekly score
   const tradeIds = list.map((t) => t.id);
   let journals = [];
   if (tradeIds.length > 0) {
@@ -97,7 +97,17 @@ export default async function DashboardPage() {
       .in('trade_id', tradeIds);
     journals = jdata || [];
   }
+
+  // Discipline stats, weekly score, achievements
   const disciplineStats = computeDisciplineStats(list, journals);
+  const weeklyScore = computeWeeklyScore(list, journals);
+  const achievements = computeAchievements({
+    totalTrades: list.length,
+    journalStreak: disciplineStats.journalStreak,
+    noRevengeStreak: disciplineStats.noRevengeStreak,
+    setupDiscipline: disciplineStats.setupDiscipline,
+    weeklyScore: weeklyScore.score,
+  });
 
   if (list.length === 0) {
     const steps = [
@@ -127,7 +137,7 @@ export default async function DashboardPage() {
 
   const recent = list.slice(0, 6);
 
-  // Compute today's stats for share card
+  // Today's stats for share card
   const today = new Date().toISOString().slice(0, 10);
   const todayTrades = list.filter((t) => {
     const d = t.trade_date || (t.closed_at || t.created_at || '').slice(0, 10);
@@ -167,10 +177,10 @@ export default async function DashboardPage() {
         <Stat label="Trades" value={String(s.n)} />
       </div>
 
-      {/* Playbook Discipline */}
+      {/* Playbook Discipline with Weekly Score + Achievements */}
       {disciplineStats.totalTrades > 0 && (
         <div className="mb-6">
-          <DisciplineCards stats={disciplineStats} />
+          <DisciplineCards stats={disciplineStats} weeklyScore={weeklyScore} achievements={achievements} />
         </div>
       )}
 

@@ -1,5 +1,8 @@
 "use client";
 
+import WeeklyScoreRing from '@/components/WeeklyScoreRing';
+import AchievementBadges from '@/components/AchievementBadges';
+
 const gradientText = { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' };
 
 function DisciplineStat({ label, value, sub, tone }) {
@@ -15,12 +18,11 @@ function DisciplineStat({ label, value, sub, tone }) {
   );
 }
 
-export default function DisciplineCards({ stats }) {
+export default function DisciplineCards({ stats, weeklyScore, achievements }) {
   if (!stats) return null;
 
   const { journalStreak, setupDiscipline, noRevengeStreak, noSetupCount, totalTrades } = stats;
 
-  // Determine tones
   const journalTone = journalStreak >= 5 ? 'good' : journalStreak >= 2 ? '' : '';
   const disciplineTone = setupDiscipline >= 80 ? 'good' : setupDiscipline >= 50 ? '' : setupDiscipline > 0 ? 'warn' : '';
   const revengeTone = noRevengeStreak >= 5 ? 'good' : noRevengeStreak >= 2 ? '' : noRevengeStreak === 0 ? 'warn' : '';
@@ -28,36 +30,64 @@ export default function DisciplineCards({ stats }) {
 
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-      <div className="mb-4 flex items-center gap-2">
+      {/* Header */}
+      <div className="mb-5 flex items-center gap-2">
         <span className="text-base">&#128170;</span>
         <div className="font-display text-base font-semibold" style={gradientText}>Playbook discipline</div>
       </div>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <DisciplineStat
-          label="Journal streak"
-          value={journalStreak + 'd'}
-          sub={journalStreak > 0 ? 'days in a row' : 'Start journaling!'}
-          tone={journalTone}
-        />
-        <DisciplineStat
-          label="Setup discipline"
-          value={setupDiscipline > 0 ? setupDiscipline + '%' : '—'}
-          sub={totalTrades > 0 ? 'trades followed setup' : 'Log trades to track'}
-          tone={disciplineTone}
-        />
-        <DisciplineStat
-          label="No revenge streak"
-          value={noRevengeStreak + 'd'}
-          sub={noRevengeStreak > 0 ? 'days clean' : 'Stay disciplined'}
-          tone={revengeTone}
-        />
-        <DisciplineStat
-          label="No setup trades"
-          value={String(noSetupCount)}
-          sub={noSetupCount === 0 ? 'This week — great!' : 'this week'}
-          tone={noSetupTone}
-        />
+
+      {/* Top row: Weekly score ring + streak stats */}
+      <div className="mb-5 flex flex-col gap-5 lg:flex-row lg:items-start">
+        {/* Weekly score ring */}
+        {weeklyScore && (
+          <div className="flex-shrink-0">
+            <WeeklyScoreRing
+              score={weeklyScore.score}
+              breakdown={{
+                journal: weeklyScore.journal,
+                discipline: weeklyScore.discipline,
+                revenge: weeklyScore.revenge,
+                volume: weeklyScore.volume,
+              }}
+            />
+          </div>
+        )}
+
+        {/* Streak stat cards */}
+        <div className="grid flex-1 grid-cols-2 gap-3">
+          <DisciplineStat
+            label="Journal streak"
+            value={journalStreak + 'd'}
+            sub={journalStreak > 0 ? 'days in a row' : 'Start journaling!'}
+            tone={journalTone}
+          />
+          <DisciplineStat
+            label="Setup discipline"
+            value={setupDiscipline > 0 ? setupDiscipline + '%' : '—'}
+            sub={totalTrades > 0 ? 'trades followed setup' : 'Log trades to track'}
+            tone={disciplineTone}
+          />
+          <DisciplineStat
+            label="No revenge streak"
+            value={noRevengeStreak + 'd'}
+            sub={noRevengeStreak > 0 ? 'days clean' : 'Stay disciplined'}
+            tone={revengeTone}
+          />
+          <DisciplineStat
+            label="No setup trades"
+            value={String(noSetupCount)}
+            sub={noSetupCount === 0 ? 'This week — great!' : 'this week'}
+            tone={noSetupTone}
+          />
+        </div>
       </div>
+
+      {/* Achievement badges */}
+      {achievements && achievements.length > 0 && (
+        <div className="border-t border-white/[0.06] pt-4">
+          <AchievementBadges achievements={achievements} />
+        </div>
+      )}
     </div>
   );
 }
