@@ -7,6 +7,7 @@ const NAV = [
   { label: 'Dashboard', icon: '▦', href: '/dashboard' },
   { label: 'Trades', icon: '☰', href: '/dashboard/trades' },
   { label: 'Playbook', icon: '\u{1F4CB}', href: '/dashboard/playbook' },
+  { label: 'Expenses', icon: '\u{1F4B3}', href: '/dashboard/expenses' },
   { label: 'Calendar', icon: '\u{1F4C5}', href: '/dashboard/calendar' },
   { label: 'AI Coach', icon: '✦', href: '/dashboard/coach' },
   { label: 'Settings', icon: '⚙', href: '/dashboard/settings' },
@@ -61,7 +62,6 @@ export default function Sidebar() {
                   : 'text-white/50 hover:bg-white/[0.04] hover:text-white/80')
               }
             >
-              {/* Active left accent bar */}
               {active && (
                 <span
                   className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full"

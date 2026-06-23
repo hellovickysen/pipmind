@@ -1,0 +1,20 @@
+import { createClient } from '@/lib/supabase/server';
+import ExpenseTracker from '@/components/ExpenseTracker';
+
+export const dynamic = 'force-dynamic';
+
+export default async function ExpensesPage() {
+  const supabase = createClient();
+
+  const { data: expenses } = await supabase
+    .from('expenses')
+    .select('*')
+    .order('expense_date', { ascending: false, nullsFirst: false });
+
+  const { data: payouts } = await supabase
+    .from('payouts')
+    .select('*')
+    .order('payout_date', { ascending: false, nullsFirst: false });
+
+  return <ExpenseTracker expenses={expenses || []} payouts={payouts || []} />;
+}

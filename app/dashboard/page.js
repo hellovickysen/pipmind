@@ -68,6 +68,11 @@ function Stat({ label, value, tone }) {
   );
 }
 
+function fmtCurrency(v) {
+  const n = Number(v) || 0;
+  return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 export default async function DashboardPage() {
   const supabase = createClient();
   const { data: trades } = await supabase
@@ -87,7 +92,7 @@ export default async function DashboardPage() {
   const report = coach && coach.mistakes ? coach.mistakes : null;
   const topMistake = report && Array.isArray(report.recurring_mistakes) ? report.recurring_mistakes[0] : null;
 
-  // Fetch journal entries for discipline stats + weekly score
+  // Journal entries for discipline
   const tradeIds = list.map((t) => t.id);
   let journals = [];
   if (tradeIds.length > 0) {
@@ -98,7 +103,6 @@ export default async function DashboardPage() {
     journals = jdata || [];
   }
 
-  // Discipline stats, weekly score, achievements
   const disciplineStats = computeDisciplineStats(list, journals);
   const weeklyScore = computeWeeklyScore(list, journals);
   const achievements = computeAchievements({
@@ -108,6 +112,14 @@ export default async function DashboardPage() {
     setupDiscipline: disciplineStats.setupDiscipline,
     weeklyScore: weeklyScore.score,
   });
+
+  // Expense summary — lightweight queries
+  const { data: expenseRows } = await supabase.from('expenses').select('total_cost');
+  const { data: payoutRows } = await supabase.from('payouts').select('amount');
+  const totalExpense = (expenseRows || []).reduce((a, e) => a + (Number(e.total_cost) || 0), 0);
+  const totalPayout = (payoutRows || []).reduce((a, p) => a + (Number(p.amount) || 0), 0);
+  const expenseNet = totalPayout - totalExpense;
+  const hasExpenseData = (expenseRows && expenseRows.length > 0) || (payoutRows && payoutRows.length > 0);
 
   if (list.length === 0) {
     const steps = [
@@ -137,7 +149,6 @@ export default async function DashboardPage() {
 
   const recent = list.slice(0, 6);
 
-  // Today's stats for share card
   const today = new Date().toISOString().slice(0, 10);
   const todayTrades = list.filter((t) => {
     const d = t.trade_date || (t.closed_at || t.created_at || '').slice(0, 10);
@@ -148,14 +159,7 @@ export default async function DashboardPage() {
   const todayWinRate = todayTrades.length > 0 ? Math.round((todayWins / todayTrades.length) * 100) : 0;
   const todayBest = todayTrades.length > 0 ? Math.max(...todayTrades.map((t) => num(t.pnl))) : null;
   const todayWorst = todayTrades.length > 0 ? Math.min(...todayTrades.map((t) => num(t.pnl))) : null;
-  const dailyShareData = {
-    pnl: todayPnl,
-    date: today,
-    trades: todayTrades.length,
-    winRate: todayWinRate,
-    bestTrade: todayBest,
-    worstTrade: todayWorst,
-  };
+  const dailyShareData = { pnl: todayPnl, date: today, trades: todayTrades.length, winRate: todayWinRate, bestTrade: todayBest, worstTrade: todayWorst };
 
   return (
     <div className="px-4 py-8 sm:px-6">
@@ -177,10 +181,39 @@ export default async function DashboardPage() {
         <Stat label="Trades" value={String(s.n)} />
       </div>
 
-      {/* Playbook Discipline with Weekly Score + Achievements */}
+      {/* Playbook Discipline */}
       {disciplineStats.totalTrades > 0 && (
         <div className="mb-6">
           <DisciplineCards stats={disciplineStats} weeklyScore={weeklyScore} achievements={achievements} />
+        </div>
+      )}
+
+      {/* Expense Summary Card */}
+      {hasExpenseData && (
+        <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-base">&#128179;</span>
+              <div className="font-display text-base font-semibold">Prop firm expenses</div>
+            </div>
+            <Link href="/dashboard/expenses" className="font-mono text-xs text-cyan-400">Details &rarr;</Link>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-3">
+            <div className="rounded-xl border border-red-400/15 bg-red-500/[0.04] p-3">
+              <div className="font-mono text-[10px] uppercase text-white/40">Spent</div>
+              <div className="mt-1 font-display text-lg font-bold text-red-400">{fmtCurrency(totalExpense)}</div>
+            </div>
+            <div className="rounded-xl border border-emerald-400/15 bg-emerald-500/[0.04] p-3">
+              <div className="font-mono text-[10px] uppercase text-white/40">Payouts</div>
+              <div className="mt-1 font-display text-lg font-bold text-emerald-400">{fmtCurrency(totalPayout)}</div>
+            </div>
+            <div className={'rounded-xl border p-3 ' + (expenseNet >= 0 ? 'border-emerald-400/15 bg-emerald-500/[0.04]' : 'border-amber-400/15 bg-amber-500/[0.04]')}>
+              <div className="font-mono text-[10px] uppercase text-white/40">Net</div>
+              <div className={'mt-1 font-display text-lg font-bold ' + (expenseNet >= 0 ? 'text-emerald-400' : 'text-amber-400')}>
+                {expenseNet >= 0 ? '+' : '-'}{fmtCurrency(Math.abs(expenseNet))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
