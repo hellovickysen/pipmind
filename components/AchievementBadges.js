@@ -1,14 +1,62 @@
 "use client";
 
+import { useState, useEffect } from 'react';
+import Confetti, { SuccessCheck } from '@/components/Confetti';
+
+// Big milestones get confetti, small ones get checkmark
+const BIG_MILESTONES = ['century', 'streak_30', 'score_90', 'discipline_100'];
+
 export default function AchievementBadges({ achievements }) {
+  const [celebration, setCelebration] = useState(null); // { type: 'confetti'|'check', name, icon }
+
   if (!achievements || achievements.length === 0) return null;
 
   const earned = achievements.filter((a) => a.earned);
   const inProgress = achievements.filter((a) => !a.earned && a.progress > 0);
-  const locked = achievements.filter((a) => !a.earned && a.progress === 0);
+
+  // Detect newly earned achievements
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('pj_earned_badges');
+      const prev = stored ? JSON.parse(stored) : [];
+      const earnedKeys = earned.map((a) => a.key);
+
+      // Find new achievements not in previous list
+      const newOnes = earned.filter((a) => !prev.includes(a.key));
+
+      // Save current earned list
+      localStorage.setItem('pj_earned_badges', JSON.stringify(earnedKeys));
+
+      if (newOnes.length > 0) {
+        // Pick the most significant new achievement
+        const best = newOnes.find((a) => BIG_MILESTONES.includes(a.key)) || newOnes[0];
+        const isBig = BIG_MILESTONES.includes(best.key);
+        setCelebration({ type: isBig ? 'confetti' : 'check', name: best.name, icon: best.icon });
+      }
+    } catch (e) {}
+  }, []);
 
   return (
     <div>
+      {/* Celebration animations */}
+      {celebration && celebration.type === 'confetti' && (
+        <Confetti active={true} onDone={() => setCelebration(null)} />
+      )}
+      {celebration && celebration.type === 'check' && (
+        <SuccessCheck active={true} onDone={() => setCelebration(null)} />
+      )}
+
+      {/* Achievement unlocked banner */}
+      {celebration && (
+        <div className="mb-4 flex items-center gap-3 rounded-xl border border-emerald-400/20 bg-emerald-500/[0.06] px-4 py-3 animate-pulse">
+          <span className="text-xl">{celebration.icon}</span>
+          <div>
+            <div className="text-xs font-semibold text-emerald-300">Achievement unlocked!</div>
+            <div className="font-display text-sm font-bold">{celebration.name}</div>
+          </div>
+        </div>
+      )}
+
       {/* Earned badges */}
       {earned.length > 0 && (
         <div className="mb-3">
