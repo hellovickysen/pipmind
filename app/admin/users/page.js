@@ -19,14 +19,16 @@ export default async function AdminUsersPage({ searchParams }) {
   try {
     // Get users from auth
     let authUsers = [];
-    try {
-      const { data } = await sb.auth.admin.listUsers({ perPage: 1000 });
-      authUsers = data?.users || [];
-    } catch (e) {
+    let authError = null;
+    const authRes = await sb.auth.admin.listUsers({ page: 1, perPage: 500 });
+    if (authRes.error) {
+      authError = authRes.error.message;
       // Fallback: get unique user_ids from trades
       const { data: tradeUsers } = await sb.from('trades').select('user_id').limit(1000);
       const uniqueIds = [...new Set((tradeUsers || []).map(t => t.user_id))];
-      authUsers = uniqueIds.map(id => ({ id, email: '(loading...)', created_at: null, last_sign_in_at: null, app_metadata: {} }));
+      authUsers = uniqueIds.map(id => ({ id, email: id.slice(0, 8) + '…', created_at: null, last_sign_in_at: null, app_metadata: {} }));
+    } else {
+      authUsers = authRes.data?.users || [];
     }
 
     // Get counts per user
@@ -77,7 +79,13 @@ export default async function AdminUsersPage({ searchParams }) {
           </form>
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.03]">
+        {authError && (
+        <div className="mb-4 rounded-xl border border-amber-400/20 bg-amber-500/5 px-4 py-3 text-sm text-amber-300">
+          Auth API warning: {authError}. Showing users from trade data as fallback.
+        </div>
+      )}
+
+      <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.03]">
           <table className="w-full min-w-[800px] border-collapse text-sm">
             <thead>
               <tr className="text-left font-mono text-xs uppercase tracking-wider text-white/55">
