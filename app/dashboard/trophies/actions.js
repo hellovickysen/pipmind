@@ -52,9 +52,10 @@ export async function deleteTrophy(id) {
     .from('trophies')
     .select('file_url')
     .eq('id', id)
+    .eq('user_id', user.id)
     .maybeSingle();
 
-  const { error } = await supabase.from('trophies').delete().eq('id', id);
+  const { error } = await supabase.from('trophies').delete().eq('id', id).eq('user_id', user.id);
   if (error) return { error: error.message };
 
   // Try to delete from storage (best effort)
@@ -85,6 +86,7 @@ export async function togglePublic(id, isPublic) {
     .from('trophies')
     .update(updates)
     .eq('id', id)
+    .eq('user_id', user.id)
     .select('share_id')
     .single();
 

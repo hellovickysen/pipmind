@@ -85,7 +85,7 @@ export async function updateSetup(id, payload) {
   if (payload.description !== undefined) updates.description = sanitize(payload.description, MAX_DESCRIPTION);
   if (payload.is_active !== undefined) updates.is_active = !!payload.is_active;
 
-  const { error } = await supabase.from('setups').update(updates).eq('id', id);
+  const { error } = await supabase.from('setups').update(updates).eq('id', id).eq('user_id', user.id);
   if (error) return { error: error.message };
   revalidatePath('/dashboard/playbook');
   return { ok: true };
@@ -99,10 +99,11 @@ export async function deleteSetup(id) {
     .from('setups')
     .select('is_default')
     .eq('id', id)
+    .eq('user_id', user.id)
     .maybeSingle();
   if (setup && setup.is_default) return { error: 'Cannot delete the No Setup entry.' };
 
-  const { error } = await supabase.from('setups').delete().eq('id', id);
+  const { error } = await supabase.from('setups').delete().eq('id', id).eq('user_id', user.id);
   if (error) return { error: error.message };
   revalidatePath('/dashboard/playbook');
   return { ok: true };

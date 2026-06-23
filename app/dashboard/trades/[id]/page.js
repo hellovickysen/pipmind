@@ -46,7 +46,7 @@ export default async function TradeDetailPage({ params }) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const { data: trade } = await supabase.from('trades').select('*').eq('id', id).maybeSingle();
+  const { data: trade } = await supabase.from('trades').select('*').eq('id', id).eq('user_id', user.id).maybeSingle();
   if (!trade) notFound();
   const { data: journal } = await supabase.from('journal_entries').select('*').eq('trade_id', id).maybeSingle();
   const { data: insight } = await supabase

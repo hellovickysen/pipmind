@@ -54,7 +54,7 @@ export async function createExpense(payload) {
 export async function deleteExpense(id) {
   const { supabase, user } = await getCtx();
   if (!user) return { error: 'Not signed in.' };
-  const { error } = await supabase.from('expenses').delete().eq('id', id);
+  const { error } = await supabase.from('expenses').delete().eq('id', id).eq('user_id', user.id);
   if (error) return { error: error.message };
   revalidatePath('/dashboard/expenses');
   revalidatePath('/dashboard');
@@ -88,7 +88,7 @@ export async function createPayout(payload) {
 export async function deletePayout(id) {
   const { supabase, user } = await getCtx();
   if (!user) return { error: 'Not signed in.' };
-  const { error } = await supabase.from('payouts').delete().eq('id', id);
+  const { error } = await supabase.from('payouts').delete().eq('id', id).eq('user_id', user.id);
   if (error) return { error: error.message };
   revalidatePath('/dashboard/expenses');
   revalidatePath('/dashboard');

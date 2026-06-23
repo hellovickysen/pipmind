@@ -132,7 +132,7 @@ export async function updateTrade(id, payload) {
   if (toNum(payload.pnl) === null) return { error: 'Please enter the trade P&L.' };
   const row = buildRow(user, payload);
   delete row.user_id;
-  const { error } = await supabase.from('trades').update(row).eq('id', id);
+  const { error } = await supabase.from('trades').update(row).eq('id', id).eq('user_id', user.id);
   if (error) return { error: error.message };
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/trades');
@@ -143,7 +143,7 @@ export async function updateTrade(id, payload) {
 export async function deleteTrade(id) {
   const { supabase, user } = await getCtx();
   if (!user) return { error: 'You must be signed in.' };
-  const { error } = await supabase.from('trades').delete().eq('id', id);
+  const { error } = await supabase.from('trades').delete().eq('id', id).eq('user_id', user.id);
   if (error) return { error: error.message };
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/trades');
@@ -187,7 +187,7 @@ export async function analyzeTrade(tradeId) {
   if (!user) return { error: 'You must be signed in.' };
   if (!checkAiRateLimit(user.id)) return { error: 'Rate limit reached. Try again in an hour.' };
 
-  const { data: trade } = await supabase.from('trades').select('*').eq('id', tradeId).maybeSingle();
+  const { data: trade } = await supabase.from('trades').select('*').eq('id', tradeId).eq('user_id', user.id).maybeSingle();
   if (!trade) return { error: 'Trade not found.' };
   const { data: journal } = await supabase.from('journal_entries').select('*').eq('trade_id', tradeId).maybeSingle();
 
