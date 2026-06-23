@@ -29,7 +29,10 @@ export default async function CalendarPage({ searchParams }) {
   const selected = (searchParams && searchParams.date) || null;
 
   const supabase = createClient();
-  const { data: trades } = await supabase.from('trades').select('*').order('created_at', { ascending: false });
+  const { data: trades } = await supabase
+    .from('trades')
+    .select('id, pair, direction, pnl, r_multiple, setup, timeframe, session, trade_date, closed_at, created_at')
+    .order('trade_date', { ascending: false, nullsFirst: false });
   const list = trades || [];
 
   const monthParam = year + '-' + pad2(month + 1);
@@ -52,51 +55,38 @@ export default async function CalendarPage({ searchParams }) {
   });
   const monthlyPnl = monthTrades.reduce((a, t) => a + num(t.pnl), 0);
 
-  // Fetch journal entries to build a day-has-journal map
+  // Single journal query for month trades (merged from two duplicate queries)
   const monthTradeIds = monthTrades.map((t) => t.id);
   let journalDays = {};
+  let journalMap = {};
   if (monthTradeIds.length > 0) {
     const { data: journals } = await supabase
       .from('journal_entries')
-      .select('trade_id, note, screenshot_url, screenshot_urls')
-      .in('trade_id', monthTradeIds);
-    if (journals) {
-      // Build a set of trade_ids that have journal content
-      const journalTradeIds = new Set();
-      journals.forEach((j) => {
-        const hasContent = (j.note && j.note.trim()) ||
-          (j.screenshot_url && j.screenshot_url !== '') ||
-          (Array.isArray(j.screenshot_urls) && j.screenshot_urls.filter(Boolean).length > 0);
-        if (hasContent) journalTradeIds.add(j.trade_id);
-      });
-      // Map trade_id back to day number
-      monthTrades.forEach((t) => {
-        if (journalTradeIds.has(t.id)) {
-          const raw = t.trade_date || t.closed_at || t.created_at;
-          if (raw) {
-            const d = new Date(raw).getUTCDate();
-            journalDays[d] = true;
-          }
-        }
-      });
-    }
-  }
-
-  // Build journal map for all trades (reuse the journal query we already did)
-  let journalMap = {};
-  if (monthTradeIds.length > 0) {
-    const { data: allJournals } = await supabase
-      .from('journal_entries')
       .select('trade_id, emotions, note, screenshot_url, screenshot_urls')
       .in('trade_id', monthTradeIds);
-    (allJournals || []).forEach((j) => {
+    (journals || []).forEach((j) => {
       const urls = Array.isArray(j.screenshot_urls) ? j.screenshot_urls.filter(Boolean) : [];
       const hasImages = urls.length > 0 || (j.screenshot_url && j.screenshot_url !== '');
+      const hasContent = (j.note && j.note.trim()) || hasImages;
+
+      // Build journalMap (for trade table display)
       journalMap[j.trade_id] = {
         emotions: j.emotions || [],
         hasNote: !!(j.note && j.note.trim()),
         hasImages,
       };
+
+      // Build journalDays (for calendar dot indicators)
+      if (hasContent) {
+        const trade = monthTrades.find((t) => t.id === j.trade_id);
+        if (trade) {
+          const raw = trade.trade_date || trade.closed_at || trade.created_at;
+          if (raw) {
+            const d = new Date(raw).getUTCDate();
+            journalDays[d] = true;
+          }
+        }
+      }
     });
   }
 

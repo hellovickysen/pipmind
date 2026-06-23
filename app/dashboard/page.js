@@ -69,7 +69,10 @@ function Stat({ label, value, tone }) {
 
 export default async function DashboardPage() {
   const supabase = createClient();
-  const { data: trades } = await supabase.from('trades').select('*').order('created_at', { ascending: false });
+  const { data: trades } = await supabase
+    .from('trades')
+    .select('id, pair, direction, pnl, r_multiple, setup, timeframe, session, trade_date, closed_at, created_at, entry_price, exit_price')
+    .order('trade_date', { ascending: false, nullsFirst: false });
   const list = trades || [];
   const s = computeStats(list);
   const series = equitySeries(list);
