@@ -186,80 +186,89 @@ export default async function DashboardPage() {
         <Stat label="Trades" value={String(s.n)} />
       </div>
 
-      {/* Playbook Discipline */}
+      {/* Playbook Discipline — full width */}
       {disciplineStats.totalTrades > 0 && (
         <div className="mb-6">
           <DisciplineCards stats={disciplineStats} weeklyScore={weeklyScore} achievements={achievements} />
         </div>
       )}
 
-      {/* Expense Summary Card */}
-      {hasExpenseData && (
-        <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-base">&#128179;</span>
-              <div className="font-display text-base font-semibold">Prop firm expenses</div>
-            </div>
-            <Link href="/dashboard/expenses" className="font-mono text-xs text-cyan-400">Details &rarr;</Link>
+      {/* ─── 2-column layout on desktop ─── */}
+      <div className="mb-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+        {/* Left column: Equity + Recent Trades */}
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+            <div className="mb-3 font-display text-base font-semibold">Equity curve</div>
+            <EquityCurve series={series} />
           </div>
-          <div className="mt-3 grid grid-cols-3 gap-3">
-            <div className="rounded-xl border border-red-400/15 bg-red-500/[0.04] p-3">
-              <div className="font-mono text-[10px] uppercase text-white/40">Spent</div>
-              <div className="mt-1 font-display text-lg font-bold text-red-400">{fmtCurrency(totalExpense)}</div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="font-display text-base font-semibold">Recent trades</div>
+              <Link href="/dashboard/trades" className="font-mono text-xs text-cyan-400">View all &rarr;</Link>
             </div>
-            <div className="rounded-xl border border-emerald-400/15 bg-emerald-500/[0.04] p-3">
-              <div className="font-mono text-[10px] uppercase text-white/40">Payouts</div>
-              <div className="mt-1 font-display text-lg font-bold text-emerald-400">{fmtCurrency(totalPayout)}</div>
-            </div>
-            <div className={'rounded-xl border p-3 ' + (expenseNet >= 0 ? 'border-emerald-400/15 bg-emerald-500/[0.04]' : 'border-amber-400/15 bg-amber-500/[0.04]')}>
-              <div className="font-mono text-[10px] uppercase text-white/40">Net</div>
-              <div className={'mt-1 font-display text-lg font-bold ' + (expenseNet >= 0 ? 'text-emerald-400' : 'text-amber-400')}>
-                {expenseNet >= 0 ? '+' : '-'}{fmtCurrency(Math.abs(expenseNet))}
+            <TradeTable rows={recent} />
+          </div>
+        </div>
+
+        {/* Right column: Calendar + Expenses + AI Coach */}
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+            <PnlCalendar trades={list} />
+          </div>
+
+          {/* Expense Summary */}
+          {hasExpenseData && (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">&#128179;</span>
+                  <div className="font-display text-sm font-semibold">Prop firm expenses</div>
+                </div>
+                <Link href="/dashboard/expenses" className="font-mono text-xs text-cyan-400">Details &rarr;</Link>
+              </div>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                <div className="rounded-lg border border-red-400/15 bg-red-500/[0.04] p-2.5">
+                  <div className="font-mono text-[10px] uppercase text-white/40">Spent</div>
+                  <div className="mt-1 font-display text-base font-bold text-red-400">{fmtCurrency(totalExpense)}</div>
+                </div>
+                <div className="rounded-lg border border-emerald-400/15 bg-emerald-500/[0.04] p-2.5">
+                  <div className="font-mono text-[10px] uppercase text-white/40">Payouts</div>
+                  <div className="mt-1 font-display text-base font-bold text-emerald-400">{fmtCurrency(totalPayout)}</div>
+                </div>
+                <div className={'rounded-lg border p-2.5 ' + (expenseNet >= 0 ? 'border-emerald-400/15 bg-emerald-500/[0.04]' : 'border-amber-400/15 bg-amber-500/[0.04]')}>
+                  <div className="font-mono text-[10px] uppercase text-white/40">Net</div>
+                  <div className={'mt-1 font-display text-base font-bold ' + (expenseNet >= 0 ? 'text-emerald-400' : 'text-amber-400')}>
+                    {expenseNet >= 0 ? '+' : '-'}{fmtCurrency(Math.abs(expenseNet))}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      <div className="mb-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-          <div className="mb-3 font-display text-base font-semibold">Equity curve</div>
-          <EquityCurve series={series} />
-        </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-          <PnlCalendar trades={list} />
-        </div>
-      </div>
-
-      <div className="mb-6 rounded-2xl border border-white/15 bg-gradient-to-b from-violet-500/10 to-cyan-500/5 p-5">
-        <div className="flex items-center justify-between">
-          <div className="font-display text-base font-semibold" style={gradientText}>&#10022; AI Coach</div>
-          <Link href="/dashboard/coach" className="font-mono text-xs text-cyan-400">Open &rarr;</Link>
-        </div>
-        {report ? (
-          <div className="mt-2">
-            {coach.summary ? <p className="text-sm leading-relaxed text-white/80">{coach.summary}</p> : null}
-            {topMistake ? (
-              <p className="mt-2 text-xs text-white/55">
-                Top recurring leak: <span className="text-white/80">{topMistake.pattern}</span>
-                {topMistake.frequency ? ' (' + topMistake.frequency + ')' : ''}
+          {/* AI Coach */}
+          <div className="rounded-2xl border border-white/15 bg-gradient-to-b from-violet-500/10 to-cyan-500/5 p-5">
+            <div className="flex items-center justify-between">
+              <div className="font-display text-sm font-semibold" style={gradientText}>&#10022; AI Coach</div>
+              <Link href="/dashboard/coach" className="font-mono text-xs text-cyan-400">Open &rarr;</Link>
+            </div>
+            {report ? (
+              <div className="mt-2">
+                {coach.summary ? <p className="text-sm leading-relaxed text-white/80">{coach.summary}</p> : null}
+                {topMistake ? (
+                  <p className="mt-2 text-xs text-white/55">
+                    Top recurring leak: <span className="text-white/80">{topMistake.pattern}</span>
+                    {topMistake.frequency ? ' (' + topMistake.frequency + ')' : ''}
+                  </p>
+                ) : null}
+              </div>
+            ) : (
+              <p className="mt-2 text-sm leading-relaxed text-white/55">
+                Generate a coaching report to see your recurring patterns.
               </p>
-            ) : null}
+            )}
           </div>
-        ) : (
-          <p className="mt-2 text-sm leading-relaxed text-white/55">
-            Generate a coaching report to see your recurring mistakes and trading psychology across all your trades.
-          </p>
-        )}
-      </div>
-
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="font-display text-base font-semibold">Recent trades</div>
-          <Link href="/dashboard/trades" className="font-mono text-xs text-cyan-400">View all &rarr;</Link>
         </div>
-        <TradeTable rows={recent} />
       </div>
     </div>
   );
