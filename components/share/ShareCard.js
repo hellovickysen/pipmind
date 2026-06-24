@@ -9,13 +9,16 @@ function fmtMoney(v) {
   return sign + '$' + abs.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-/** P&L format for card — same style as trade detail page */
+/** P&L format for card — returns { prefix, whole, decimal } for financial-style split render */
 function fmtPnlCard(v, isStory) {
   const n = Number(v) || 0;
   const sign = n >= 0 ? '+' : '-';
   const abs = Math.abs(n);
-  if (isStory && abs >= 10000) return sign + '$' + (abs / 1000).toFixed(1) + 'K';
-  return sign + '$' + abs.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  if (isStory && abs >= 10000) return { prefix: sign + '$', whole: (abs / 1000).toFixed(1) + 'K', decimal: '' };
+  if (abs >= 100000) return { prefix: sign + '$', whole: (abs / 1000).toFixed(1) + 'K', decimal: '' };
+  const wholeNum = Math.floor(abs);
+  const dec = Math.round((abs - wholeNum) * 100).toString().padStart(2, '0');
+  return { prefix: sign + '$', whole: wholeNum.toLocaleString('en-US'), decimal: '.' + dec };
 }
 
 function fmtMoneyShort(v) {
@@ -57,9 +60,9 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
   // Strip emoji from quote for html2canvas compatibility
   const cleanQuote = quote ? quote.replace(/[\u{1F600}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}\u{1F1E0}-\u{1F1FF}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{2702}-\u{27B0}\u{FE0E}]/gu, '').trim() : '';
 
-  // P&L formatting — single string, auto-sized to fit
-  const pnlText = fmtPnlCard(data.pnl, isStory);
-  const pnlLen = pnlText.length;
+  // P&L formatting — split into prefix ($), whole, decimal for financial-style render
+  const pnlParts = fmtPnlCard(data.pnl, isStory);
+  const pnlLen = (pnlParts.prefix + pnlParts.whole + pnlParts.decimal).length;
   const baseFontSize = isStory ? 48 : 52;
   const pnlFontSize = pnlLen > 12 ? baseFontSize - 14 : pnlLen > 9 ? baseFontSize - 6 : baseFontSize;
 
@@ -130,18 +133,24 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
             {type === 'daily' ? "Today's P&L" : (data.pair || 'Trade') + ' ' + ((data.direction || '').toUpperCase())}
           </div>
 
-          {/* P&L amount - same style as trade detail page */}
+          {/* P&L amount - financial style: +$ 401.80 with smaller decimals */}
           <div style={{
-            fontSize: pnlFontSize,
             fontWeight: 800,
             fontFamily: "'Inter', 'Helvetica Neue', sans-serif",
             color: accentColor,
             lineHeight: 1.15,
-            letterSpacing: '-0.02em',
             textShadow: `0 0 40px ${accentGlow}`,
             whiteSpace: 'nowrap',
+            display: 'flex',
+            alignItems: 'baseline',
+            justifyContent: 'center',
           }}>
-            {pnlText}
+            <span style={{ fontSize: pnlFontSize, letterSpacing: '-0.02em' }}>{pnlParts.prefix}</span>
+            <span style={{ width: isStory ? 4 : 5, flexShrink: 0 }} />
+            <span style={{ fontSize: pnlFontSize, letterSpacing: '-0.02em' }}>{pnlParts.whole}</span>
+            {pnlParts.decimal && (
+              <span style={{ fontSize: Math.round(pnlFontSize * 0.7), letterSpacing: '-0.01em', opacity: 0.85 }}>{pnlParts.decimal}</span>
+            )}
           </div>
 
           {/* Quote */}
