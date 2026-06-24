@@ -263,6 +263,166 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══════════════ PRODUCT SHOWCASE ═══════════════ */}
+
+      {/* Showcase 1: Dashboard — text left, mockup right */}
+      <section className="px-6 py-20 sm:px-10" data-reveal>
+        <div className="mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-2">
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-300/20 bg-violet-300/8 px-3 py-1 text-[11px] font-semibold text-violet-200">
+              Dashboard
+            </div>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">Your trading story,<br />told in numbers</h2>
+            <p className="mt-4 text-sm leading-relaxed text-white/55">Win rate, profit factor, average R, equity curve — all computed automatically from your trades. No spreadsheets. No guessing.</p>
+            <ul className="mt-6 space-y-3 text-sm text-white/60">
+              {['Real-time equity curve tracks your growth', 'Weekly discipline score keeps you honest', 'Achievement badges reward consistency'].map((item, i) => (
+                <li key={i} className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-emerald-400">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5" data-reveal style={{ '--reveal-delay': '120ms' }}>
+            {/* Fake dashboard mockup */}
+            <div className="mb-4 flex items-center justify-between">
+              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">Dashboard overview</span>
+              <span className="text-xs text-emerald-300">June 2026</span>
+            </div>
+            <div className="grid grid-cols-4 gap-3 mb-5">
+              {[
+                { label: 'Win rate', val: '62%', color: 'text-emerald-400' },
+                { label: 'Profit factor', val: '1.84', color: 'text-emerald-400' },
+                { label: 'Avg R', val: '+0.72R', color: 'text-cyan-300' },
+                { label: 'Total P&L', val: '+$2,847', color: 'text-emerald-400' },
+              ].map((s) => (
+                <div key={s.label} className="rounded-xl border border-white/8 bg-black/30 p-3">
+                  <div className="font-mono text-[9px] uppercase tracking-wider text-white/30">{s.label}</div>
+                  <div className={`mt-1 font-display text-sm font-bold ${s.color}`}>{s.val}</div>
+                </div>
+              ))}
+            </div>
+            {/* Fake equity curve */}
+            <div className="rounded-xl border border-white/8 bg-black/20 p-4">
+              <div className="font-mono text-[9px] uppercase tracking-wider text-white/30 mb-3">Equity curve</div>
+              <svg viewBox="0 0 400 80" className="w-full h-16" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="eq" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="rgba(52,211,153,0.3)" />
+                    <stop offset="100%" stopColor="rgba(52,211,153,0)" />
+                  </linearGradient>
+                </defs>
+                <path d="M0,65 L30,60 L60,55 L90,58 L120,45 L150,48 L180,38 L210,42 L240,30 L270,28 L300,22 L330,18 L360,15 L400,10" fill="none" stroke="#34d399" strokeWidth="2" />
+                <path d="M0,65 L30,60 L60,55 L90,58 L120,45 L150,48 L180,38 L210,42 L240,30 L270,28 L300,22 L330,18 L360,15 L400,10 L400,80 L0,80Z" fill="url(#eq)" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Showcase 2: AI Coach — mockup left, text right */}
+      <section className="px-6 py-20 sm:px-10" data-reveal>
+        <div className="mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-2">
+          <div className="order-2 lg:order-1 rounded-2xl border border-white/10 bg-white/[0.03] p-5" data-reveal style={{ '--reveal-delay': '120ms' }}>
+            {/* Fake AI coach report */}
+            <div className="mb-4 flex items-center justify-between">
+              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">AI Coach Report</span>
+              <span className="rounded-full border border-amber-300/25 bg-amber-300/10 px-2.5 py-0.5 text-[10px] font-semibold text-amber-200">2 patterns found</span>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 mb-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="font-mono text-[10px] uppercase tracking-wider text-red-300/60">Recurring mistake #1</div>
+                  <p className="mt-1.5 text-sm leading-relaxed text-white/75">Revenge trading after back-to-back losses during London close. Cost you -3.8R this week.</p>
+                </div>
+                <span className="shrink-0 rounded-lg bg-red-400/12 px-2 py-1 text-xs font-bold text-red-300">-3.8R</span>
+              </div>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 mb-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="font-mono text-[10px] uppercase tracking-wider text-amber-300/60">Recurring mistake #2</div>
+                  <p className="mt-1.5 text-sm leading-relaxed text-white/75">Moving stop loss on XAU/USD scalps. 4 of 6 losses this week had SL adjustments.</p>
+                </div>
+                <span className="shrink-0 rounded-lg bg-amber-400/12 px-2 py-1 text-xs font-bold text-amber-300">-1.6R</span>
+              </div>
+            </div>
+            <div className="rounded-xl border border-emerald-300/15 bg-emerald-300/8 p-3">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-emerald-300/60 mb-1">AI recommendation</div>
+              <p className="text-xs leading-relaxed text-emerald-50/75">Set a hard rule: no new trades for 20 minutes after 2 consecutive losses. Your win rate after cool-down is 71% vs 34% without.</p>
+            </div>
+          </div>
+          <div className="order-1 lg:order-2">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/8 px-3 py-1 text-[11px] font-semibold text-cyan-200">
+              AI Coach
+            </div>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">The AI finds what<br />you can&apos;t see</h2>
+            <p className="mt-4 text-sm leading-relaxed text-white/55">Every week, the AI analyzes your trades, finds recurring mistakes, ranks them by R lost, and tells you exactly how to fix them. No generic advice — just your data.</p>
+            <ul className="mt-6 space-y-3 text-sm text-white/60">
+              {['Per-trade grading with execution score', 'Weekly recurring mistake detection', 'Psychology insights with concrete guardrails'].map((item, i) => (
+                <li key={i} className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-cyan-400">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Showcase 3: P&L Calendar — text left, mockup right */}
+      <section className="px-6 py-20 sm:px-10" data-reveal>
+        <div className="mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-2">
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/8 px-3 py-1 text-[11px] font-semibold text-emerald-200">
+              P&L Calendar
+            </div>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">See your patterns<br />at a glance</h2>
+            <p className="mt-4 text-sm leading-relaxed text-white/55">A visual monthly grid with daily P&L, weekly totals, and session tracking. Spot losing streaks, revenge days, and your best sessions instantly.</p>
+            <ul className="mt-6 space-y-3 text-sm text-white/60">
+              {['Color-coded daily P&L — green wins, red losses', 'Weekly summary totals on every row', 'Click any day to see all trades and journal entries'].map((item, i) => (
+                <li key={i} className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-emerald-400">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5" data-reveal style={{ '--reveal-delay': '120ms' }}>
+            {/* Fake P&L calendar */}
+            <div className="mb-4 flex items-center justify-between">
+              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">June 2026</span>
+              <span className="text-xs text-emerald-300">+$2,847</span>
+            </div>
+            <div className="grid grid-cols-7 gap-1 mb-2">
+              {['M','T','W','T','F','S','S'].map((d, i) => (
+                <div key={i} className="text-center font-mono text-[9px] text-white/25 pb-1">{d}</div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-1.5">
+              {[
+                null, null, '+$185', '-$90', '+$340', null, null,
+                '+$220', '+$165', '-$45', '+$410', '-$120', null, null,
+                '+$280', '-$195', '+$95', '+$375', '+$190', null, null,
+                '+$145', '+$320', '-$80', '+$260', null, null, null,
+              ].map((day, i) => {
+                if (day === null) return <span key={i} className="h-10 rounded-lg bg-white/[0.02]" />;
+                const isWin = day.startsWith('+');
+                return (
+                  <span key={i} className={`flex h-10 items-center justify-center rounded-lg text-[10px] font-mono font-semibold ${isWin ? 'bg-emerald-400/15 text-emerald-300' : 'bg-red-400/15 text-red-300'}`}>
+                    {day}
+                  </span>
+                );
+              })}
+            </div>
+            <div className="mt-3 flex items-center justify-between border-t border-white/8 pt-3 text-xs">
+              <span className="text-white/40">16 trades · 11 wins · 5 losses</span>
+              <span className="font-mono font-semibold text-emerald-300">68.7% WR</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ═══════════════ FEATURES ═══════════════ */}
       <section className="px-6 py-16 sm:px-10" data-reveal>
         <div className="mx-auto max-w-5xl">
