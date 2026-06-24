@@ -1,6 +1,6 @@
 import './globals.css';
-import PostHogProvider from '@/components/PostHogProvider';
-import { ToastProvider } from '@/components/Toast';
+import PostHogProvider from '@/components/layout/PostHogProvider';
+import { ToastProvider } from '@/components/ui/Toast';
 
 export const metadata = {
   title: 'PropJournal — AI Trading Journal for Prop Firm Traders',

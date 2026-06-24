@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import TrophyWall from '@/components/TrophyWall';
+import TrophyWall from '@/components/trophies/TrophyWall';
 
 export const dynamic = 'force-dynamic';
 

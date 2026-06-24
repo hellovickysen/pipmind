@@ -2,11 +2,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { fmtMoney, fmtR, num } from '@/lib/stats';
-import JournalSection from '@/components/JournalSection';
-import DeleteTradeButton from '@/components/DeleteTradeButton';
-import ShareButton from '@/components/ShareButton';
-import AiInsight from '@/components/AiInsight';
-import AnalyzeButton from '@/components/AnalyzeButton';
+import JournalSection from '@/components/journal/JournalSection';
+import DeleteTradeButton from '@/components/trades/DeleteTradeButton';
+import ShareButton from '@/components/share/ShareButton';
+import AiInsight from '@/components/coach/AiInsight';
+import AnalyzeButton from '@/components/coach/AnalyzeButton';
 
 export const dynamic = 'force-dynamic';
 

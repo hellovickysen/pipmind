@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
-import CoachReport from '@/components/CoachReport';
-import GenerateReportButton from '@/components/GenerateReportButton';
-import EmailReportButton from '@/components/EmailReportButton';
+import CoachReport from '@/components/coach/CoachReport';
+import GenerateReportButton from '@/components/coach/GenerateReportButton';
+import EmailReportButton from '@/components/coach/EmailReportButton';
 import Link from 'next/link';
 import { isEmailConfigured } from '@/lib/email';
 

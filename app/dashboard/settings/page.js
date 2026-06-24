@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
-import SettingsTabs from '@/components/SettingsTabs';
-import PublicProfileSettings from '@/components/PublicProfileSettings';
+import SettingsTabs from '@/components/settings/SettingsTabs';
+import PublicProfileSettings from '@/components/profile/PublicProfileSettings';
 
 export const dynamic = 'force-dynamic';
 

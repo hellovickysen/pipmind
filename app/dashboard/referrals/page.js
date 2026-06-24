@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import ReferralDashboard from '@/components/ReferralDashboard';
+import ReferralDashboard from '@/components/referrals/ReferralDashboard';
 
 export const dynamic = 'force-dynamic';
 

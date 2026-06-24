@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import PlaybookPage from '@/components/PlaybookPage';
+import PlaybookPage from '@/components/playbook/PlaybookPage';
 
 export const dynamic = 'force-dynamic';
 

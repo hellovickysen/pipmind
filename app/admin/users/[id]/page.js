@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createAdminClient, isAdminConfigured } from '@/lib/supabase/admin';
 import { fmtMoney, num } from '@/lib/stats';
-import AdminTradeList from '@/components/AdminTradeList';
+import AdminTradeList from '@/components/admin/AdminTradeList';
 
 export const dynamic = 'force-dynamic';
 

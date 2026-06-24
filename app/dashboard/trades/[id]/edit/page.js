@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import TradeForm from '@/components/TradeForm';
+import TradeForm from '@/components/trades/TradeForm';
 
 export const dynamic = 'force-dynamic';
 

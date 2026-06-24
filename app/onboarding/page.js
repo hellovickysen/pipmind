@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import OnboardingFlow from '@/components/OnboardingFlow';
+import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
 
 export const dynamic = 'force-dynamic';
 

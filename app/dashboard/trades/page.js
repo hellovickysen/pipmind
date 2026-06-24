@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import TradeFilters from '@/components/TradeFilters';
-import ExportButton from '@/components/ExportButton';
+import TradeFilters from '@/components/trades/TradeFilters';
+import ExportButton from '@/components/trades/ExportButton';
 
 export const dynamic = 'force-dynamic';
 

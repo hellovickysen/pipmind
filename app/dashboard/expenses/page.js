@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import ExpenseTracker from '@/components/ExpenseTracker';
+import ExpenseTracker from '@/components/expenses/ExpenseTracker';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { computeStats, equitySeries, fmtMoney, fmtR, num, computeDisciplineStats, computeWeeklyScore, computeAchievements } from '@/lib/stats';
-import TradeTable from '@/components/TradeTable';
-import PnlCalendar from '@/components/PnlCalendar';
-import DashboardShareButton from '@/components/DashboardShareButton';
-import DisciplineCards from '@/components/DisciplineCards';
-import ReferralCapture from '@/components/ReferralCapture';
+import { computeStats, equitySeries, fmtMoney, fmtR, num } from '@/lib/stats';
+import { computeDisciplineStats, computeWeeklyScore } from '@/lib/discipline';
+import { computeAchievements } from '@/lib/achievements';
+import TradeTable from '@/components/trades/TradeTable';
+import PnlCalendar from '@/components/calendar/PnlCalendar';
+import DashboardShareButton from '@/components/dashboard/DashboardShareButton';
+import DisciplineCards from '@/components/dashboard/DisciplineCards';
+import ReferralCapture from '@/components/referrals/ReferralCapture';
 
 export const dynamic = 'force-dynamic';
 

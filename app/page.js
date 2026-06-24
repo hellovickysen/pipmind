@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { HeroParticles, LandingMotion } from '@/components/LandingMotion';
+import { HeroParticles, LandingMotion } from '@/components/landing/LandingMotion';
 
 const gradientText = { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' };
 const gradientBtn = { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)' };
@@ -20,7 +20,7 @@ const FEATURES = [
   { icon: '📏', title: 'Trading rules engine', desc: 'Define your rules. The AI checks every trade against them and flags violations before they cost you a challenge.', coming: true },
   { icon: '🌐', title: 'Cross-user pattern intelligence', desc: 'Anonymous aggregate insights will show which mistakes and setups are trending across funded traders.', coming: true },
   { icon: '💳', title: 'Stripe subscriptions', desc: 'Pro plans, billing controls, and referral-credit redemption will arrive once the beta feature set is ready.', coming: true },
-  { icon: '🤖', title: 'Telegram bot', desc: 'Log trades from Telegram without opening the app. "/log XAU/USD long +$145" and done.', coming: true },
+  { icon: '🤖', title: 'Telegram bot', desc: 'Log trades from Telegram without opening the app. \"/log XAU/USD long +$145\" and done.', coming: true },
 ];
 
 const STATS = [
@@ -92,7 +92,7 @@ export default function Home() {
             <div className="product-mockup relative mx-auto max-w-xl rounded-[2rem] border border-white/12 bg-[#0b0b14]/85 p-4 shadow-2xl shadow-cyan-950/30 backdrop-blur-xl">
               <div className="mb-4 flex items-center justify-between border-b border-white/8 pb-4">
                 <div>
-                  <div className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/35">Today’s coaching</div>
+                  <div className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/35">Today's coaching</div>
                   <div className="mt-1 font-display text-lg font-bold text-white">Pattern detected</div>
                 </div>
                 <div className="rounded-full border border-amber-300/25 bg-amber-300/10 px-3 py-1 text-xs font-semibold text-amber-200">Medium risk</div>

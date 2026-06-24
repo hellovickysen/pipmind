@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import CalendarMonth from '@/components/CalendarMonth';
-import TradeTable from '@/components/TradeTable';
+import CalendarMonth from '@/components/calendar/CalendarMonth';
+import TradeTable from '@/components/trades/TradeTable';
 import { num, fmtMoney } from '@/lib/stats';
 
 export const dynamic = 'force-dynamic';

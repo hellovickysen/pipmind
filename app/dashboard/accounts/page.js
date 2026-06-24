@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
-import ConnectAccountForm from '@/components/ConnectAccountForm';
-import SyncAccountButton from '@/components/SyncAccountButton';
+import ConnectAccountForm from '@/components/accounts/ConnectAccountForm';
+import SyncAccountButton from '@/components/accounts/SyncAccountButton';
 import { getAccountStatus } from '@/lib/metaapi';
 
 export const dynamic = 'force-dynamic';

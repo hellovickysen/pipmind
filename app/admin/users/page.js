@@ -1,5 +1,5 @@
 import { createAdminClient, isAdminConfigured, ADMIN_EMAIL } from '@/lib/supabase/admin';
-import AdminUserTabs from '@/components/AdminUserTabs';
+import AdminUserTabs from '@/components/admin/AdminUserTabs';
 
 export const dynamic = 'force-dynamic';
 

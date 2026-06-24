@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import PnlCalendar from '@/components/PnlCalendar';
-import ProfileTradeList from '@/components/ProfileTradeList';
+import PnlCalendar from '@/components/calendar/PnlCalendar';
+import ProfileTradeList from '@/components/profile/ProfileTradeList';
 
 export const dynamic = 'force-dynamic';
 

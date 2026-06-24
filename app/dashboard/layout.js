@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
-import Sidebar from '@/components/Sidebar';
-import MobileNav from '@/components/MobileNav';
-import QuickLog from '@/components/QuickLog';
-import RiskFooter from '@/components/RiskFooter';
+import Sidebar from '@/components/layout/Sidebar';
+import MobileNav from '@/components/layout/MobileNav';
+import QuickLog from '@/components/trades/QuickLog';
+import RiskFooter from '@/components/layout/RiskFooter';
 import { num, fmtMoney } from '@/lib/stats';
 
 export const dynamic = 'force-dynamic';
