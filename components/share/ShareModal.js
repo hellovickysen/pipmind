@@ -7,7 +7,7 @@ import { getQuote } from '@/lib/quotes';
 /**
  * ShareModal — fullscreen overlay with:
  * - Aspect ratio toggle (Story 9:16 / Landscape 16:9)
- * - Live preview of the share card
+ * - Preview shows the ACTUAL rendered canvas (preview === download)
  * - Download PNG button (html2canvas from CDN)
  * - Mobile share button (Web Share API)
  */
@@ -17,21 +17,49 @@ export default function ShareModal({ type, data, onClose }) {
   const [sharing, setSharing] = useState(false);
   const [canShare, setCanShare] = useState(false);
   const [quote] = useState(() => getQuote(data.pnl));
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [rendering, setRendering] = useState(true);
   const cardRef = useRef(null);
+  const canvasRef = useRef(null);
 
-  // Load html2canvas from CDN on mount + detect Web Share API
+  // Load html2canvas from CDN + detect Web Share API
   useEffect(() => {
     if (typeof window !== 'undefined') {
       if (!window.html2canvas) {
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
         script.async = true;
+        script.onload = () => renderPreview();
         document.head.appendChild(script);
       }
-      // Check if Web Share API with file sharing is available (mainly mobile)
       setCanShare(!!navigator.share && !!navigator.canShare);
     }
   }, []);
+
+  // Re-render preview when ratio changes or html2canvas loads
+  const renderPreview = useCallback(async () => {
+    if (!cardRef.current || !window.html2canvas) return;
+    setRendering(true);
+    try {
+      const canvas = await window.html2canvas(cardRef.current, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#07070b',
+      });
+      canvasRef.current = canvas;
+      setPreviewUrl(canvas.toDataURL('image/png'));
+    } catch (e) {
+      console.error('Preview render failed:', e);
+    }
+    setRendering(false);
+  }, []);
+
+  // Re-render when ratio changes
+  useEffect(() => {
+    // Small delay to let the card DOM update with new ratio
+    const timer = setTimeout(() => renderPreview(), 100);
+    return () => clearTimeout(timer);
+  }, [ratio, renderPreview]);
 
   // ESC to close
   useEffect(() => {
@@ -40,27 +68,22 @@ export default function ShareModal({ type, data, onClose }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  // Generate canvas from card DOM
-  const generateCanvas = useCallback(async () => {
-    if (!cardRef.current || !window.html2canvas) return null;
-    return window.html2canvas(cardRef.current, {
-      scale: 3,
-      useCORS: true,
-      backgroundColor: '#07070b',
-    });
-  }, []);
-
   const getFilename = useCallback(() => {
     const dateStr = (data.date || data.trade_date || 'trade').replace(/\//g, '-');
     return 'propjournal-' + type + '-' + dateStr + '-' + ratio.replace(':', 'x') + '.png';
   }, [ratio, type, data]);
 
-  // Download PNG
+  // Download PNG — uses the same canvas as the preview
   const download = useCallback(async () => {
     setDownloading(true);
     try {
-      const canvas = await generateCanvas();
-      if (!canvas) return;
+      // Re-render to get a fresh canvas (in case of any state changes)
+      if (!cardRef.current || !window.html2canvas) return;
+      const canvas = await window.html2canvas(cardRef.current, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#07070b',
+      });
       const link = document.createElement('a');
       link.download = getFilename();
       link.href = canvas.toDataURL('image/png');
@@ -69,14 +92,18 @@ export default function ShareModal({ type, data, onClose }) {
       console.error('Download failed:', e);
     }
     setDownloading(false);
-  }, [generateCanvas, getFilename]);
+  }, [getFilename]);
 
   // Share via Web Share API (mobile)
   const share = useCallback(async () => {
     setSharing(true);
     try {
-      const canvas = await generateCanvas();
-      if (!canvas) return;
+      if (!cardRef.current || !window.html2canvas) return;
+      const canvas = await window.html2canvas(cardRef.current, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#07070b',
+      });
       const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
       const file = new File([blob], getFilename(), { type: 'image/png' });
 
@@ -85,11 +112,11 @@ export default function ShareModal({ type, data, onClose }) {
           files: [file],
           title: 'My PropJournal P&L',
           text: type === 'daily'
-            ? `Today's P&L: ${data.pnl >= 0 ? '+' : '-'}$${Math.abs(data.pnl || 0).toFixed(2)} 📈`
-            : `${data.pair || 'Trade'} P&L: ${data.pnl >= 0 ? '+' : '-'}$${Math.abs(data.pnl || 0).toFixed(2)}`,
+            ? 'Today\'s P&L: ' + (data.pnl >= 0 ? '+' : '-') + '$' + Math.abs(data.pnl || 0).toFixed(2)
+            : (data.pair || 'Trade') + ' P&L: ' + (data.pnl >= 0 ? '+' : '-') + '$' + Math.abs(data.pnl || 0).toFixed(2),
         });
       } else {
-        // Fallback: download instead
+        // Fallback: download
         const link = document.createElement('a');
         link.download = getFilename();
         link.href = canvas.toDataURL('image/png');
@@ -99,7 +126,7 @@ export default function ShareModal({ type, data, onClose }) {
       if (e.name !== 'AbortError') console.error('Share failed:', e);
     }
     setSharing(false);
-  }, [generateCanvas, getFilename, type, data]);
+  }, [getFilename, type, data]);
 
   const isStory = ratio === '9:16';
 
@@ -107,7 +134,7 @@ export default function ShareModal({ type, data, onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm" onClick={onClose}>
       <div className="relative flex max-h-[95vh] max-w-3xl flex-col items-center gap-5 overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
         {/* Close */}
-        <button onClick={onClose} className="absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-full border border-white/20 bg-black/60 text-white/70 hover:text-white">✕</button>
+        <button onClick={onClose} className="absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-full border border-white/20 bg-black/60 text-white/70 hover:text-white">&#10005;</button>
 
         {/* Title */}
         <div className="text-center">
@@ -131,9 +158,31 @@ export default function ShareModal({ type, data, onClose }) {
           </button>
         </div>
 
-        {/* Card preview — uses zoom instead of transform to avoid layout differences with html2canvas */}
-        <div className="rounded-xl border border-white/10 overflow-hidden shadow-2xl" style={{ zoom: 0.85 }}>
+        {/* Hidden card — rendered off-screen for html2canvas to capture */}
+        <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
           <ShareCard ref={cardRef} type={type} ratio={ratio} data={data} quote={quote} />
+        </div>
+
+        {/* Preview — shows the actual canvas render (identical to download) */}
+        <div className="rounded-xl border border-white/10 overflow-hidden shadow-2xl">
+          {previewUrl ? (
+            <img
+              src={previewUrl}
+              alt="P&L Card Preview"
+              style={{
+                width: isStory ? 306 : 544,
+                height: isStory ? 544 : 306,
+                display: 'block',
+              }}
+            />
+          ) : (
+            <div
+              className="flex items-center justify-center bg-white/[0.03]"
+              style={{ width: isStory ? 306 : 544, height: isStory ? 544 : 306 }}
+            >
+              <span className="text-sm text-white/40">{rendering ? 'Rendering...' : 'Loading...'}</span>
+            </div>
+          )}
         </div>
 
         {/* Action buttons */}
@@ -146,7 +195,7 @@ export default function ShareModal({ type, data, onClose }) {
               className="rounded-xl px-6 py-3 text-sm font-semibold text-[#08080f] disabled:opacity-60 transition-transform hover:-translate-y-0.5"
               style={{ background: 'linear-gradient(120deg,#a78bfa,#22d3ee)' }}
             >
-              {sharing ? 'Preparing…' : '📤 Share'}
+              {sharing ? 'Preparing...' : '📤 Share'}
             </button>
           )}
 
@@ -162,11 +211,11 @@ export default function ShareModal({ type, data, onClose }) {
             }
             style={canShare ? {} : { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)' }}
           >
-            {downloading ? 'Generating…' : '⬇ Download PNG'}
+            {downloading ? 'Generating...' : '⬇ Download PNG'}
           </button>
         </div>
 
-        <p className="text-[10px] text-white/25">HD export · Share on Twitter, Instagram Stories, or TikTok</p>
+        <p className="text-[10px] text-white/25">HD export &middot; Share on Twitter, Instagram Stories, or TikTok</p>
       </div>
     </div>
   );
