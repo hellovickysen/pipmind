@@ -99,7 +99,7 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
             }}>◆</div>
             <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em' }}>PropJournal</span>
           </div>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.02em' }}>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.02em' }}>
             {fmtDate(data.date || data.trade_date)}
           </span>
         </div>
@@ -116,7 +116,7 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
           {/* Type label */}
           <div style={{
             fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.2em',
-            color: 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace",
+            color: 'rgba(255,255,255,0.5)', fontFamily: "'JetBrains Mono', monospace",
           }}>
             {type === 'daily' ? "Today's P&L" : (data.pair || 'Trade') + ' ' + ((data.direction || '').toUpperCase())}
           </div>
@@ -133,29 +133,19 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
             {fmtMoney(data.pnl)}
           </div>
 
-          {/* Win/loss indicator bar */}
-          <div style={{
-            display: 'flex', justifyContent: 'center', marginTop: isStory ? 4 : 2,
-          }}>
-            <div style={{
-              width: isStory ? 80 : 60, height: 3, borderRadius: 2,
-              background: accentGradient,
-              boxShadow: `0 0 12px ${accentGlow}`,
-            }} />
-          </div>
-
           {/* Quote */}
           {cleanQuote && (
             <div style={{
-              fontSize: isStory ? 16 : 13,
-              color: 'rgba(255,255,255,0.45)',
+              fontSize: isStory ? 16 : 14,
+              color: 'rgba(255,255,255,0.55)',
               fontWeight: 500,
-              fontStyle: 'italic',
-              marginTop: isStory ? 8 : 4,
-              padding: '0 12px',
-              lineHeight: 1.4,
+              marginTop: isStory ? 14 : 8,
+              padding: '0 16px',
+              lineHeight: 1.5,
+              letterSpacing: '0.02em',
+              wordSpacing: '0.08em',
             }}>
-              "{cleanQuote}"
+              {cleanQuote}
             </div>
           )}
         </div>
@@ -163,7 +153,8 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
         {/* Stats row */}
         <div>
           <div style={{
-            display: 'flex', justifyContent: 'center', gap: isStory ? 6 : 6, flexWrap: 'wrap',
+            display: 'flex', justifyContent: 'center', alignItems: 'stretch',
+            gap: isStory ? 10 : 10, flexWrap: 'nowrap',
             marginBottom: isStory ? 16 : 10,
           }}>
             {type === 'daily' ? (
@@ -186,7 +177,7 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
           {/* Watermark */}
           <div style={{ textAlign: 'center' }}>
             <span style={{
-              fontSize: 9, color: 'rgba(255,255,255,0.18)',
+              fontSize: 10, color: 'rgba(255,255,255,0.45)',
               fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em',
             }}>
               propjournal.app — AI Trading Journal
@@ -201,20 +192,22 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
 function StatChip({ label, value, accent, isStory }) {
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.05)',
-      border: '1px solid rgba(255,255,255,0.08)',
+      background: 'rgba(255,255,255,0.06)',
+      border: '1px solid rgba(255,255,255,0.1)',
       borderRadius: 10,
-      padding: isStory ? '8px 14px' : '6px 12px',
+      padding: isStory ? '10px 16px' : '8px 16px',
       textAlign: 'center',
-      minWidth: isStory ? 68 : 60,
+      minWidth: isStory ? 72 : 70,
+      flex: '1 1 0',
+      maxWidth: isStory ? 100 : 130,
     }}>
       <div style={{
-        fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.14em',
-        color: 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace",
-        marginBottom: 3,
+        fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.14em',
+        color: 'rgba(255,255,255,0.45)', fontFamily: "'JetBrains Mono', monospace",
+        marginBottom: 4,
       }}>{label}</div>
       <div style={{
-        fontSize: isStory ? 14 : 12, fontWeight: 700,
+        fontSize: isStory ? 15 : 13, fontWeight: 700,
         fontFamily: "'JetBrains Mono', monospace",
         color: accent ? '#34d399' : '#fff',
       }}>{value}</div>
