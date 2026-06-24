@@ -1,4 +1,6 @@
 import { createAdminClient, isAdminConfigured } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
+import BetaCountControl from '@/components/admin/BetaCountControl';
 
 export const dynamic = 'force-dynamic';
 
@@ -117,6 +119,9 @@ export default async function AdminOverviewPage() {
             </div>
           </div>
         </div>
+
+        {/* Beta Counter Control */}
+        <BetaCountControl />
 
         <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
           <Stat label="Free Plan" value={plans.free} />

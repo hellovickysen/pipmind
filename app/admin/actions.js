@@ -28,6 +28,24 @@ export async function banUser(userId, reason) {
   return { ok: true };
 }
 
+export async function updateBetaCount(newCount) {
+  const auth = await verifyAdmin();
+  if (auth.error) return auth;
+
+  const count = parseInt(newCount, 10);
+  if (isNaN(count) || count < 0 || count > 500) return { error: 'Count must be 0-500.' };
+
+  const supabase = createClient();
+  const { error } = await supabase
+    .from('site_settings')
+    .upsert({ key: 'beta_count', value: String(count), updated_at: new Date().toISOString() }, { onConflict: 'key' });
+  if (error) return { error: error.message };
+
+  revalidatePath('/');
+  revalidatePath('/admin');
+  return { ok: true, count };
+}
+
 export async function unbanUser(userId) {
   const auth = await verifyAdmin();
   if (auth.error) return auth;

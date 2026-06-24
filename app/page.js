@@ -1,9 +1,38 @@
 import Link from 'next/link';
 import { HeroParticles, LandingMotion } from '@/components/landing/LandingMotion';
+import { createClient } from '@/lib/supabase/server';
 
 const gradientText = { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' };
 const gradientBtn = { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)' };
 const redGlow = { textShadow: '0 0 40px rgba(248,113,113,0.3)' };
+
+const BETA_LIMIT = 500;
+
+function BetaBar({ count }) {
+  const pct = Math.min(100, (count / BETA_LIMIT) * 100);
+  const remaining = Math.max(0, BETA_LIMIT - count);
+  const barColor = count >= 480 ? 'linear-gradient(120deg, #f87171, #ef4444)'
+    : count >= 400 ? 'linear-gradient(120deg, #fbbf24, #f59e0b)'
+    : 'linear-gradient(120deg, #a78bfa, #22d3ee)';
+  const dotColor = count >= 480 ? 'bg-red-400' : count >= 400 ? 'bg-amber-400' : 'bg-emerald-300';
+  const textColor = count >= 480 ? 'text-red-300' : count >= 400 ? 'text-amber-300' : 'text-emerald-300';
+
+  return (
+    <div className="mx-auto mt-6 max-w-xs">
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-white/60">
+          <span className={`h-1.5 w-1.5 rounded-full ${dotColor} shadow-[0_0_8px_rgba(52,211,153,0.6)]`} />
+          Beta spots
+        </span>
+        <span className={`font-mono text-[11px] font-bold ${textColor}`}>{remaining} left</span>
+      </div>
+      <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+        <div className="h-full rounded-full transition-all duration-700" style={{ width: pct + '%', background: barColor }} />
+      </div>
+      <div className="mt-1 text-center font-mono text-[10px] text-white/30">{count} / {BETA_LIMIT} traders joined</div>
+    </div>
+  );
+}
 
 const PAIN_CARDS = [
   {
@@ -52,7 +81,17 @@ const FEATURES = [
   { icon: '🌐', title: 'Cross-user intelligence', desc: 'See which mistakes and setups are trending across funded traders. Anonymized aggregate insights.', coming: true },
 ];
 
-export default function Home() {
+export default async function Home() {
+  // Fetch beta counter from DB (falls back to 15 if table doesn't exist yet)
+  let betaCount = 15;
+  try {
+    const supabase = createClient();
+    const { data } = await supabase.from('site_settings').select('value').eq('key', 'beta_count').maybeSingle();
+    if (data && data.value) betaCount = parseInt(data.value, 10) || 15;
+  } catch (e) {
+    // Table may not exist yet — use default
+  }
+
   return (
     <main className="min-h-screen overflow-hidden">
       <LandingMotion />
@@ -102,6 +141,7 @@ export default function Home() {
           </div>
 
           <p className="mt-5 text-xs text-white/35">No credit card. No commitment. Takes 60 seconds.</p>
+          <BetaBar count={betaCount} />
         </div>
       </section>
 
@@ -632,6 +672,7 @@ export default function Home() {
             Start free — find your blind spot →
           </Link>
           <p className="mt-3 text-xs text-white/30">No credit card. 60 seconds to start. Your funded account will thank you.</p>
+          <BetaBar count={betaCount} />
         </div>
       </section>
 
