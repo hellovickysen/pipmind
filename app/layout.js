@@ -3,18 +3,20 @@ import PostHogProvider from '@/components/layout/PostHogProvider';
 import { ToastProvider } from '@/components/ui/Toast';
 
 export const metadata = {
+  metadataBase: new URL('https://pipmind-sigma.vercel.app'),
   title: 'PropJournal — AI Trading Journal for Prop Firm Traders',
-  description: 'The AI-powered trading journal built for prop firm traders. Log trades, track your psychology, manage challenge expenses, and get AI coaching that finds the patterns costing you money.',
+  description: 'Still losing funded accounts to the same mistakes? PropJournal is an AI-powered trading journal that finds the one pattern costing you money. Free beta — join 500 traders.',
   openGraph: {
-    title: 'PropJournal — AI Trading Journal for Prop Firm Traders',
-    description: 'Log trades, track your psychology, and get AI coaching that finds the patterns costing you money.',
+    title: 'Still losing funded accounts to the same mistakes?',
+    description: 'AI-powered trading journal that finds the pattern costing you funded accounts. Log trades, track psychology, get AI coaching. Free beta.',
     siteName: 'PropJournal',
     type: 'website',
+    locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PropJournal — AI Trading Journal',
-    description: 'AI-powered trading journal for prop firm traders.',
+    title: 'Still losing funded accounts to the same mistakes?',
+    description: 'AI-powered trading journal that finds the pattern costing you funded accounts. Free beta — join now.',
   },
   icons: {
     icon: [
