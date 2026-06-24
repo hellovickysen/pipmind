@@ -6,6 +6,9 @@ export const alt = 'PropLogAI Trader Profile';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
+const MARK = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="22,42 50,49 50,75 22,69" fill="#08080f"/><polygon points="78,42 50,49 50,75 78,69" fill="#08080f"/><polyline points="50,49 63,39 74,27" fill="none" stroke="#08080f" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="74" cy="27" r="4.5" fill="#08080f"/></svg>';
+const MARK_URI = 'data:image/svg+xml;base64,' + btoa(MARK);
+
 function fmtMoney(v) {
   const n = Number(v) || 0;
   const abs = Math.abs(n);
@@ -101,7 +104,7 @@ export default async function OGImage({ params }) {
               color: '#08080f',
             }}
           >
-            PL
+            <img width="34" height="34" src={MARK_URI} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontSize: 28, fontWeight: 700 }}>Trader Profile</div>
