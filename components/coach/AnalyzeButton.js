@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { analyzeTrade } from '@/app/dashboard/trades/actions';
 import { useToast } from '@/components/ui/Toast';
 
-const FREE_LIMIT = 5;
+const FREE_LIMIT = 3;
 
 export default function AnalyzeButton({ tradeId, label, usedThisMonth = 0 }) {
   const toast = useToast();
