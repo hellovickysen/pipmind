@@ -4,9 +4,9 @@ import { forwardRef } from 'react';
 
 function fmtMoney(v) {
   const n = Number(v) || 0;
-  const sign = n >= 0 ? '+' : '-';
+  const sign = n >= 0 ? '+' : '−';
   const abs = Math.abs(n);
-  return sign + '$' + abs.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return sign + '$ ' + abs.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 function fmtMoneyShort(v) {
@@ -99,7 +99,7 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
             }}>◆</div>
             <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em' }}>PropJournal</span>
           </div>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.02em' }}>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.02em' }}>
             {fmtDate(data.date || data.trade_date)}
           </span>
         </div>
@@ -116,7 +116,7 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
           {/* Type label */}
           <div style={{
             fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.2em',
-            color: 'rgba(255,255,255,0.5)', fontFamily: "'JetBrains Mono', monospace",
+            color: 'rgba(255,255,255,0.7)', fontFamily: "'JetBrains Mono', monospace",
           }}>
             {type === 'daily' ? "Today's P&L" : (data.pair || 'Trade') + ' ' + ((data.direction || '').toUpperCase())}
           </div>
@@ -137,15 +137,16 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
           {cleanQuote && (
             <div style={{
               fontSize: isStory ? 16 : 14,
-              color: 'rgba(255,255,255,0.55)',
+              color: 'rgba(255,255,255,0.65)',
               fontWeight: 500,
+              fontStyle: 'italic',
               marginTop: isStory ? 14 : 8,
               padding: '0 16px',
               lineHeight: 1.5,
-              letterSpacing: '0.02em',
-              wordSpacing: '0.08em',
+              letterSpacing: '0.03em',
+              wordSpacing: '0.12em',
             }}>
-              {cleanQuote}
+              &ldquo;{cleanQuote}&rdquo;
             </div>
           )}
         </div>
@@ -177,7 +178,7 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
           {/* Watermark */}
           <div style={{ textAlign: 'center' }}>
             <span style={{
-              fontSize: 10, color: 'rgba(255,255,255,0.45)',
+              fontSize: 10, color: 'rgba(255,255,255,0.65)',
               fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em',
             }}>
               propjournal.app — AI Trading Journal
@@ -203,13 +204,13 @@ function StatChip({ label, value, accent, isStory }) {
     }}>
       <div style={{
         fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.14em',
-        color: 'rgba(255,255,255,0.45)', fontFamily: "'JetBrains Mono', monospace",
+        color: 'rgba(255,255,255,0.65)', fontFamily: "'JetBrains Mono', monospace",
         marginBottom: 4,
       }}>{label}</div>
       <div style={{
-        fontSize: isStory ? 15 : 13, fontWeight: 700,
+        fontSize: isStory ? 15 : 14, fontWeight: 700,
         fontFamily: "'JetBrains Mono', monospace",
-        color: accent ? '#34d399' : '#fff',
+        color: accent ? '#34d399' : '#ffffff',
       }}>{value}</div>
     </div>
   );
