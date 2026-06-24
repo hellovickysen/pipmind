@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { HeroParticles, LandingMotion } from '@/components/landing/LandingMotion';
 import { createClient } from '@/lib/supabase/server';
+import Logo from '@/components/Logo';
 
 const gradientText = { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' };
 const gradientBtn = { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)' };
@@ -98,10 +99,7 @@ export default async function Home() {
 
       {/* Nav */}
       <nav className="relative z-20 flex items-center justify-between px-6 py-5 sm:px-10">
-        <div className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-lg text-sm" style={{ ...gradientBtn, boxShadow: '0 0 18px rgba(139,92,246,0.5)' }}>&#9670;</span>
-          <span className="font-display text-lg font-bold tracking-tight">PropLogAI</span>
-        </div>
+        <Logo size={32} rounded="rounded-lg" glow wordmarkClassName="font-display text-lg font-bold tracking-tight" />
         <div className="flex items-center gap-3">
           <Link href="#pricing" className="text-sm text-white/60 hover:text-white">Pricing</Link>
           <Link href="/login" className="text-sm text-white/60 hover:text-white">Log in</Link>
@@ -867,10 +865,7 @@ export default async function Home() {
       {/* Footer */}
       <footer className="border-t border-white/[0.06] px-6 py-8 sm:px-10">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 sm:flex-row">
-          <div className="flex items-center gap-2">
-            <span className="grid h-6 w-6 place-items-center rounded text-[10px]" style={gradientBtn}>&#9670;</span>
-            <span className="font-display text-sm font-semibold">PropLogAI</span>
-          </div>
+          <Logo size={24} rounded="rounded-md" wordmarkClassName="font-display text-sm font-semibold" />
           <div className="flex items-center gap-4 text-xs text-white/30">
             <Link href="/privacy" className="hover:text-white/50">Privacy</Link>
             <Link href="/terms" className="hover:text-white/50">Terms</Link>

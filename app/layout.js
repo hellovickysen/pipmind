@@ -18,11 +18,6 @@ export const metadata = {
     title: 'Still losing funded accounts to the same mistakes?',
     description: 'AI-powered trading journal that finds the pattern costing you funded accounts. Free beta — join now.',
   },
-  icons: {
-    icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-    ],
-  },
 };
 
 export default function RootLayout({ children }) {

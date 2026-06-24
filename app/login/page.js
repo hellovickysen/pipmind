@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import Logo from '@/components/Logo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -75,9 +76,8 @@ export default function LoginPage() {
       <div className="pointer-events-none absolute -bottom-40 -right-24 h-[55vw] w-[55vw] rounded-full" style={{ background: 'radial-gradient(circle, rgba(34,211,238,0.14), transparent 62%)', filter: 'blur(40px)' }} />
 
       <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-white/[0.03] p-8">
-        <Link href="/" className="mb-6 flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-lg text-sm" style={{ background: 'linear-gradient(120deg,#a78bfa,#22d3ee)', boxShadow: '0 0 18px rgba(139,92,246,0.5)' }}>&#9670;</span>
-          <span className="font-display text-lg font-bold tracking-tight">PropLogAI</span>
+        <Link href="/" className="mb-6 inline-flex w-fit">
+          <Logo size={32} rounded="rounded-lg" glow wordmarkClassName="font-display text-lg font-bold tracking-tight" />
         </Link>
 
         <h1 className="font-display text-2xl font-bold">{mode === 'signin' ? 'Welcome back' : 'Create your account'}</h1>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Logo from '@/components/Logo';
 
 const NAV = [
   { label: 'Dashboard', icon: '▦', href: '/dashboard' },
@@ -31,13 +32,7 @@ export default function Sidebar({ email, credits, avatarUrl }) {
     <aside className="hidden w-[200px] flex-shrink-0 border-r border-white/10 bg-[#0b0b14] sm:block">
       <div className="sticky top-0 flex h-screen flex-col px-3 py-5">
         <Link href="/dashboard" className="mb-6 flex items-center gap-2.5 px-2">
-          <div
-            className="grid h-8 w-8 place-items-center rounded-xl text-sm font-bold text-[#08080f]"
-            style={{ background: 'linear-gradient(135deg,#a78bfa,#22d3ee)' }}
-          >
-            &#9670;
-          </div>
-          <span className="font-display text-base font-bold">PropLogAI</span>
+          <Logo size={32} wordmarkClassName="font-display text-base font-bold" />
         </Link>
 
         <Link

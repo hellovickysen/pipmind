@@ -5,6 +5,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
 import QuickLog from '@/components/trades/QuickLog';
 import RiskFooter from '@/components/layout/RiskFooter';
+import Logo from '@/components/Logo';
 import { num, fmtMoney } from '@/lib/stats';
 
 export const dynamic = 'force-dynamic';
@@ -74,7 +75,7 @@ export default async function DashboardLayout({ children }) {
         <header className="relative flex items-center justify-between border-b border-white/10 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
             <MobileNav />
-            <span className="font-display text-base font-bold sm:hidden">PropLogAI</span>
+            <Logo size={28} className="sm:hidden" wordmarkClassName="font-display text-base font-bold" />
             <span className="hidden font-mono text-xs uppercase tracking-wider text-white/55 sm:block">PropLogAI</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
