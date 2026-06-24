@@ -64,7 +64,7 @@ export default function Home() {
           <span className="font-display text-lg font-bold tracking-tight">PropJournal</span>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/pricing" className="text-sm text-white/60 hover:text-white">Pricing</Link>
+          <Link href="#pricing" className="text-sm text-white/60 hover:text-white">Pricing</Link>
           <Link href="/login" className="text-sm text-white/60 hover:text-white">Log in</Link>
           <Link href="/login?mode=signup" className="cta-glow rounded-xl px-4 py-2 text-sm font-semibold text-[#08080f]" style={gradientBtn}>
             Start free →
@@ -465,6 +465,153 @@ export default function Home() {
                 <div className="mb-3 text-2xl">{p.emoji}</div>
                 <h3 className="font-display text-sm font-bold text-white">{p.who}</h3>
                 <p className="mt-2 text-xs text-white/50">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ WHY MANUAL ENTRY ═══════════════ */}
+      <section className="px-6 py-20 sm:px-10" data-reveal>
+        <div className="mx-auto max-w-4xl">
+          <div className="text-center mb-10">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-1.5 text-xs font-semibold text-white/70">
+              Our philosophy
+            </div>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">
+              Why we don&apos;t connect to your broker
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-sm text-white/55">
+              Every other journal wants to auto-import your trades. We deliberately don&apos;t. Here&apos;s why that makes PropJournal more effective.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 sm:p-10">
+            <blockquote className="border-l-2 border-violet-400/50 pl-5 mb-8">
+              <p className="text-base italic leading-relaxed text-white/75">
+                &ldquo;The winning trader knows that the real edge isn&apos;t in the strategy — it&apos;s in the self-awareness to execute it consistently.&rdquo;
+              </p>
+              <cite className="mt-2 block text-sm font-semibold text-violet-300/70">— Mark Douglas, Trading in the Zone</cite>
+            </blockquote>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <div className="mb-2 text-lg">🧠</div>
+                <h3 className="font-display text-sm font-bold">Manual logging forces reflection</h3>
+                <p className="mt-1.5 text-xs leading-relaxed text-white/50">When you type the trade yourself, you&apos;re forced to relive it — the emotion, the setup, the decision. That 30-second pause is where behavior change happens. Auto-import skips the only moment that matters.</p>
+              </div>
+              <div>
+                <div className="mb-2 text-lg">🔒</div>
+                <h3 className="font-display text-sm font-bold">Your broker credentials stay yours</h3>
+                <p className="mt-1.5 text-xs leading-relaxed text-white/50">We never ask for your MT4/MT5 login, API key, or broker password. No third-party sync service has access to your funded account. Zero attack surface. Zero risk.</p>
+              </div>
+              <div>
+                <div className="mb-2 text-lg">✦</div>
+                <h3 className="font-display text-sm font-bold">The act of logging IS the therapy</h3>
+                <p className="mt-1.5 text-xs leading-relaxed text-white/50">Journaling isn&apos;t data entry — it&apos;s self-confrontation. Writing &ldquo;I revenge traded after two losses&rdquo; hits different than seeing it auto-imported in a spreadsheet. That discomfort is what builds discipline.</p>
+              </div>
+              <div>
+                <div className="mb-2 text-lg">🎯</div>
+                <h3 className="font-display text-sm font-bold">Quality over quantity</h3>
+                <p className="mt-1.5 text-xs leading-relaxed text-white/50">Auto-import dumps 50 trades with no context. Manual logging means every trade has emotions, notes, and a setup tag. That rich data is what makes the AI coaching actually useful.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ PRICING ═══════════════ */}
+      <section id="pricing" className="px-6 py-20 sm:px-10" data-reveal>
+        <div className="mx-auto max-w-4xl">
+          <div className="text-center mb-10">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/8 px-4 py-1.5 text-xs font-semibold text-emerald-200">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(52,211,153,0.85)]" />
+              Beta — all Pro features free for early adopters
+            </div>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">
+              Simple pricing for <span style={gradientText}>serious traders</span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-lg text-sm text-white/55">
+              Start free. Upgrade when the AI becomes indispensable — and it will.
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2">
+            {/* Free tier */}
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8">
+              <div className="font-mono text-xs uppercase tracking-wider text-white/40">Free</div>
+              <div className="mt-2 font-display text-3xl font-bold">$0</div>
+              <div className="mt-1 text-sm text-white/40">Forever</div>
+              <Link href="/login?mode=signup" className="mt-6 block w-full rounded-xl border border-white/15 bg-white/5 py-3 text-center text-sm font-semibold text-white/80 transition hover:border-white/25 hover:bg-white/10 hover:text-white">
+                Start free →
+              </Link>
+              <ul className="mt-8 space-y-3">
+                {['Unlimited trade logging', 'Journal entries with emotions & screenshots (3/trade)', 'P&L calendar (full)', 'Dashboard with basic stats', 'Playbook — up to 5 custom setups', 'Prop firm expense tracker', 'Public trader profile', 'Referral rewards', '5 AI trade analyses / month', '1 AI coach report / month'].map((f, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-white/60">
+                    <span className="mt-0.5 text-white/30">✓</span>{f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Pro tier */}
+            <div className="relative rounded-2xl border border-violet-400/25 bg-gradient-to-b from-violet-500/[0.08] to-cyan-500/[0.03] p-8">
+              <div className="absolute -top-3 right-6 rounded-full px-3 py-1 text-[10px] font-bold text-[#08080f]" style={gradientBtn}>MOST POPULAR</div>
+              <div className="font-mono text-xs uppercase tracking-wider text-violet-300/60">Pro</div>
+              <div className="mt-2 flex items-baseline gap-1">
+                <span className="font-display text-3xl font-bold" style={gradientText}>$9.99</span>
+                <span className="text-sm text-white/40">/month</span>
+              </div>
+              <div className="mt-1 text-sm text-white/40">or $7.99/mo billed yearly ($95.88/yr)</div>
+              <Link href="/login?mode=signup" className="cta-glow mt-6 block w-full rounded-xl py-3 text-center text-sm font-semibold text-[#08080f] transition-transform hover:-translate-y-0.5" style={gradientBtn}>
+                Start free — upgrade anytime →
+              </Link>
+              <ul className="mt-8 space-y-3">
+                {['Everything in Free', 'Unlimited AI trade analysis', 'Unlimited AI coach reports', 'Email coach reports', 'CSV trade export', 'Shareable P&L cards', 'Advanced discipline stats & achievements', 'Trophy wall (unlimited uploads)', 'Unlimited screenshots per trade', 'Unlimited custom setups'].map((f, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-white/80">
+                    <span className="mt-0.5 text-violet-400">✓</span>{f}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 border-t border-white/10 pt-4">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-white/30 mb-2">Coming soon</div>
+                <ul className="space-y-2">
+                  {['Telegram bot trade logging', 'Cross-user pattern intelligence'].map((f, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-white/40">
+                      <span className="mt-0.5 text-amber-400/50">◇</span>{f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Beta banner */}
+          <div className="mt-10 rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.04] p-6 text-center">
+            <h3 className="font-display text-lg font-bold text-emerald-300">Early adopter? Everything is free right now.</h3>
+            <p className="mx-auto mt-2 max-w-md text-sm text-white/50">
+              During the beta, all Pro features are unlocked for every user. Sign up now and you&apos;ll get early-adopter pricing when Pro launches.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ FAQ ═══════════════ */}
+      <section className="px-6 py-16 sm:px-10" data-reveal>
+        <div className="mx-auto max-w-3xl">
+          <h2 className="mb-8 text-center font-display text-2xl font-bold sm:text-3xl">Common questions</h2>
+          <div className="space-y-4">
+            {[
+              { q: 'Is the beta really free?', a: 'Yes. Every feature — including AI coaching — is free during the beta. No credit card required.' },
+              { q: 'What happens when Pro launches?', a: 'Free tier stays free forever with the limits shown above. Beta users get early-adopter pricing on Pro.' },
+              { q: 'Why no broker auto-import?', a: 'Deliberate choice. Manual logging forces you to reflect on every trade — the emotion, the setup, the decision. That reflection is where discipline is built. Auto-import skips it.' },
+              { q: 'Is my trading data secure?', a: 'All data is encrypted at rest (AES-256) and in transit (TLS 1.2+). We never ask for broker credentials and never sell your data.' },
+              { q: 'Can I cancel anytime?', a: 'Yes. No contracts, no commitments. Downgrade to Free anytime and keep all your trade data.' },
+              { q: 'How is the AI coaching different from ChatGPT?', a: 'PropJournal\'s AI analyzes YOUR trades specifically — your patterns, your emotions, your setups. It\'s not generic advice. It finds the one mistake that keeps costing you money.' },
+            ].map((faq, i) => (
+              <div key={i} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                <h3 className="font-display text-sm font-semibold">{faq.q}</h3>
+                <p className="mt-1.5 text-sm text-white/50">{faq.a}</p>
               </div>
             ))}
           </div>
