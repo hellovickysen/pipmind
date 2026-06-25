@@ -43,6 +43,7 @@ export async function createExpense(payload) {
     num_accounts: Math.max(1, Math.min(toNum(payload.num_accounts) || 1, 100)),
     total_cost: totalCost,
     expense_date: payload.expense_date || null,
+    notes: sanitize(payload.notes, 500),
   });
 
   if (error) return { error: error.message };

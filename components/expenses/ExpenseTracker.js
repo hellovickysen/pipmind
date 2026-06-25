@@ -134,7 +134,7 @@ function Modal({ open, onClose, title, children }) {
 /* ─── Add Expense Form ───────────────────────────────────────── */
 
 function AddExpenseForm({ onSave, onCancel, existingFirms }) {
-  const [f, setF] = useState({ firm_name: '', account_type: 'futures', account_size: '$50K', purchase_type: 'new', account_cost: '', num_accounts: 1, total_cost: '', expense_date: todayStr() });
+  const [f, setF] = useState({ firm_name: '', account_type: 'futures', account_size: '$50K', purchase_type: 'new', account_cost: '', num_accounts: 1, total_cost: '', expense_date: todayStr(), notes: '' });
   const [saving, setSaving] = useState(false);
 
   function set(k, v) { setF((p) => ({ ...p, [k]: v })); }
@@ -227,6 +227,11 @@ function AddExpenseForm({ onSave, onCancel, existingFirms }) {
           <label className={labelCls}>Total cost ($)</label>
           <input className={field + ' bg-white/[0.02] text-white/70'} value={f.total_cost} readOnly tabIndex={-1} placeholder="Auto" />
         </div>
+      </div>
+
+      <div>
+        <label className={labelCls}>Notes (optional)</label>
+        <textarea className={field} rows={2} value={f.notes} onChange={(e) => set('notes', e.target.value)} placeholder="e.g. 2nd attempt, renewal after drawdown violation..." />
       </div>
 
       <div className="flex gap-3 pt-2">
@@ -407,6 +412,7 @@ export default function ExpenseTracker({ expenses, payouts }) {
                           )}
                         </div>
                         <div className="font-mono text-[11px] text-white/40">{fmtDate(item.date)}</div>
+                        {item.notes && <p className="mt-0.5 text-xs text-white/40">{item.notes}</p>}
                       </div>
                       <div className={'font-mono text-sm font-bold ' + (item.type === 'payout' ? 'text-emerald-400' : 'text-red-400')}>
                         {item.type === 'payout' ? '+' : '-'}{fmtCurrency(item.amt)}
@@ -466,6 +472,7 @@ export default function ExpenseTracker({ expenses, payouts }) {
                               )}
                             </div>
                             <div className="mt-0.5 font-mono text-[11px] text-white/35">{fmtDate(e.expense_date)}</div>
+                            {e.notes && <p className="mt-0.5 text-[11px] text-white/35">{e.notes}</p>}
                           </div>
                           <div className="font-mono text-sm font-bold text-red-400">{fmtCurrency(e.total_cost)}</div>
                           <button onClick={() => handleDeleteExpense(e.id)} className="grid h-8 w-8 place-items-center rounded text-[10px] text-white/30 hover:bg-red-500/20 hover:text-red-400">&#10005;</button>
