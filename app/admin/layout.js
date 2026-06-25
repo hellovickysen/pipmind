@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 const NAV = [
   { label: 'Overview', href: '/admin', icon: '▦' },
   { label: 'Users', href: '/admin/users', icon: '👥' },
+  { label: 'Tickets', href: '/admin/tickets', icon: '📩' },
   { label: 'AI Usage', href: '/admin/ai-usage', icon: '✦' },
   { label: 'Revenue', href: '/admin/revenue', icon: '💰' },
 ];
@@ -24,7 +25,7 @@ export default async function AdminLayout({ children }) {
       <aside className="hidden w-56 flex-shrink-0 flex-col border-r border-white/10 bg-[#0a0a12] sm:flex">
         <div className="px-4 pb-4 pt-5">
           <Link href="/admin" className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg text-sm" style={{ background: 'linear-gradient(135deg,#f87171,#fbbf24)' }}>⚙</span>
+            <span className="grid h-8 w-8 place-items-center rounded-lg text-sm" style={{ background: 'linear-gradient(135deg,#f87171,#fbbf24)' }}>&#9881;</span>
             <div>
               <span className="font-display text-sm font-bold">Admin Panel</span>
               <p className="font-mono text-[9px] text-white/40">PropLogAI</p>
@@ -44,7 +45,7 @@ export default async function AdminLayout({ children }) {
           ))}
         </nav>
         <div className="border-t border-white/[0.06] px-4 py-3">
-          <Link href="/dashboard" className="text-xs text-cyan-400 hover:underline">← Back to app</Link>
+          <Link href="/dashboard" className="text-xs text-cyan-400 hover:underline">&larr; Back to app</Link>
         </div>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">

@@ -14,6 +14,7 @@ const NAV = [
   { label: 'Referrals', icon: '🔗', href: '/dashboard/referrals' },
   { label: 'Calendar',  icon: '📅', href: '/dashboard/calendar' },
   { label: 'AI Coach',  icon: '✦', href: '/dashboard/coach' },
+  { label: 'Support',   icon: '🎧', href: '/dashboard/support' },
   { label: 'Settings',  icon: '⚙', href: '/dashboard/settings' },
 ];
 
