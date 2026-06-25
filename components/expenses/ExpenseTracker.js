@@ -665,6 +665,7 @@ export default function ExpenseTracker({ expenses, payouts }) {
   const [selectedFirm, setSelectedFirm] = useState(null);
   const [editingExpense, setEditingExpense] = useState(null);
   const [editingPayout, setEditingPayout] = useState(null);
+  const [accountsSort, setAccountsSort] = useState('recent');
 
   // Aggregates
   const totalExpense = expenses.reduce((a, e) => a + (Number(e.total_cost) || 0), 0);
@@ -677,15 +678,25 @@ export default function ExpenseTracker({ expenses, payouts }) {
     const map = {};
     expenses.forEach((e) => {
       const fn = e.firm_name;
-      if (!map[fn]) map[fn] = { name: fn, totalCost: 0, accounts: 0, expenses: [] };
+      if (!map[fn]) map[fn] = { name: fn, totalCost: 0, accounts: 0, expenses: [], lastUpdated: e.created_at };
       map[fn].totalCost += Number(e.total_cost) || 0;
       if (e.purchase_type === 'new') map[fn].accounts += Number(e.num_accounts) || 0;
       map[fn].expenses.push(e);
+      if (new Date(e.created_at) > new Date(map[fn].lastUpdated)) map[fn].lastUpdated = e.created_at;
+    });
+    // Also check payouts for lastUpdated
+    payouts.forEach((p) => {
+      const fn = p.firm_name;
+      if (map[fn] && new Date(p.created_at) > new Date(map[fn].lastUpdated)) map[fn].lastUpdated = p.created_at;
     });
     return map;
-  }, [expenses]);
+  }, [expenses, payouts]);
 
-  const firms = useMemo(() => Object.values(firmMap).sort((a, b) => b.totalCost - a.totalCost), [firmMap]);
+  const firms = useMemo(() => {
+    const arr = Object.values(firmMap);
+    if (accountsSort === 'az') return arr.sort((a, b) => a.name.localeCompare(b.name));
+    return arr.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+  }, [firmMap, accountsSort]);
   const firmNames = useMemo(() => [...new Set([...expenses.map((e) => e.firm_name), ...payouts.map((p) => p.firm_name)])].filter(Boolean).sort(), [expenses, payouts]);
 
   // Handlers
@@ -842,6 +853,18 @@ export default function ExpenseTracker({ expenses, payouts }) {
                 <div className="font-mono text-xs uppercase tracking-wider text-white/45">Total Expense</div>
                 <div className="mt-1 font-display text-3xl font-bold text-red-400">{fmtCurrency(totalExpense)}</div>
               </div>
+
+              {firms.length > 1 && (
+                <div className="flex items-center justify-end gap-1">
+                  <span className="mr-2 font-mono text-[10px] uppercase tracking-wider text-white/35">Sort</span>
+                  {[{ key: 'recent', label: 'Recent' }, { key: 'az', label: 'A–Z' }].map((s) => (
+                    <button key={s.key} onClick={() => setAccountsSort(s.key)}
+                      className={'rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ' + (accountsSort === s.key ? 'bg-white/[0.08] text-white' : 'text-white/35 hover:text-white/60')}>
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {firms.length === 0 ? (
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
