@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createSetup, updateSetup, deleteSetup, seedDefaultSetups } from '@/app/dashboard/rulebook/actions';
 import { useToast } from '@/components/ui/Toast';
 import { RulebookEmptyIcon } from '@/components/ui/EmptyStates';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 
 const labelCls = 'mb-1.5 block font-mono text-xs uppercase tracking-wider text-white/55';
@@ -108,8 +109,9 @@ function SetupForm({ initial, onSave, onCancel }) {
 export default function RulebookPage({ setups }) {
   const router = useRouter();
   const toast = useToast();
-  const [editing, setEditing] = useState(null); // null | 'new' | setup object
+  const [editing, setEditing] = useState(null);
   const [seeding, setSeeding] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
   const activeSetups = setups.filter((s) => s.is_active);
   const inactiveSetups = setups.filter((s) => !s.is_active);
@@ -158,8 +160,14 @@ export default function RulebookPage({ setups }) {
     }
   }
 
-  async function handleDelete(id) {
-    if (!confirm('Delete this setup? Trades using it will keep their history.')) return;
+  function handleDelete(id) {
+    setPendingDeleteId(id);
+  }
+
+  async function handleConfirmDelete() {
+    if (!pendingDeleteId) return;
+    const id = pendingDeleteId;
+    setPendingDeleteId(null);
     const res = await deleteSetup(id);
     if (res.error) {
       if (toast) toast.error(res.error);
@@ -169,7 +177,7 @@ export default function RulebookPage({ setups }) {
     }
   }
 
-  // Empty state — no setups yet
+  // Empty state
   if (setups.length === 0) {
     return (
       <div className="px-4 sm:px-6 py-8">
@@ -257,6 +265,15 @@ export default function RulebookPage({ setups }) {
           </div>
         </div>
       )}
+
+      {/* Delete confirmation */}
+      <ConfirmDialog
+        open={!!pendingDeleteId}
+        onClose={() => setPendingDeleteId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete this setup?"
+        message="This action can't be undone. Trades using this setup will keep their history."
+      />
     </div>
   );
 }

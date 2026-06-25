@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { createTrophy, deleteTrophy, togglePublic } from '@/app/dashboard/trophies/actions';
 import { useToast } from '@/components/ui/Toast';
 import { TrophyEmptyIcon } from '@/components/ui/EmptyStates';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 
 const gradientText = { background: 'linear-gradient(120deg,#a78bfa,#22d3ee)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' };
@@ -222,6 +223,7 @@ export default function TrophyWall({ trophies }) {
   const toast = useToast();
   const [showUpload, setShowUpload] = useState(false);
   const [viewing, setViewing] = useState(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
   async function handleUpload(data) {
     const res = await createTrophy(data);
@@ -229,8 +231,14 @@ export default function TrophyWall({ trophies }) {
     else { if (toast) toast.success('Trophy added!'); setShowUpload(false); router.refresh(); }
   }
 
-  async function handleDelete(id) {
-    if (!confirm('Delete this trophy?')) return;
+  function handleDelete(id) {
+    setPendingDeleteId(id);
+  }
+
+  async function handleConfirmDelete() {
+    if (!pendingDeleteId) return;
+    const id = pendingDeleteId;
+    setPendingDeleteId(null);
     const res = await deleteTrophy(id);
     if (res.error) { if (toast) toast.error(res.error); }
     else { if (toast) toast.success('Trophy deleted.'); router.refresh(); }
@@ -321,6 +329,15 @@ export default function TrophyWall({ trophies }) {
       <Modal open={showUpload} onClose={() => setShowUpload(false)} title="Upload Trophy">
         <UploadTrophyForm onSave={handleUpload} onCancel={() => setShowUpload(false)} />
       </Modal>
+
+      {/* Delete confirmation */}
+      <ConfirmDialog
+        open={!!pendingDeleteId}
+        onClose={() => setPendingDeleteId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete this trophy?"
+        message="This action can't be undone. The trophy will be permanently removed."
+      />
     </div>
   );
 }

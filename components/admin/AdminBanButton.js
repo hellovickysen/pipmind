@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { banUser, unbanUser } from '@/app/admin/actions';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 export default function AdminBanButton({ userId, isBanned, email }) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
+  const [showUnbanConfirm, setShowUnbanConfirm] = useState(false);
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -22,8 +24,7 @@ export default function AdminBanButton({ userId, isBanned, email }) {
   }
 
   async function handleUnban() {
-    const confirmed = window.confirm(`Unban ${email}? They will be able to log in again.`);
-    if (!confirmed) return;
+    setShowUnbanConfirm(false);
     setLoading(true);
     const res = await unbanUser(userId);
     if (res.error) alert('Error: ' + res.error);
@@ -33,13 +34,24 @@ export default function AdminBanButton({ userId, isBanned, email }) {
 
   if (isBanned) {
     return (
-      <button
-        onClick={handleUnban}
-        disabled={loading}
-        className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-50"
-      >
-        {loading ? '...' : 'Unban'}
-      </button>
+      <>
+        <button
+          onClick={() => setShowUnbanConfirm(true)}
+          disabled={loading}
+          className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-50"
+        >
+          {loading ? '...' : 'Unban'}
+        </button>
+
+        <ConfirmDialog
+          open={showUnbanConfirm}
+          onClose={() => setShowUnbanConfirm(false)}
+          onConfirm={handleUnban}
+          title={`Unban ${email}?`}
+          message="They will be able to log in again."
+          confirmLabel="Unban"
+        />
+      </>
     );
   }
 

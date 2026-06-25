@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createExpense, updateExpense, deleteExpense, createPayout, updatePayout, deletePayout, renameFirm } from '@/app/dashboard/expenses/actions';
 import { useToast } from '@/components/ui/Toast';
 import { ExpensesEmptyIcon } from '@/components/ui/EmptyStates';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 
 
@@ -667,6 +668,7 @@ export default function ExpenseTracker({ expenses, payouts }) {
   const [editingPayout, setEditingPayout] = useState(null);
   const [accountsSort, setAccountsSort] = useState('recent');
   const [accountTypeFilter, setAccountTypeFilter] = useState('all');
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   // Aggregates
   const totalExpense = expenses.reduce((a, e) => a + (Number(e.total_cost) || 0), 0);
@@ -716,11 +718,8 @@ export default function ExpenseTracker({ expenses, payouts }) {
     else { if (toast) toast.success('Expense updated!'); setEditingExpense(null); router.refresh(); }
   }
 
-  async function handleDeleteExpense(id) {
-    if (!confirm('Delete this expense?')) return;
-    const res = await deleteExpense(id);
-    if (res.error) { if (toast) toast.error(res.error); }
-    else { router.refresh(); }
+  function handleDeleteExpense(id) {
+    setPendingDelete({ type: 'expense', id });
   }
 
   async function handleAddPayout(data) {
@@ -735,11 +734,23 @@ export default function ExpenseTracker({ expenses, payouts }) {
     else { if (toast) toast.success('Payout updated!'); setEditingPayout(null); router.refresh(); }
   }
 
-  async function handleDeletePayout(id) {
-    if (!confirm('Delete this payout?')) return;
-    const res = await deletePayout(id);
-    if (res.error) { if (toast) toast.error(res.error); }
-    else { router.refresh(); }
+  function handleDeletePayout(id) {
+    setPendingDelete({ type: 'payout', id });
+  }
+
+  async function handleConfirmDelete() {
+    if (!pendingDelete) return;
+    const { type, id } = pendingDelete;
+    setPendingDelete(null);
+    if (type === 'expense') {
+      const res = await deleteExpense(id);
+      if (res.error) { if (toast) toast.error(res.error); }
+      else { router.refresh(); }
+    } else {
+      const res = await deletePayout(id);
+      if (res.error) { if (toast) toast.error(res.error); }
+      else { router.refresh(); }
+    }
   }
 
   async function handleRenameFirm(oldName, newName) {
@@ -981,6 +992,14 @@ export default function ExpenseTracker({ expenses, payouts }) {
           <EditPayoutForm payout={editingPayout} onSave={handleUpdatePayout} onCancel={() => setEditingPayout(null)} existingFirms={firmNames} />
         )}
       </Modal>
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title={pendingDelete?.type === 'expense' ? 'Delete expense?' : 'Delete payout?'}
+        message="This action can't be undone."
+      />
     </div>
   );
 }
