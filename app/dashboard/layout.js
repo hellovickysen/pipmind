@@ -5,6 +5,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import MobileNav from '@/components/layout/MobileNav';
 import QuickLog from '@/components/trades/QuickLog';
 import RiskFooter from '@/components/layout/RiskFooter';
+import NotificationBell from '@/components/notifications/NotificationBell';
 import Logo from '@/components/Logo';
 import Link from 'next/link';
 import { num, fmtMoney } from '@/lib/stats';
@@ -70,6 +71,19 @@ export default async function DashboardLayout({ children }) {
   });
   const tone = todayPnl >= 0 ? 'text-emerald-400' : 'text-red-400';
 
+  /* ── Notification unread count ── */
+  let notifCount = 0;
+  try {
+    const { count } = await supabase
+      .from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('is_read', false);
+    notifCount = count || 0;
+  } catch (e) {
+    // notifications table may not exist yet (pre-migration)
+  }
+
   return (
     <div className="flex min-h-screen">
       <Sidebar email={user.email} credits={prefs.referral_balance} avatarUrl={prefs.avatar_url} isAdmin={user.email === ADMIN_EMAIL} />
@@ -83,6 +97,7 @@ export default async function DashboardLayout({ children }) {
             <span className="hidden font-mono text-xs uppercase tracking-wider text-white/55 sm:block">PropLogAI</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
+            <NotificationBell initialCount={notifCount} />
             <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 sm:gap-2 sm:px-3 sm:py-1.5 min-h-[44px]">
               <span className="hidden font-mono text-xs uppercase tracking-wider text-white/55 sm:inline">Today</span>
               <span className={'font-mono text-xs font-semibold sm:text-sm ' + tone}>{fmtMoney(todayPnl)}</span>
