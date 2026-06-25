@@ -666,6 +666,7 @@ export default function ExpenseTracker({ expenses, payouts }) {
   const [editingExpense, setEditingExpense] = useState(null);
   const [editingPayout, setEditingPayout] = useState(null);
   const [accountsSort, setAccountsSort] = useState('recent');
+  const [accountTypeFilter, setAccountTypeFilter] = useState('all');
 
   // Aggregates
   const totalExpense = expenses.reduce((a, e) => a + (Number(e.total_cost) || 0), 0);
@@ -678,9 +679,10 @@ export default function ExpenseTracker({ expenses, payouts }) {
     const map = {};
     expenses.forEach((e) => {
       const fn = e.firm_name;
-      if (!map[fn]) map[fn] = { name: fn, totalCost: 0, accounts: 0, expenses: [], lastUpdated: e.created_at };
+      if (!map[fn]) map[fn] = { name: fn, totalCost: 0, accounts: 0, expenses: [], lastUpdated: e.created_at, types: [] };
       map[fn].totalCost += Number(e.total_cost) || 0;
       if (e.purchase_type === 'new') map[fn].accounts += Number(e.num_accounts) || 0;
+      if (e.account_type && !map[fn].types.includes(e.account_type)) map[fn].types.push(e.account_type);
       map[fn].expenses.push(e);
       if (new Date(e.created_at) > new Date(map[fn].lastUpdated)) map[fn].lastUpdated = e.created_at;
     });
@@ -693,11 +695,12 @@ export default function ExpenseTracker({ expenses, payouts }) {
   }, [expenses, payouts]);
 
   const firms = useMemo(() => {
-    const arr = Object.values(firmMap);
+    let arr = Object.values(firmMap);
+    if (accountTypeFilter !== 'all') arr = arr.filter((f) => f.types.includes(accountTypeFilter));
     if (accountsSort === 'az') return arr.sort((a, b) => a.name.localeCompare(b.name));
     if (accountsSort === 'highest') return arr.sort((a, b) => b.totalCost - a.totalCost);
     return arr.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
-  }, [firmMap, accountsSort]);
+  }, [firmMap, accountsSort, accountTypeFilter]);
   const firmNames = useMemo(() => [...new Set([...expenses.map((e) => e.firm_name), ...payouts.map((p) => p.firm_name)])].filter(Boolean).sort(), [expenses, payouts]);
 
   // Handlers
@@ -855,9 +858,17 @@ export default function ExpenseTracker({ expenses, payouts }) {
                 <div className="mt-1 font-display text-3xl font-bold text-red-400">{fmtCurrency(totalExpense)}</div>
               </div>
 
-              {firms.length > 1 && (
-                <div className="flex items-center justify-end gap-1">
-                  <span className="mr-2 font-mono text-[10px] uppercase tracking-wider text-white/35">Sort</span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-1">
+                  {[{ key: 'all', label: 'All' }, { key: 'futures', label: 'Futures' }, { key: 'cfd', label: 'CFD' }].map((f) => (
+                    <button key={f.key} onClick={() => setAccountTypeFilter(f.key)}
+                      className={'rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ' + (accountTypeFilter === f.key ? 'bg-white/[0.08] text-white' : 'text-white/35 hover:text-white/60')}>
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="mr-1 font-mono text-[10px] uppercase tracking-wider text-white/35">Sort</span>
                   {[{ key: 'recent', label: 'Recent' }, { key: 'highest', label: 'Highest' }, { key: 'az', label: 'A–Z' }].map((s) => (
                     <button key={s.key} onClick={() => setAccountsSort(s.key)}
                       className={'rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ' + (accountsSort === s.key ? 'bg-white/[0.08] text-white' : 'text-white/35 hover:text-white/60')}>
@@ -865,7 +876,7 @@ export default function ExpenseTracker({ expenses, payouts }) {
                     </button>
                   ))}
                 </div>
-              )}
+              </div>
 
               {firms.length === 0 ? (
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
@@ -882,7 +893,14 @@ export default function ExpenseTracker({ expenses, payouts }) {
                             {firmInitial(firm.name)}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <div className="font-display text-base font-semibold">{firm.name}</div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-display text-base font-semibold">{firm.name}</span>
+                              {firm.types.map((t) => (
+                                <span key={t} className={'rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase ' + (t === 'futures' ? 'bg-violet-500/15 text-violet-300' : 'bg-cyan-500/15 text-cyan-300')}>
+                                  {t === 'cfd' ? 'CFD' : 'Futures'}
+                                </span>
+                              ))}
+                            </div>
                             <div className="font-mono text-xs text-white/45">{firm.accounts} account{firm.accounts !== 1 ? 's' : ''}</div>
                           </div>
                           <div className="text-right">
