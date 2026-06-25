@@ -8,6 +8,7 @@ import PnlCalendar from '@/components/calendar/PnlCalendar';
 import DashboardShareButton from '@/components/dashboard/DashboardShareButton';
 import DisciplineCards from '@/components/dashboard/DisciplineCards';
 import ReferralCapture from '@/components/referrals/ReferralCapture';
+import { notify, TYPES } from '@/lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -118,6 +119,32 @@ export default async function DashboardPage() {
     setupDiscipline: disciplineStats.setupDiscipline,
     weeklyScore: weeklyScore.score,
   });
+
+  // ── Notify on newly unlocked achievements ──
+  const earnedAchievements = achievements.filter(a => a.earned);
+  if (earnedAchievements.length > 0) {
+    try {
+      const { data: existingNotifs } = await supabase
+        .from('notifications')
+        .select('metadata')
+        .eq('user_id', user.id)
+        .eq('type', 'achievement_unlocked');
+      const notifiedKeys = new Set(
+        (existingNotifs || []).map(n => n.metadata?.achievement_key).filter(Boolean)
+      );
+      for (const a of earnedAchievements) {
+        if (!notifiedKeys.has(a.key)) {
+          await notify(supabase, user.id, TYPES.ACHIEVEMENT_UNLOCKED,
+            a.icon + ' ' + a.name,
+            a.desc,
+            { achievement_key: a.key, link: '/dashboard' }
+          );
+        }
+      }
+    } catch (e) {
+      // Achievement notifications should never break the dashboard
+    }
+  }
 
   // Expense summary — lightweight queries
   const { data: expenseRows } = await supabase.from('expenses').select('total_cost').eq('user_id', user.id);
