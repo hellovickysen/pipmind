@@ -70,7 +70,7 @@ function HeroStat({ label, value, tone, icon }) {
     <div className={'rounded-2xl border p-5 ' + border} style={{ background: glow }}>
       <div className="flex items-center justify-between">
         <div className="font-mono text-xs uppercase tracking-wider text-white/50">{label}</div>
-        {icon && <span className="text-lg opacity-50">{icon}</span>}
+        {icon && <span className="text-xl">{icon}</span>}
       </div>
       <div className={'mt-2 font-display text-2xl font-bold sm:text-3xl ' + color}>{value}</div>
     </div>
@@ -568,9 +568,9 @@ function FirmDashboard({
 
       {/* Stat Cards */}
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <HeroStat label="Total Expenses" value={fmtCurrency(totalExpenses)} tone="red" icon="&#8595;" />
-        <HeroStat label="Total Payouts" value={fmtCurrency(totalPayouts)} tone="green" icon="&#8593;" />
-        <HeroStat label="Net P/L" value={(netPL >= 0 ? '+' : '-') + fmtCurrency(Math.abs(netPL))} tone={netPL >= 0 ? 'green' : 'amber'} icon="&#9651;" />
+        <HeroStat label="Total Expenses" value={fmtCurrency(totalExpenses)} tone="red" icon="💸" />
+        <HeroStat label="Total Payouts" value={fmtCurrency(totalPayouts)} tone="green" icon="💰" />
+        <HeroStat label="Net P/L" value={(netPL >= 0 ? '+' : '-') + fmtCurrency(Math.abs(netPL))} tone={netPL >= 0 ? 'green' : 'amber'} icon={netPL >= 0 ? '📈' : '📉'} />
       </div>
 
       {/* Expenses Section */}
@@ -811,9 +811,9 @@ export default function ExpenseTracker({ expenses, payouts }) {
           {tab === 'Dashboard' && (
             <div className="space-y-6">
               <div className="grid gap-4 sm:grid-cols-3">
-                <HeroStat label="Total Expense" value={fmtCurrency(totalExpense)} tone="red" icon="&#8595;" />
-                <HeroStat label="Total Payout" value={fmtCurrency(totalPayout)} tone="green" icon="&#8593;" />
-                <HeroStat label="Net P/L" value={(netPL >= 0 ? '+' : '-') + fmtCurrency(Math.abs(netPL))} tone={netPL >= 0 ? 'green' : 'amber'} icon="&#9651;" />
+                <HeroStat label="Total Expense" value={fmtCurrency(totalExpense)} tone="red" icon="💸" />
+                <HeroStat label="Total Payout" value={fmtCurrency(totalPayout)} tone="green" icon="💰" />
+                <HeroStat label="Net P/L" value={(netPL >= 0 ? '+' : '-') + fmtCurrency(Math.abs(netPL))} tone={netPL >= 0 ? 'green' : 'amber'} icon={netPL >= 0 ? '📈' : '📉'} />
               </div>
 
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
