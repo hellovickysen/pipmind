@@ -90,18 +90,18 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
         justifyContent: 'space-between',
         padding: isStory ? '28px 28px 24px' : '20px 32px 18px',
       }}>
-        {/* ── Logo row (absolute positioning — html2canvas ignores flex centering) ── */}
-        <div style={{ position: 'relative', height: 28 }}>
-          <div style={{
-            position: 'absolute', top: 0, left: 0,
-            width: 28, height: 28, borderRadius: 8,
-            background: 'linear-gradient(120deg,#a78bfa,#22d3ee)',
-            boxShadow: '0 0 14px rgba(139,92,246,0.5)',
-          }}>
-            <img src={LOGO_MARK} width={16} height={16} alt="" style={{ display: 'block', position: 'absolute', top: 6, left: 6 }} />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{
+              width: 26, height: 26, borderRadius: 7,
+              background: 'linear-gradient(120deg,#a78bfa,#22d3ee)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 12, color: '#08080f', fontWeight: 800,
+              boxShadow: '0 0 14px rgba(139,92,246,0.5)',
+            }}><img src={LOGO_MARK} width={16} height={16} alt="" /></div>
+            <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em' }}>PropLogAI</span>
           </div>
-          <span style={{ position: 'absolute', top: 4, left: 38, fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em' }}>PropLogAI</span>
-          <span style={{ position: 'absolute', top: 7, right: 0, fontSize: 12, color: 'rgba(255,255,255,0.85)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.02em' }}>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.02em' }}>
             {fmtDate(data.date || data.trade_date)}
           </span>
         </div>
