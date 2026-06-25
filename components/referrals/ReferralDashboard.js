@@ -75,6 +75,12 @@ export default function ReferralDashboard({ code, referrals, balance }) {
         </div>
       </div>
 
+      {/* Credit usage note */}
+      <div className="mb-6 flex items-start gap-3 rounded-xl border border-cyan-400/15 bg-cyan-500/[0.04] px-4 py-3">
+        <span className="mt-0.5 text-sm">ℹ️</span>
+        <p className="text-xs text-white/50">Credits can only be used within the PropLogAI platform — for Pro subscription discounts and premium features. Credits are non-transferable and cannot be withdrawn as cash. See our <a href="/terms" className="text-cyan-400 hover:underline">Terms of Service</a> for details.</p>
+      </div>
+
       {/* Referral link */}
       <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
         <h2 className="mb-1 font-display text-base font-semibold">Your referral link</h2>
@@ -105,7 +111,7 @@ export default function ReferralDashboard({ code, referrals, balance }) {
           {[
             { n: '1', title: 'Share your link', desc: 'Send your referral link to a fellow trader' },
             { n: '2', title: 'They sign up', desc: 'Your friend creates an account via your link' },
-            { n: '3', title: 'Both earn $1', desc: 'When they log 3 trades, you both get $1 credit' },
+            { n: '3', title: 'Both earn $1', desc: 'When they log 3 trades, you both get $1 platform credit' },
           ].map((step) => (
             <div key={step.n} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
               <div className="mb-2 font-display text-xl font-bold" style={gradientText}>{step.n}</div>

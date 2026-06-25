@@ -57,7 +57,7 @@ export default function TermsPage() {
           <h1 className="mb-3 text-3xl font-bold" style={gradientText}>
             Terms of Service
           </h1>
-          <p className="text-sm text-white/55">Last updated: June 23, 2026</p>
+          <p className="text-sm text-white/55">Last updated: June 25, 2026</p>
           <p className="mt-4 text-sm leading-relaxed text-white/70">
             Please read these Terms of Service (&quot;Terms&quot;) carefully before using
             PropLogAI (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;), accessible at{' '}
@@ -283,12 +283,31 @@ export default function TermsPage() {
           </p>
           <p>
             Upon termination, all licences granted to you under these Terms will immediately cease.
-            Sections that by their nature should survive termination — including Sections 3, 7, 8,
-            10, and 11 — shall survive.
+            Sections that by their nature should survive termination — including Sections 3, 7, 8, 10,
+            11, and 12 — shall survive.
           </p>
         </Section>
 
-        <Section title="10. Changes to Terms">
+        <Section title="10. Referral Program and Credits">
+          <p>
+            PropLogAI offers a referral program that rewards users with platform credits
+            (&quot;Credits&quot;). By participating in the referral program, you agree to the
+            following terms:
+          </p>
+          <Ul
+            items={[
+              'Credits are earned when a referred user signs up via your referral link and logs at least 3 trades. Both the referrer and the referred user receive $1 in Credits.',
+              'Credits can only be redeemed within the PropLogAI platform for Pro subscription discounts, premium feature access, and other platform services as they become available.',
+              'Credits are non-transferable. You may not sell, trade, gift, or transfer Credits to another user or third party.',
+              'Credits are not redeemable for cash, cryptocurrency, or any form of monetary withdrawal. Credits have no cash value outside the PropLogAI platform.',
+              'PropLogAI reserves the right to modify, suspend, or terminate the referral program and adjust Credit values at any time, with reasonable notice to users.',
+              'Abuse of the referral program — including creating fake accounts, self-referrals, or any form of manipulation — will result in forfeiture of all Credits and may lead to account termination.',
+              'Credits do not expire as long as your account remains active and in good standing.',
+            ]}
+          />
+        </Section>
+
+        <Section title="11. Changes to Terms">
           <p>
             We may revise these Terms at any time. When we make material changes we will update
             the &quot;Last updated&quot; date at the top of this page and notify you via email or
@@ -301,7 +320,7 @@ export default function TermsPage() {
           </p>
         </Section>
 
-        <Section title="11. Governing Law and Disputes">
+        <Section title="12. Governing Law and Disputes">
           <p>
             These Terms are governed by and construed in accordance with applicable law. Any
             disputes arising out of or relating to these Terms or the Service shall be resolved
@@ -315,7 +334,7 @@ export default function TermsPage() {
           </p>
         </Section>
 
-        <Section title="12. Contact Us">
+        <Section title="13. Contact Us">
           <p>
             If you have questions about these Terms or need to report a violation, please contact
             us at:
