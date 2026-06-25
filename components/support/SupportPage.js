@@ -146,15 +146,17 @@ export default function SupportPage({ tickets }) {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
     const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { if (toast) toast.error('Not signed in'); return; }
     for (const file of files) {
       if (file.size > 5 * 1024 * 1024) { if (toast) toast.error(file.name + ' is over 5MB'); continue; }
       const tempId = Date.now() + Math.random();
       setScreenshots((prev) => [...prev, { id: tempId, url: null, uploading: true }]);
       try {
-        const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
-        const path = 'support/' + Date.now() + '_' + Math.random().toString(36).slice(2, 6) + '.' + ext;
+        const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const path = user.id + '/support_' + Date.now() + '_' + safe;
         const { error } = await supabase.storage.from('screenshots').upload(path, file, { cacheControl: '3600', upsert: true });
-        if (error) { if (toast) toast.error('Upload failed'); setScreenshots((prev) => prev.filter((s) => s.id !== tempId)); continue; }
+        if (error) { if (toast) toast.error('Upload failed: ' + error.message); setScreenshots((prev) => prev.filter((s) => s.id !== tempId)); continue; }
         const { data: { publicUrl } } = supabase.storage.from('screenshots').getPublicUrl(path);
         setScreenshots((prev) => prev.map((s) => s.id === tempId ? { ...s, url: publicUrl, uploading: false } : s));
       } catch { if (toast) toast.error('Upload failed'); setScreenshots((prev) => prev.filter((s) => s.id !== tempId)); }
