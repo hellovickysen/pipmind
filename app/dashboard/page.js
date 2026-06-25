@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { computeStats, equitySeries, fmtMoney, fmtR, num } from '@/lib/stats';
-import { computeDisciplineStats, computeWeeklyScore } from '@/lib/discipline';
+import { computeDisciplineStats, computeWeeklyScore, computeEliteWeekStreak } from '@/lib/discipline';
 import { computeAchievements } from '@/lib/achievements';
 import TradeTable from '@/components/trades/TradeTable';
 import PnlCalendar from '@/components/calendar/PnlCalendar';
@@ -112,12 +112,14 @@ export default async function DashboardPage() {
 
   const disciplineStats = computeDisciplineStats(list, journals);
   const weeklyScore = computeWeeklyScore(list, journals);
+  const eliteWeekStreak = computeEliteWeekStreak(list, journals);
   const achievements = computeAchievements({
     totalTrades: list.length,
     journalStreak: disciplineStats.journalStreak,
     noRevengeStreak: disciplineStats.noRevengeStreak,
     setupDiscipline: disciplineStats.setupDiscipline,
     weeklyScore: weeklyScore.score,
+    eliteWeekStreak,
   });
 
   // ── Notify on newly unlocked achievements ──
