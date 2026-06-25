@@ -846,6 +846,11 @@ export default function ExpenseTracker({ expenses, payouts }) {
                                   {PURCHASE_LABELS[item.purchase_type] || item.purchase_type}
                                 </span>
                               )}
+                              {item.type === 'payout' && (
+                                <span className="rounded-full border border-emerald-400/30 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
+                                  Payout
+                                </span>
+                              )}
                             </div>
                             <div className="font-mono text-[11px] text-white/40">{fmtDate(item.date)}</div>
                             {item.notes && <p className="mt-0.5 text-xs text-white/40">{item.notes}</p>}
