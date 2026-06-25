@@ -116,14 +116,12 @@ export default function Sidebar({ email, credits, avatarUrl, isAdmin, adminNotif
                 >
                   <span>&#9881;</span>
                   <span className="text-amber-300">Admin Panel</span>
-                  {adminNotifCount > 0 && (
-                    <span
+                  <span
                       className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-[#08080f]"
                       style={{ background: 'linear-gradient(135deg,#f87171,#fbbf24)' }}
                     >
-                      {adminNotifCount > 99 ? '99+' : adminNotifCount}
+                      {adminNotifCount}
                     </span>
-                  )}
                 </Link>
               )}
 
