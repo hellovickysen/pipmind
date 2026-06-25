@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { ADMIN_EMAIL } from '@/lib/supabase/admin';
 import Link from 'next/link';
+import NotificationBell from '@/components/notifications/NotificationBell';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,17 @@ export default async function AdminLayout({ children }) {
 
   if (!user) redirect('/login');
   if (user.email !== ADMIN_EMAIL) redirect('/dashboard');
+
+  // Notification count for admin
+  let notifCount = 0;
+  try {
+    const { count } = await supabase
+      .from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('is_read', false);
+    notifCount = count || 0;
+  } catch (e) {}
 
   return (
     <div className="flex min-h-screen">
@@ -51,7 +63,10 @@ export default async function AdminLayout({ children }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-white/10 px-6 py-4">
           <span className="font-mono text-xs uppercase tracking-wider text-white/55">Admin</span>
-          <span className="font-mono text-xs text-white/40">{user.email}</span>
+          <div className="flex items-center gap-3">
+            <NotificationBell initialCount={notifCount} />
+            <span className="font-mono text-xs text-white/40">{user.email}</span>
+          </div>
         </header>
         <main className="flex-1 px-6 py-6">{children}</main>
       </div>
