@@ -12,6 +12,47 @@ const field = 'w-full rounded-lg border border-white/10 bg-black/30 px-3.5 py-2.
 const labelCls = 'mb-1.5 block font-mono text-xs uppercase tracking-wider text-white/55';
 const card = 'rounded-2xl border border-white/10 bg-white/[0.03] p-6';
 
+function EyeIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function EyeOffIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  );
+}
+
+function PasswordInput({ value, onChange, placeholder }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <input
+        type={show ? 'text' : 'password'}
+        className={field + ' pr-10'}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+      />
+      <button
+        type="button"
+        onClick={() => setShow(!show)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 transition-colors hover:text-white/60"
+        tabIndex={-1}
+      >
+        {show ? <EyeOffIcon /> : <EyeIcon />}
+      </button>
+    </div>
+  );
+}
+
 function ProfileTab({ user, prefs }) {
   const toast = useToast();
   const [pw, setPw] = useState('');
@@ -83,7 +124,7 @@ function ProfileTab({ user, prefs }) {
           </div>
           <div>
             <input type="file" accept="image/*" onChange={onAvatarFile} className="block w-full text-sm text-white/60 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:text-white" />
-            {uploading && <p className="mt-1 text-xs text-cyan-400">Uploading…</p>}
+            {uploading && <p className="mt-1 text-xs text-cyan-400">Uploading...</p>}
             {avatarMsg && <p className="mt-1 text-xs text-emerald-400">{avatarMsg}</p>}
             {avatarErr && <p className="mt-1 text-xs text-red-400">{avatarErr}</p>}
           </div>
@@ -103,17 +144,17 @@ function ProfileTab({ user, prefs }) {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className={labelCls}>New password</label>
-            <input type="password" className={field} value={pw} onChange={(e) => setPw(e.target.value)} placeholder="At least 6 characters" />
+            <PasswordInput value={pw} onChange={(e) => setPw(e.target.value)} placeholder="At least 6 characters" />
           </div>
           <div>
             <label className={labelCls}>Confirm password</label>
-            <input type="password" className={field} value={pwConfirm} onChange={(e) => setPwConfirm(e.target.value)} placeholder="Retype password" />
+            <PasswordInput value={pwConfirm} onChange={(e) => setPwConfirm(e.target.value)} placeholder="Retype password" />
           </div>
         </div>
         {pwErr && <p className="mt-3 text-sm text-red-400">{pwErr}</p>}
         {pwMsg && <p className="mt-3 text-sm text-emerald-400">{pwMsg}</p>}
         <button onClick={onPasswordSave} disabled={pwSaving} className="mt-4 rounded-xl px-5 py-2.5 text-sm font-semibold text-[#08080f] disabled:opacity-60" style={{ background: 'linear-gradient(120deg,#a78bfa,#22d3ee)' }}>
-          {pwSaving ? 'Saving…' : 'Update password'}
+          {pwSaving ? 'Saving...' : 'Update password'}
         </button>
       </div>
     </div>
@@ -183,12 +224,12 @@ function JournalSettingsTab({ prefs, onSaved }) {
           {emotions.map((em, i) => (
             <span key={i} className="group flex items-center gap-1.5 rounded-full border border-violet-400/30 bg-violet-500/10 px-3 py-1.5 text-xs text-violet-200">
               {em}
-              <button type="button" onClick={() => removeEmotion(i)} className="inline text-red-400 hover:text-red-300">✕</button>
+              <button type="button" onClick={() => removeEmotion(i)} className="inline text-red-400 hover:text-red-300">&#10005;</button>
             </span>
           ))}
         </div>
         <div className="flex gap-2">
-          <input className={field + ' flex-1'} value={newEmotion} onChange={(e) => setNewEmotion(e.target.value)} placeholder="e.g. Anxious, Excited…" onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEmotion())} />
+          <input className={field + ' flex-1'} value={newEmotion} onChange={(e) => setNewEmotion(e.target.value)} placeholder="e.g. Anxious, Excited..." onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEmotion())} />
           <button type="button" onClick={addEmotion} className="rounded-lg border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white/70 hover:text-white">Add</button>
         </div>
         <button type="button" onClick={resetEmotionDefaults} className="mt-3 text-xs text-white/50 underline hover:text-white/70">Reset to defaults</button>
@@ -202,12 +243,12 @@ function JournalSettingsTab({ prefs, onSaved }) {
           {setups.map((s, i) => (
             <span key={i} className="group flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1.5 text-xs text-cyan-200">
               {s}
-              <button type="button" onClick={() => removeSetup(i)} className="inline text-red-400 hover:text-red-300">✕</button>
+              <button type="button" onClick={() => removeSetup(i)} className="inline text-red-400 hover:text-red-300">&#10005;</button>
             </span>
           ))}
         </div>
         <div className="flex gap-2">
-          <input className={field + ' flex-1'} value={newSetup} onChange={(e) => setNewSetup(e.target.value)} placeholder="e.g. Order Block, Break & Retest…" onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSetup())} />
+          <input className={field + ' flex-1'} value={newSetup} onChange={(e) => setNewSetup(e.target.value)} placeholder="e.g. Order Block, Break & Retest..." onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSetup())} />
           <button type="button" onClick={addSetup} className="rounded-lg border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white/70 hover:text-white">Add</button>
         </div>
         <button type="button" onClick={resetSetupDefaults} className="mt-3 text-xs text-white/50 underline hover:text-white/70">Reset to defaults</button>
@@ -232,7 +273,7 @@ function JournalSettingsTab({ prefs, onSaved }) {
       {msg && <p className="text-sm text-emerald-400">{msg}</p>}
 
       <button onClick={onSave} disabled={saving} className="rounded-xl px-5 py-2.5 text-sm font-semibold text-[#08080f] disabled:opacity-60" style={{ background: 'linear-gradient(120deg,#a78bfa,#22d3ee)' }}>
-        {saving ? 'Saving…' : 'Save settings'}
+        {saving ? 'Saving...' : 'Save settings'}
       </button>
     </div>
   );
