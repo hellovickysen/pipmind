@@ -77,12 +77,21 @@ function TicketCard({ ticket, onStatusChange, onReply }) {
       {/* Description */}
       <p className="text-xs text-white/55 whitespace-pre-wrap mb-3">{ticket.description}</p>
 
-      {/* Screenshot */}
-      {ticket.screenshot_url && (
-        <a href={ticket.screenshot_url} target="_blank" rel="noopener noreferrer" className="mb-3 inline-block">
-          <img src={ticket.screenshot_url} alt="Screenshot" className="h-24 rounded-lg border border-white/10 object-cover" />
-        </a>
-      )}
+      {/* Screenshots */}
+      {(() => {
+        const urls = [];
+        if (ticket.screenshot_urls && Array.isArray(ticket.screenshot_urls)) urls.push(...ticket.screenshot_urls);
+        if (ticket.screenshot_url && !urls.includes(ticket.screenshot_url)) urls.push(ticket.screenshot_url);
+        return urls.length > 0 ? (
+          <div className="mb-3 flex flex-wrap gap-2">
+            {urls.map((url, i) => (
+              <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                <img src={url} alt="Screenshot" className="h-24 rounded-lg border border-white/10 object-cover" />
+              </a>
+            ))}
+          </div>
+        ) : null;
+      })()}
 
       {/* Existing reply */}
       {ticket.admin_reply && !showReply && (

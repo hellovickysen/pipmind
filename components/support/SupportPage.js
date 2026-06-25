@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { createTicket } from '@/app/dashboard/support/actions';
@@ -24,12 +24,7 @@ const STATUS_STYLES = {
   closed: 'border-white/10 bg-white/5 text-white/50',
 };
 
-const STATUS_LABELS = {
-  open: 'Open',
-  in_progress: 'In Progress',
-  resolved: 'Resolved',
-  closed: 'Closed',
-};
+const STATUS_LABELS = { open: 'Open', in_progress: 'In Progress', resolved: 'Resolved', closed: 'Closed' };
 
 function getCat(val) {
   return CATEGORIES.find((c) => c.value === val) || CATEGORIES[3];
@@ -41,49 +36,81 @@ function fmtDate(d) {
   catch { return ''; }
 }
 
+/** Get all screenshot URLs from a ticket (handles both old screenshot_url and new screenshot_urls) */
+function getScreenshots(ticket) {
+  const urls = [];
+  if (ticket.screenshot_urls && Array.isArray(ticket.screenshot_urls)) {
+    urls.push(...ticket.screenshot_urls);
+  }
+  if (ticket.screenshot_url && !urls.includes(ticket.screenshot_url)) {
+    urls.push(ticket.screenshot_url);
+  }
+  return urls;
+}
+
 export default function SupportPage({ tickets }) {
   const router = useRouter();
   const toast = useToast();
+  const fileInputRef = useRef(null);
   const [showForm, setShowForm] = useState(false);
   const [category, setCategory] = useState('general_support');
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
-  const [screenshotUrl, setScreenshotUrl] = useState('');
-  const [uploading, setUploading] = useState(false);
+  const [screenshots, setScreenshots] = useState([]); // [{ url, uploading }]
   const [saving, setSaving] = useState(false);
-  const [preview, setPreview] = useState(null);
 
-  async function handleScreenshot(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      if (toast) toast.error('Screenshot must be under 5MB');
-      return;
-    }
-    setUploading(true);
-    try {
-      const supabase = createClient();
-      const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
-      const path = `support/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from('screenshots').upload(path, file, { cacheControl: '3600', upsert: true });
-      if (error) {
-        if (toast) toast.error('Upload failed');
-        setUploading(false);
-        return;
+  async function handleScreenshots(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const supabase = createClient();
+
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) {
+        if (toast) toast.error(file.name + ' is over 5MB — skipped');
+        continue;
       }
-      const { data: { publicUrl } } = supabase.storage.from('screenshots').getPublicUrl(path);
-      setScreenshotUrl(publicUrl);
-      setPreview(publicUrl);
-    } catch {
-      if (toast) toast.error('Upload failed');
+
+      // Add placeholder
+      const tempId = Date.now() + Math.random();
+      setScreenshots((prev) => [...prev, { id: tempId, url: null, uploading: true }]);
+
+      try {
+        const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+        const path = 'support/' + Date.now() + '_' + Math.random().toString(36).slice(2, 6) + '.' + ext;
+        const { error } = await supabase.storage.from('screenshots').upload(path, file, { cacheControl: '3600', upsert: true });
+        if (error) {
+          if (toast) toast.error('Upload failed: ' + file.name);
+          setScreenshots((prev) => prev.filter((s) => s.id !== tempId));
+          continue;
+        }
+        const { data: { publicUrl } } = supabase.storage.from('screenshots').getPublicUrl(path);
+        setScreenshots((prev) => prev.map((s) => s.id === tempId ? { ...s, url: publicUrl, uploading: false } : s));
+      } catch {
+        if (toast) toast.error('Upload failed: ' + file.name);
+        setScreenshots((prev) => prev.filter((s) => s.id !== tempId));
+      }
     }
-    setUploading(false);
+
+    // Reset input so same files can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  function removeScreenshot(id) {
+    setScreenshots((prev) => prev.filter((s) => s.id !== id));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);
-    const res = await createTicket({ category, subject, description, screenshot_url: screenshotUrl });
+    const urls = screenshots.filter((s) => s.url).map((s) => s.url);
+    const res = await createTicket({
+      category,
+      subject,
+      description,
+      screenshot_urls: urls,
+      screenshot_url: urls[0] || null,
+    });
     if (res.error) {
       if (toast) toast.error(res.error);
     } else {
@@ -92,12 +119,13 @@ export default function SupportPage({ tickets }) {
       setCategory('general_support');
       setSubject('');
       setDescription('');
-      setScreenshotUrl('');
-      setPreview(null);
+      setScreenshots([]);
       router.refresh();
     }
     setSaving(false);
   }
+
+  const anyUploading = screenshots.some((s) => s.uploading);
 
   return (
     <div className="px-4 sm:px-6 py-8">
@@ -161,26 +189,57 @@ export default function SupportPage({ tickets }) {
             </div>
 
             <div>
-              <label className={labelCls}>Screenshot (optional)</label>
-              {preview && (
-                <div className="mb-3 relative">
-                  <img src={preview} alt="Screenshot" className="h-32 w-full rounded-xl border border-white/10 object-cover" />
-                  <button type="button" onClick={() => { setPreview(null); setScreenshotUrl(''); }} className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-xs text-white/70 hover:text-white">&#10005;</button>
+              <label className={labelCls}>Screenshots (optional)</label>
+
+              {/* Previews */}
+              {screenshots.length > 0 && (
+                <div className="mb-3 flex flex-wrap gap-2">
+                  {screenshots.map((s) => (
+                    <div key={s.id} className="relative group">
+                      {s.uploading ? (
+                        <div className="grid h-20 w-24 place-items-center rounded-lg border border-white/10 bg-black/30">
+                          <svg className="h-5 w-5 animate-spin text-cyan-400" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="31.4 31.4" />
+                          </svg>
+                        </div>
+                      ) : (
+                        <>
+                          <img src={s.url} alt="Screenshot" className="h-20 w-24 rounded-lg border border-white/10 object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => removeScreenshot(s.id)}
+                            className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-red-500 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100"
+                          >
+                            &#10005;
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="rounded-lg border border-dashed border-white/15 bg-white/[0.02] px-4 py-3 text-xs text-white/50 transition-colors hover:border-white/30 hover:text-white/70"
+              >
+                + Add screenshots
+              </button>
               <input
+                ref={fileInputRef}
                 type="file"
                 accept="image/*"
-                onChange={handleScreenshot}
-                className="block w-full text-sm text-white/60 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:text-white"
+                multiple
+                onChange={handleScreenshots}
+                className="hidden"
               />
-              {uploading && <p className="mt-1 text-xs text-cyan-400">Uploading...</p>}
             </div>
           </div>
 
           <div className="mt-6 flex gap-3">
             <button type="button" onClick={() => setShowForm(false)} className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/70">Cancel</button>
-            <button type="submit" disabled={saving || uploading} className="flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold text-[#08080f] disabled:opacity-60" style={{ background: 'linear-gradient(120deg,#a78bfa,#22d3ee)' }}>
+            <button type="submit" disabled={saving || anyUploading} className="flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold text-[#08080f] disabled:opacity-60" style={{ background: 'linear-gradient(120deg,#a78bfa,#22d3ee)' }}>
               {saving ? 'Submitting...' : 'Submit Ticket'}
             </button>
           </div>
@@ -202,6 +261,7 @@ export default function SupportPage({ tickets }) {
           <div className="space-y-3">
             {tickets.map((t) => {
               const cat = getCat(t.category);
+              const allScreenshots = getScreenshots(t);
               return (
                 <div key={t.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
                   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -216,16 +276,19 @@ export default function SupportPage({ tickets }) {
                         </span>
                       </div>
                       <p className="mt-2 text-xs text-white/50 whitespace-pre-wrap">{t.description}</p>
-                      {t.screenshot_url && (
-                        <a href={t.screenshot_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block">
-                          <img src={t.screenshot_url} alt="Screenshot" className="h-20 rounded-lg border border-white/10 object-cover" />
-                        </a>
+                      {allScreenshots.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {allScreenshots.map((url, i) => (
+                            <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                              <img src={url} alt="Screenshot" className="h-20 rounded-lg border border-white/10 object-cover" />
+                            </a>
+                          ))}
+                        </div>
                       )}
                     </div>
                     <div className="font-mono text-[11px] text-white/35">{fmtDate(t.created_at)}</div>
                   </div>
 
-                  {/* Admin reply */}
                   {t.admin_reply && (
                     <div className="mt-4 rounded-xl border border-cyan-400/20 bg-cyan-500/[0.05] p-4">
                       <div className="mb-1 font-mono text-[10px] uppercase tracking-wider text-cyan-400/60">Admin Reply</div>

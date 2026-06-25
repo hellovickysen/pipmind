@@ -22,13 +22,20 @@ export async function createTicket(payload) {
   const validCategories = ['bug', 'platform_issue', 'feature_request', 'general_support', 'account_billing'];
   const category = validCategories.includes(payload.category) ? payload.category : 'general_support';
 
+  // Handle screenshot URLs array (max 5)
+  let screenshotUrls = [];
+  if (Array.isArray(payload.screenshot_urls)) {
+    screenshotUrls = payload.screenshot_urls.filter((u) => typeof u === 'string' && u.startsWith('http')).slice(0, 5);
+  }
+
   const { error } = await supabase.from('support_tickets').insert({
     user_id: user.id,
     user_email: user.email,
     category,
     subject,
     description,
-    screenshot_url: sanitize(payload.screenshot_url, 500) || null,
+    screenshot_url: screenshotUrls[0] || null,
+    screenshot_urls: screenshotUrls,
     status: 'open',
   });
 
