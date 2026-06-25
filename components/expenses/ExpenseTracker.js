@@ -695,6 +695,7 @@ export default function ExpenseTracker({ expenses, payouts }) {
   const firms = useMemo(() => {
     const arr = Object.values(firmMap);
     if (accountsSort === 'az') return arr.sort((a, b) => a.name.localeCompare(b.name));
+    if (accountsSort === 'highest') return arr.sort((a, b) => b.totalCost - a.totalCost);
     return arr.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
   }, [firmMap, accountsSort]);
   const firmNames = useMemo(() => [...new Set([...expenses.map((e) => e.firm_name), ...payouts.map((p) => p.firm_name)])].filter(Boolean).sort(), [expenses, payouts]);
@@ -857,7 +858,7 @@ export default function ExpenseTracker({ expenses, payouts }) {
               {firms.length > 1 && (
                 <div className="flex items-center justify-end gap-1">
                   <span className="mr-2 font-mono text-[10px] uppercase tracking-wider text-white/35">Sort</span>
-                  {[{ key: 'recent', label: 'Recent' }, { key: 'az', label: 'A–Z' }].map((s) => (
+                  {[{ key: 'recent', label: 'Recent' }, { key: 'highest', label: 'Highest' }, { key: 'az', label: 'A–Z' }].map((s) => (
                     <button key={s.key} onClick={() => setAccountsSort(s.key)}
                       className={'rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ' + (accountsSort === s.key ? 'bg-white/[0.08] text-white' : 'text-white/35 hover:text-white/60')}>
                       {s.label}
