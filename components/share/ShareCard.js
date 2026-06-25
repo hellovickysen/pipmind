@@ -3,7 +3,7 @@
 import { forwardRef } from 'react';
 
 // Open Journal mark (raster PNG so html2canvas captures it reliably)
-const LOGO_MARK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABmJLR0QA/wD/AP+gvaeTAAACtUlEQVR4nO3Zv2sTYRgH8O/zps09V5K+qbYKtYugYl0Eg61SXETcFaWIk4OCFP8CRZwFBRUXdwcnNycROvijhYAOijrpUERbWmKVXK7JPQ4K1utV7CW5t7XPB7LkTZ583+8lOZIDlFJKKaWUUkptPjnXAdLpL/p+fiKXy4/n82wbjfob14kyNFBgtu+ZrSy73Us7zbQzWhaYw3EAu2N3ny8UCtvSzNtoBRgiXEpaCMPu7akGtpYnW75fui2C/QlLc2G48DbNzA1TAHPpmohMrFyRzwCdArCUeaiseJ69GPvSE2ZbZ+47C4Bc5+so3y+dYLaN2Oabvm9Pu87Wccz2KLMN4kff83oTvwj/K55njzPbxYS3/mXX2TrNMPdeZbbN+OZ9v3TLdbiOKhaLW5nto4SjLsz2PtbZWctr5zDf7x1hth9X2fwDAN2dyJL6FMJsPwGYAfBYxDyt12kSmP+actYFAHcA5GNLDSJcqdWq1wHI77sHe3y/dgCIxkRwDMBwEFSH0rx2KwXMAuhfHhbAK6ypkCGfefEugHMJi18AnAmC6pOEDR/Bn0d9LgiqA2n20c4C4v5aiOcV9xDlHgKyL+G5k8bQTREZXmXDceuygLhlhdAzIrkBYFfsMQLgA4BBrO1znbqArjRPSqkLQBlAmUhWewwB2JlZIqyz04oLWoDrAK5pAa4DuKYFuA7gmhbgOoBrWoDrAK5t+gJa+DFkThJFh6MIh4gwAmBH21L9mxkRTBuDFyLmedohbbuo0NPTP9hsNstEUiZCWUTGAPS1afx3gF4SoSKCShSZShjOv27H4E5eVcnl81v2GhP9KgRlQA5i5d9ecU2A3gE/N2sMVWq1hWkAYSdCZnxZaaDAvFQmktEowigRRgFABFPGYEqEpoKguwLMfss2l1JKKaWUUkoppTaTH/eK6MSpCDdTAAAAAElFTkSuQmCC';
+const LOGO_MARK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABmJLR0QA/wD/AP+gvaeTAAACtUlEQVR4nO3Zv2sTYRgH8O/zps09V5K+qbYKtYugYl0Eg61SXETcFaWIk4OCFP8CRZwFBRUXdwcnNycROvijhYAOijrpUERbWmKVXK7JPQ4K1utV7CW5t7XPB7LkTZ583+8lOZIDlFJKKaWUUkptPjnXAdLpL/p+fiKXy4/n82wbjfob14kyNFBgtu+ZrSy73Us7zbQzWhaYw3EAu2N3ny8UCtvSzNtoBRgiXEpaCMPu7akGtpYnW75fui2C/QlLc2G48DbNzA1TAHPpmohMrFyRzwCdArCUeaiseJ69GPvSE2ZbZ+47C4Bc5+so3y+dYLaN2Oabvm9Pu87Wccz2KLMN4kff83oTvwj/K55njzPbxYS3/mXX2TrNMPdeZbbN+OZ9v3TLdbiOKhaLW5nto4SjLsz2PtbZWctr5zDf7x1hth9X2fwDAN2dyJL6FMJsPwGYAfBYxDyt12kSmP+actYFAHcA5GNLDSJcqdWq1wHI77sHe3y/dgCIxkRwDMBwEFSH0rx2KwXMAuhfHhbAK6ypkCGfefEugHMJi18AnAmC6pOEDR/Bn0d9LgiqA2n20c4C4v5aiOcV9xDlHgKyL+G5k8bQTREZXmXDceuygLhlhdAzIrkBYFfsMQLgA4BBrO1znbqArjRPSqkLQBlAmUhWewwB2JlZIqyz04oLWoDrAK5pAa4DuKYFuA7gmhbgOoBrWoDrAK5t+gJa+DFkThJFh6MIh4gwAmBH21L9mxkRTBuDFyLmedohbbuo0NPTP9hsNstEUiZCWUTGAPS1afx3gF4SoSKCShSZShjOv27H4E5eVcnl81v2GhP9KgRlQA5i5d9ecU2A3gE/N2sMVWq1hWkAYSdCZnxZaaDAvFQmktEowigRRgFABFPGYEqEpoKguwLMfss2l1JKKaWUUkoppZTaTH/eK6MSpCDdTAAAAAElFTkSuQmCC';
 
 function fmtMoney(v) {
   const n = Number(v) || 0;
@@ -90,18 +90,21 @@ const ShareCard = forwardRef(function ShareCard({ type, ratio, data, quote }, re
         justifyContent: 'space-between',
         padding: isStory ? '28px 28px 24px' : '20px 32px 18px',
       }}>
+        {/* ── Logo row ── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
-              width: 26, height: 26, borderRadius: 7,
+              width: 28, height: 28, borderRadius: 8,
               background: 'linear-gradient(120deg,#a78bfa,#22d3ee)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 12, color: '#08080f', fontWeight: 800,
+              flexShrink: 0,
               boxShadow: '0 0 14px rgba(139,92,246,0.5)',
-            }}><img src={LOGO_MARK} width={16} height={16} alt="" /></div>
-            <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em' }}>PropLogAI</span>
+            }}>
+              <img src={LOGO_MARK} width={16} height={16} alt="" style={{ display: 'block' }} />
+            </div>
+            <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1 }}>PropLogAI</span>
           </div>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.02em' }}>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.02em', lineHeight: 1 }}>
             {fmtDate(data.date || data.trade_date)}
           </span>
         </div>
