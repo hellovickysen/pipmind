@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { notifyAdmin, TYPES } from '@/lib/notifications';
+import { notify, notifyAdmin, TYPES } from '@/lib/notifications';
 
 function sanitize(str, maxLen) {
   if (!str) return null;
@@ -42,9 +42,13 @@ export async function createTicket(payload) {
 
   if (error) return { error: error.message };
 
+  // ── Notify user that ticket was submitted ──
+  await notify(supabase, user.id, TYPES.TICKET_STATUS, 'Ticket Submitted', `Your ${category.replace('_', ' ')} ticket "${subject}" has been received`, { link: '/dashboard/support' });
+
   // ── Notify admin about new ticket ──
   await notifyAdmin(TYPES.NEW_TICKET, 'New Support Ticket', `${category}: ${subject}`, { email: user.email });
 
   revalidatePath('/dashboard/support');
+  revalidatePath('/dashboard');
   return { ok: true };
 }
