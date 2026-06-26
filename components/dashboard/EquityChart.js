@@ -127,7 +127,7 @@ export default function EquityChart({ data }) {
     <div>
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
-        <div className="font-display text-base font-semibold">Net P&amp;L</div>
+        <div className="font-display text-base font-semibold">P&amp;L Performance</div>
         <div className="flex gap-0.5 rounded-lg border border-white/10 bg-black/30 p-0.5">
           {[{ key: 'cumulative', label: 'Cumulative' }, { key: 'daily', label: 'Daily' }].map((m) => (
             <button
@@ -211,23 +211,18 @@ export default function EquityChart({ data }) {
             <path d={areaAbove} fill="url(#eqRed)" clipPath="url(#clipBelow)" />
             {/* Smooth line */}
             <path d={curvePath} fill="none" stroke="url(#eqLine)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-            {/* Dots — green for profit days, red for loss days */}
-            {data.map((d, i) => {
-              const isProfit = d.daily >= 0;
-              const dotColor = isProfit ? '#34d399' : '#f87171';
-              const hoverColor = isProfit ? '#22d3ee' : '#fca5a5';
-              return (
-                <circle
-                  key={i}
-                  cx={scaleX(i)}
-                  cy={scaleY(d.cumulative)}
-                  r={hoverIdx === i ? 5.5 : 3.5}
-                  fill={hoverIdx === i ? hoverColor : dotColor}
-                  stroke={hoverIdx === i ? '#fff' : '#0b0b14'}
-                  strokeWidth={hoverIdx === i ? 2 : 1.5}
-                />
-              );
-            })}
+            {/* Dots — white */}
+            {data.map((d, i) => (
+              <circle
+                key={i}
+                cx={scaleX(i)}
+                cy={scaleY(d.cumulative)}
+                r={hoverIdx === i ? 5.5 : 3}
+                fill={hoverIdx === i ? '#fff' : 'rgba(255,255,255,0.85)'}
+                stroke="#0b0b14"
+                strokeWidth={1.5}
+              />
+            ))}
           </>
         )}
 
