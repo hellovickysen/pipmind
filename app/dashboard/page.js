@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { computeStats, equitySeries, fmtMoney, fmtR, num } from '@/lib/stats';
+import { computeStats, equitySeries, equityChartData, fmtMoney, fmtR, num } from '@/lib/stats';
+import EquityChart from '@/components/dashboard/EquityChart';
 import { computeDisciplineStats, computeWeeklyScore, computeEliteWeekStreak } from '@/lib/discipline';
 import { computeAchievements } from '@/lib/achievements';
 import TradeTable from '@/components/trades/TradeTable';
@@ -88,6 +89,7 @@ export default async function DashboardPage() {
   const list = trades || [];
   const s = computeStats(list);
   const series = equitySeries(list);
+  const chartData = equityChartData(list);
   const { data: coach } = await supabase
     .from('ai_insights')
     .select('summary, mistakes, created_at')
@@ -229,8 +231,7 @@ export default async function DashboardPage() {
         {/* Left column: Equity + Recent Trades */}
         <div className="space-y-6">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <div className="mb-3 font-display text-base font-semibold">Equity curve</div>
-            <EquityCurve series={series} />
+            <EquityChart data={chartData} />
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
