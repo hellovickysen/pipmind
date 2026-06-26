@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { createTrophy, deleteTrophy, togglePublic } from '@/app/dashboard/trophies/actions';
+import { processImageFile } from '@/lib/imageUtils';
 import { useToast } from '@/components/ui/Toast';
 import { TrophyEmptyIcon } from '@/components/ui/EmptyStates';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
@@ -131,11 +132,20 @@ function UploadTrophyForm({ onSave, onCancel, firmNames }) {
       return;
     }
     setUploading(true);
+
+    // Convert to WebP
+    const processed = await processImageFile(file);
+    if (processed.error) {
+      alert(processed.error);
+      setUploading(false);
+      return;
+    }
+
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const safe = processed.file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const path = user.id + '/' + Date.now() + '_' + safe;
-    const { error } = await supabase.storage.from('trophies').upload(path, file, { upsert: true });
+    const { error } = await supabase.storage.from('trophies').upload(path, processed.file, { upsert: true });
     if (error) {
       alert('Upload failed: ' + error.message);
       setUploading(false);
@@ -143,7 +153,7 @@ function UploadTrophyForm({ onSave, onCancel, firmNames }) {
     }
     const pub = supabase.storage.from('trophies').getPublicUrl(path);
     setFileUrl(pub.data.publicUrl);
-    setPreview(pub.data.publicUrl);
+    setPreview(processed.preview);
     setUploading(false);
     e.target.value = '';
   }

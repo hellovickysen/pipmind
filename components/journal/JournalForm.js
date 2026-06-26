@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { saveJournal } from '@/app/dashboard/trades/actions';
+import { processImageFile } from '@/lib/imageUtils';
 import Lightbox from '@/components/ui/Lightbox';
 import { resolveEmotions } from '@/lib/emotions';
 import { useToast } from '@/components/ui/Toast';
@@ -61,9 +62,17 @@ export default function JournalForm({ tradeId, userId, initial, prefs = null, on
     const newUrls = [];
 
     for (const file of files) {
-      const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      // Convert to WebP
+      const processed = await processImageFile(file);
+      if (processed.error) {
+        setError(processed.error);
+        setUploading(false);
+        return;
+      }
+
+      const safe = processed.file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
       const path = userId + '/' + tradeId + '/' + Date.now() + '_' + safe;
-      const up = await supabase.storage.from('screenshots').upload(path, file, { upsert: true });
+      const up = await supabase.storage.from('screenshots').upload(path, processed.file, { upsert: true });
       if (up.error) {
         setError('Upload failed: ' + up.error.message);
         setUploading(false);
@@ -160,12 +169,12 @@ export default function JournalForm({ tradeId, userId, initial, prefs = null, on
       )}
       <input
         type="file"
-        accept="image/*"
+        accept="image/*,application/pdf"
         multiple
         onChange={onFiles}
         className="mb-1 block w-full text-sm text-white/60 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-2.5 file:text-sm file:text-white"
       />
-      {uploading ? <p className="text-xs text-cyan-400">Uploading…</p> : null}
+      {uploading ? <p className="text-xs text-cyan-400">Processing &amp; uploading…</p> : null}
 
       {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
       {msg ? <p className="mt-3 text-sm text-emerald-400">{msg}</p> : null}

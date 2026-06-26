@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { createTrade, updateTrade } from '@/app/dashboard/trades/actions';
 import { DEFAULT_EMOTIONS, resolveEmotions } from '@/lib/emotions';
+import { processImageFile } from '@/lib/imageUtils';
 import { useToast } from '@/components/ui/Toast';
 
 const PAIRS = ['XAU/USD', 'EUR/USD', 'GBP/USD', 'USD/JPY', 'GBP/JPY', 'AUD/USD', 'USD/CAD', 'NZD/USD'];
@@ -197,9 +198,17 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
     const newUrls = [];
 
     for (const file of files) {
-      const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      // Convert to WebP
+      const processed = await processImageFile(file);
+      if (processed.error) {
+        setError(processed.error);
+        setUploading(false);
+        return;
+      }
+
+      const safe = processed.file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
       const path = user.id + '/new/' + Date.now() + '_' + safe;
-      const up = await supabase.storage.from('screenshots').upload(path, file, { upsert: true });
+      const up = await supabase.storage.from('screenshots').upload(path, processed.file, { upsert: true });
       if (up.error) {
         setError('Upload failed: ' + up.error.message);
         setUploading(false);
@@ -554,12 +563,12 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
                     )}
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/*,application/pdf"
                       multiple
                       onChange={onFiles}
                       className="block w-full text-sm text-white/60 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-2.5 file:text-sm file:text-white"
                     />
-                    {uploading && <p className="mt-1 text-xs text-cyan-400">Uploading...</p>}
+                    {uploading && <p className="mt-1 text-xs text-cyan-400">Processing & uploading...</p>}
                   </div>
                 </div>
               )}
