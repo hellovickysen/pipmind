@@ -207,7 +207,7 @@ export default async function SharedTradePage({ params }) {
                     {(trade.direction || '').toUpperCase()}
                   </span>
                 </h1>
-                <div className="mt-1 font-mono text-xs text-white/45">
+                <div className="mt-1 font-mono text-[10px] text-white/45 sm:text-xs">
                   {fmtDate(trade.trade_date || trade.closed_at || trade.created_at)}
                   {trade.session && <span className="ml-2">&middot; {trade.session}</span>}
                   {trade.timeframe && <span className="ml-2">&middot; {trade.timeframe}</span>}
