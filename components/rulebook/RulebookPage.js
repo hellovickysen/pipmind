@@ -262,7 +262,7 @@ export default function RulebookPage({ setups }) {
       )}
 
       {/* Active setups — edit form appears inline replacing the card */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid items-start gap-4 sm:grid-cols-2">
         {activeSetups.map((s) =>
           editing && editing !== 'new' && editing.id === s.id ? (
             <SetupForm
@@ -281,7 +281,7 @@ export default function RulebookPage({ setups }) {
       {inactiveSetups.length > 0 && (
         <div className="mt-8">
           <h2 className="mb-3 font-mono text-xs uppercase tracking-wider text-white/40">Inactive setups</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid items-start gap-4 sm:grid-cols-2">
             {inactiveSetups.map((s) =>
               editing && editing !== 'new' && editing.id === s.id ? (
                 <SetupForm
