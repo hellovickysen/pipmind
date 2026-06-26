@@ -265,12 +265,13 @@ export default function RulebookPage({ setups }) {
       <div className="grid items-start gap-4 sm:grid-cols-2">
         {activeSetups.map((s) =>
           editing && editing !== 'new' && editing.id === s.id ? (
-            <SetupForm
-              key={s.id}
-              initial={editing}
-              onSave={handleUpdate}
-              onCancel={() => setEditing(null)}
-            />
+            <div key={s.id} className="sm:col-span-2">
+              <SetupForm
+                initial={editing}
+                onSave={handleUpdate}
+                onCancel={() => setEditing(null)}
+              />
+            </div>
           ) : (
             <SetupCard key={s.id} setup={s} onEdit={setEditing} onToggle={handleToggle} onDelete={handleDelete} />
           )
@@ -284,12 +285,13 @@ export default function RulebookPage({ setups }) {
           <div className="grid items-start gap-4 sm:grid-cols-2">
             {inactiveSetups.map((s) =>
               editing && editing !== 'new' && editing.id === s.id ? (
-                <SetupForm
-                  key={s.id}
-                  initial={editing}
-                  onSave={handleUpdate}
-                  onCancel={() => setEditing(null)}
-                />
+                <div key={s.id} className="sm:col-span-2">
+                  <SetupForm
+                    initial={editing}
+                    onSave={handleUpdate}
+                    onCancel={() => setEditing(null)}
+                  />
+                </div>
               ) : (
                 <SetupCard key={s.id} setup={s} onEdit={setEditing} onToggle={handleToggle} onDelete={handleDelete} />
               )
