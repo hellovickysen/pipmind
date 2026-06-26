@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { createTrophy, deleteTrophy, togglePublic } from '@/app/dashboard/trophies/actions';
@@ -284,6 +284,24 @@ export default function TrophyWall({ trophies, firmNames }) {
   const [showUpload, setShowUpload] = useState(false);
   const [viewing, setViewing] = useState(null);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [firmFilter, setFirmFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+
+  // Filter options built from trophies data
+  const firmOptions = useMemo(() => {
+    return [...new Set(trophies.map((t) => t.firm_name).filter(Boolean))].sort();
+  }, [trophies]);
+
+  // Filtered trophies
+  const filtered = useMemo(() => {
+    return trophies.filter((t) => {
+      if (firmFilter && t.firm_name !== firmFilter) return false;
+      if (categoryFilter && t.category !== categoryFilter) return false;
+      return true;
+    });
+  }, [trophies, firmFilter, categoryFilter]);
+
+  const hasFilters = firmFilter || categoryFilter;
 
   async function handleUpload(data) {
     const res = await createTrophy(data);
@@ -368,9 +386,48 @@ export default function TrophyWall({ trophies, firmNames }) {
         </button>
       </div>
 
+      {/* Filter bar */}
+      {trophies.length > 1 && (
+        <div className="mb-4 flex flex-wrap items-end gap-3">
+          <div>
+            <label className="mb-1 block font-mono text-xs uppercase tracking-wider text-white/50">Firm</label>
+            <select className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none focus:border-cyan-400/60" value={firmFilter} onChange={(e) => setFirmFilter(e.target.value)}>
+              <option value="">All firms</option>
+              {firmOptions.map((f) => (
+                <option key={f} value={f}>{f}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block font-mono text-xs uppercase tracking-wider text-white/50">Category</label>
+            <select className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none focus:border-cyan-400/60" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+              <option value="">All categories</option>
+              {CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
+          </div>
+          {hasFilters && (
+            <button
+              onClick={() => { setFirmFilter(''); setCategoryFilter(''); }}
+              className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/55 hover:text-white"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Filtered count */}
+      {hasFilters && (
+        <p className="mb-3 font-mono text-xs text-white/55">
+          Showing {filtered.length} of {trophies.length} trophies
+        </p>
+      )}
+
       {/* Gallery grid */}
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {trophies.map((t) => (
+        {filtered.map((t) => (
           <TrophyCard
             key={t.id}
             trophy={t}
@@ -380,6 +437,9 @@ export default function TrophyWall({ trophies, firmNames }) {
             onCopyLink={handleCopyLink}
           />
         ))}
+        {filtered.length === 0 && hasFilters && (
+          <div className="col-span-full py-8 text-center text-sm text-white/40">No trophies match your filters.</div>
+        )}
       </div>
 
       {/* Lightbox */}
