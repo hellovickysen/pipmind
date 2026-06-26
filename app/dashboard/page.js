@@ -192,6 +192,14 @@ export default async function DashboardPage() {
     return d === today;
   });
   const todayPnl = todayTrades.reduce((a, t) => a + num(t.pnl), 0);
+
+  // Current month P&L
+  const currentMonth = today.slice(0, 7); // "2026-06"
+  const monthTrades = list.filter((t) => {
+    const d = t.trade_date || (t.closed_at || t.created_at || '').slice(0, 10);
+    return d.startsWith(currentMonth);
+  });
+  const monthPnl = monthTrades.reduce((a, t) => a + num(t.pnl), 0);
   const todayWins = todayTrades.filter((t) => num(t.pnl) >= 0).length;
   const todayWinRate = todayTrades.length > 0 ? Math.round((todayWins / todayTrades.length) * 100) : 0;
   const todayBest = todayTrades.length > 0 ? Math.max(...todayTrades.map((t) => num(t.pnl))) : null;
@@ -211,8 +219,9 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <HeroStat label="Net P&amp;L" value={fmtMoney(s.net)} tone={s.net >= 0 ? 'pos' : 'neg'} />
+        <Stat label="This month" value={fmtMoney(monthPnl)} tone={monthPnl >= 0 ? 'pos' : monthPnl < 0 ? 'neg' : ''} />
         <Stat label="Win rate" value={s.winRate.toFixed(0) + '%'} />
         <Stat label="Profit factor" value={s.profitFactor === null ? '—' : s.profitFactor.toFixed(2)} />
         <Stat label="Avg R" value={fmtR(s.avgR)} tone={s.avgR === null ? '' : s.avgR >= 0 ? 'pos' : 'neg'} />
