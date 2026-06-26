@@ -500,8 +500,10 @@ function FirmDashboard({
   const [savingName, setSavingName] = useState(false);
   const [showAllExpenses, setShowAllExpenses] = useState(false);
   const [showAllPayouts, setShowAllPayouts] = useState(false);
+  const [expenseTypeFilter, setExpenseTypeFilter] = useState('all');
   const PAGE_SIZE = 5;
 
+  const filteredExpenses = expenseTypeFilter === 'all' ? expenses : expenses.filter((e) => e.purchase_type === expenseTypeFilter);
   const totalExpenses = expenses.reduce((a, e) => a + (Number(e.total_cost) || 0), 0);
   const totalPayouts = payouts.reduce((a, p) => a + (Number(p.amount) || 0), 0);
   const netPL = totalPayouts - totalExpenses;
@@ -591,7 +593,7 @@ function FirmDashboard({
 
       {/* Expenses Section */}
       <div className="mb-8">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-3 flex items-center justify-between">
           <h2 className="font-display text-base font-semibold">
             Expenses <span className="ml-1 font-mono text-xs text-white/40">({expenses.length})</span>
           </h2>
@@ -600,13 +602,24 @@ function FirmDashboard({
           </button>
         </div>
 
-        {expenses.length === 0 ? (
+        {expenses.length > 0 && (
+          <div className="mb-3 flex items-center gap-1">
+            {[{ key: 'all', label: 'All' }, { key: 'new', label: 'New' }, { key: 'renewal', label: 'Renewal' }, { key: 'activation', label: 'Activation' }].map((f) => (
+              <button key={f.key} onClick={() => { setExpenseTypeFilter(f.key); setShowAllExpenses(false); }}
+                className={'rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ' + (expenseTypeFilter === f.key ? 'bg-white/[0.08] text-white' : 'text-white/35 hover:text-white/60')}>
+                {f.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {filteredExpenses.length === 0 ? (
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
-            <p className="text-sm text-white/40">No expenses for {firmName} yet.</p>
+            <p className="text-sm text-white/40">{expenses.length === 0 ? `No expenses for ${firmName} yet.` : 'No expenses match this filter.'}</p>
           </div>
         ) : (
           <div className="space-y-2">
-            {(showAllExpenses ? expenses : expenses.slice(0, PAGE_SIZE)).map((e) => (
+            {(showAllExpenses ? filteredExpenses : filteredExpenses.slice(0, PAGE_SIZE)).map((e) => (
               <div key={e.id} className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -629,9 +642,9 @@ function FirmDashboard({
                 <button onClick={() => onDeleteExpense(e.id)} className="grid h-8 w-8 place-items-center rounded text-[10px] text-white/30 hover:bg-red-500/20 hover:text-red-400 transition-colors" title="Delete">&#10005;</button>
               </div>
             ))}
-            {!showAllExpenses && expenses.length > PAGE_SIZE && (
+            {!showAllExpenses && filteredExpenses.length > PAGE_SIZE && (
               <button onClick={() => setShowAllExpenses(true)} className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.03] py-2.5 text-xs font-medium text-white/50 hover:bg-white/[0.06] hover:text-white/70">
-                Show all {expenses.length} expenses
+                Show all {filteredExpenses.length} expenses
               </button>
             )}
           </div>
