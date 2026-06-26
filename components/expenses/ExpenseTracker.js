@@ -501,6 +501,7 @@ function FirmDashboard({
   const [showAllExpenses, setShowAllExpenses] = useState(false);
   const [showAllPayouts, setShowAllPayouts] = useState(false);
   const [expenseTypeFilter, setExpenseTypeFilter] = useState('all');
+  const [trophyCategoryFilter, setTrophyCategoryFilter] = useState('all');
   const PAGE_SIZE = 5;
 
   const filteredExpenses = expenseTypeFilter === 'all' ? expenses : expenses.filter((e) => e.purchase_type === expenseTypeFilter);
@@ -691,15 +692,32 @@ function FirmDashboard({
       </div>
 
       {/* Trophies Section */}
-      {trophies.length > 0 && (
+      {trophies.length > 0 && (() => {
+        const filteredTrophies = trophyCategoryFilter === 'all' ? trophies : trophies.filter((t) => t.category === trophyCategoryFilter);
+        return (
         <div>
-          <div className="mb-4">
+          <div className="mb-3 flex items-center justify-between">
             <h2 className="font-display text-base font-semibold">
               Trophies <span className="ml-1 font-mono text-xs text-white/40">({trophies.length})</span>
             </h2>
           </div>
+          {trophies.length > 1 && (
+            <div className="mb-3 flex items-center gap-1">
+              {[{ key: 'all', label: 'All' }, { key: 'payout', label: 'Payout' }, { key: 'challenge_pass', label: 'Challenge' }, { key: 'funded', label: 'Funded' }, { key: 'other', label: 'Other' }].map((f) => (
+                <button key={f.key} onClick={() => setTrophyCategoryFilter(f.key)}
+                  className={'rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ' + (trophyCategoryFilter === f.key ? 'bg-white/[0.08] text-white' : 'text-white/35 hover:text-white/60')}>
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          )}
+          {filteredTrophies.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
+              <p className="text-sm text-white/40">No trophies match this filter.</p>
+            </div>
+          ) : (
           <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {trophies.map((t) => {
+            {filteredTrophies.map((t) => {
               const cat = TROPHY_CATS[t.category] || TROPHY_CATS.other;
               return (
                 <div key={t.id} className="rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden">
@@ -717,8 +735,10 @@ function FirmDashboard({
               );
             })}
           </div>
+          )}
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
