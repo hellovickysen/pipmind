@@ -251,16 +251,6 @@ export default function RulebookPage({ setups }) {
         </button>
       </div>
 
-      {/* New setup form — only for creating new setups */}
-      {editing === 'new' && (
-        <div className="mb-6">
-          <SetupForm
-            onSave={handleCreate}
-            onCancel={() => setEditing(null)}
-          />
-        </div>
-      )}
-
       {/* Active setups */}
       <div className="grid gap-4 sm:grid-cols-2">
         {activeSetups.map((s) => (
@@ -280,13 +270,13 @@ export default function RulebookPage({ setups }) {
         </div>
       )}
 
-      {/* Edit modal — appears over the page when editing an existing setup */}
-      {editing && editing !== 'new' && (
+      {/* Setup modal — new or edit */}
+      {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" onClick={() => setEditing(null)}>
           <div className="w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
             <SetupForm
-              initial={editing}
-              onSave={handleUpdate}
+              initial={editing === 'new' ? null : editing}
+              onSave={editing === 'new' ? handleCreate : handleUpdate}
               onCancel={() => setEditing(null)}
             />
           </div>
