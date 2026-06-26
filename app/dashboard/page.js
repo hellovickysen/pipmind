@@ -9,6 +9,7 @@ import PnlCalendar from '@/components/calendar/PnlCalendar';
 import DashboardShareButton from '@/components/dashboard/DashboardShareButton';
 import DisciplineCards from '@/components/dashboard/DisciplineCards';
 import ReferralCapture from '@/components/referrals/ReferralCapture';
+import BetaNotice from '@/components/ui/BetaNotice';
 import { notify, TYPES } from '@/lib/notifications';
 
 export const dynamic = 'force-dynamic';
@@ -227,6 +228,7 @@ export default async function DashboardPage() {
   return (
     <div className="px-3 py-8 sm:px-4">
       <ReferralCapture />
+      <BetaNotice />
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Dashboard</h1>
         <div className="flex items-center gap-2">
