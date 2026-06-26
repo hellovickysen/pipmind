@@ -26,9 +26,11 @@ export default function NotificationList({ initial, total }) {
   const [items, setItems] = useState(initial);
   const [hasMore, setHasMore] = useState(total > initial.length);
   const [pending, startTransition] = useTransition();
+  const [showUnreadOnly, setShowUnreadOnly] = useState(false);
 
   const meta = (type) => NOTIFICATION_META[type] || { icon: '🔔', color: 'text-white/70' };
   const unread = items.filter((n) => !n.is_read).length;
+  const displayItems = showUnreadOnly ? items.filter((n) => !n.is_read) : items;
 
   function handleMarkAll() {
     startTransition(async () => {
@@ -76,6 +78,15 @@ export default function NotificationList({ initial, total }) {
         <div className="mb-4 flex items-center gap-2">
           {unread > 0 && (
             <button
+              onClick={() => setShowUnreadOnly(!showUnreadOnly)}
+              className={'flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-colors ' + (showUnreadOnly ? 'border-violet-400/40 bg-violet-500/15 text-violet-300' : 'border-white/10 bg-white/[0.03] text-white/50 hover:bg-white/[0.06]')}
+            >
+              <span className="h-2 w-2 rounded-full" style={{ background: showUnreadOnly ? 'linear-gradient(135deg,#a78bfa,#22d3ee)' : 'rgba(255,255,255,0.3)' }} />
+              {showUnreadOnly ? `Unread (${unread})` : 'Unread only'}
+            </button>
+          )}
+          {unread > 0 && (
+            <button
               onClick={handleMarkAll}
               disabled={pending}
               className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-medium text-cyan-400 transition-colors hover:bg-white/[0.06] disabled:opacity-50"
@@ -103,15 +114,15 @@ export default function NotificationList({ initial, total }) {
       )}
 
       {/* Notification list */}
-      {items.length === 0 ? (
+      {displayItems.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] py-16 text-center">
           <span className="text-4xl opacity-40">🔕</span>
-          <p className="text-sm font-medium text-white/40">No notifications</p>
-          <p className="text-xs text-white/25">Your activity will show up here as you use PropLogAI.</p>
+          <p className="text-sm font-medium text-white/40">{showUnreadOnly ? 'No unread notifications' : 'No notifications'}</p>
+          <p className="text-xs text-white/25">{showUnreadOnly ? 'All caught up!' : 'Your activity will show up here as you use PropLogAI.'}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-1">
-          {items.map((item) => {
+          {displayItems.map((item) => {
             const m = meta(item.type);
             return (
               <div

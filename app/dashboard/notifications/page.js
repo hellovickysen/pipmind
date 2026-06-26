@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { NOTIFICATION_META } from '@/lib/notifications';
 import NotificationList from '@/components/notifications/NotificationList';
+import { cleanupOldReadNotifications } from '@/app/dashboard/notifications/actions';
 
 export const metadata = { title: 'Notifications · PropLogAI' };
 
@@ -9,6 +10,9 @@ export default async function NotificationsPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+
+  // Auto-delete read notifications older than 7 days
+  await cleanupOldReadNotifications();
 
   const { data: notifications, count } = await supabase
     .from('notifications')

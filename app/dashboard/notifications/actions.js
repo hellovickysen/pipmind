@@ -119,6 +119,23 @@ export async function deleteNotification(notificationId) {
   return { ok: true };
 }
 
+/* ── Auto-delete read notifications older than 7 days ────── */
+export async function cleanupOldReadNotifications() {
+  const { supabase, user } = await getCtx();
+  if (!user) return;
+  try {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    await supabase
+      .from('notifications')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('is_read', true)
+      .lt('created_at', sevenDaysAgo);
+  } catch (e) {
+    // Cleanup failure must never break the page
+  }
+}
+
 /* ── Clear all notifications ─────────────────────────────── */
 export async function clearAllNotifications() {
   const { supabase, user } = await getCtx();
