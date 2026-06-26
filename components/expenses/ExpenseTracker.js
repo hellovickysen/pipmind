@@ -773,20 +773,29 @@ export default function ExpenseTracker({ expenses, payouts, trophies }) {
     const map = {};
     expenses.forEach((e) => {
       const fn = e.firm_name;
-      if (!map[fn]) map[fn] = { name: fn, totalCost: 0, accounts: 0, expenses: [], lastUpdated: e.created_at, types: [] };
+      if (!map[fn]) map[fn] = { name: fn, totalCost: 0, accounts: 0, expenseCount: 0, payoutCount: 0, trophyCount: 0, expenses: [], lastUpdated: e.created_at, types: [] };
       map[fn].totalCost += Number(e.total_cost) || 0;
+      map[fn].expenseCount++;
       if (e.purchase_type === 'new') map[fn].accounts += Number(e.num_accounts) || 0;
       if (e.account_type && !map[fn].types.includes(e.account_type)) map[fn].types.push(e.account_type);
       map[fn].expenses.push(e);
       if (new Date(e.created_at) > new Date(map[fn].lastUpdated)) map[fn].lastUpdated = e.created_at;
     });
-    // Also check payouts for lastUpdated
+    // Count payouts per firm
     payouts.forEach((p) => {
       const fn = p.firm_name;
-      if (map[fn] && new Date(p.created_at) > new Date(map[fn].lastUpdated)) map[fn].lastUpdated = p.created_at;
+      if (map[fn]) {
+        map[fn].payoutCount++;
+        if (new Date(p.created_at) > new Date(map[fn].lastUpdated)) map[fn].lastUpdated = p.created_at;
+      }
+    });
+    // Count trophies per firm
+    allTrophies.forEach((t) => {
+      const fn = t.firm_name;
+      if (map[fn]) map[fn].trophyCount++;
     });
     return map;
-  }, [expenses, payouts]);
+  }, [expenses, payouts, allTrophies]);
 
   const firms = useMemo(() => {
     let arr = Object.values(firmMap);
@@ -1010,7 +1019,13 @@ export default function ExpenseTracker({ expenses, payouts, trophies }) {
                                 </span>
                               ))}
                             </div>
-                            <div className="font-mono text-xs text-white/45">{firm.accounts} account{firm.accounts !== 1 ? 's' : ''}</div>
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-xs text-white/45">
+                              <span>{firm.accounts} acct{firm.accounts !== 1 ? 's' : ''}</span>
+                              <span className="text-white/20">&middot;</span>
+                              <span>{firm.expenseCount} expense{firm.expenseCount !== 1 ? 's' : ''}</span>
+                              {firm.payoutCount > 0 && <><span className="text-white/20">&middot;</span><span className="text-emerald-400/60">{firm.payoutCount} payout{firm.payoutCount !== 1 ? 's' : ''}</span></>}
+                              {firm.trophyCount > 0 && <><span className="text-white/20">&middot;</span><span className="text-amber-400/60">{firm.trophyCount} troph{firm.trophyCount !== 1 ? 'ies' : 'y'}</span></>}
+                            </div>
                           </div>
                           <div className="text-right">
                             <div className="font-mono text-base font-bold text-red-400">{fmtCurrency(firm.totalCost)}</div>
