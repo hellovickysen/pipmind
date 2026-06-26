@@ -219,9 +219,8 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <HeroStat label="Net P&amp;L" value={fmtMoney(s.net)} tone={s.net >= 0 ? 'pos' : 'neg'} />
-        <Stat label="This month" value={fmtMoney(monthPnl)} tone={monthPnl >= 0 ? 'pos' : monthPnl < 0 ? 'neg' : ''} />
         <Stat label="Win rate" value={s.winRate.toFixed(0) + '%'} />
         <Stat label="Profit factor" value={s.profitFactor === null ? '—' : s.profitFactor.toFixed(2)} />
         <Stat label="Avg R" value={fmtR(s.avgR)} tone={s.avgR === null ? '' : s.avgR >= 0 ? 'pos' : 'neg'} />
@@ -255,7 +254,7 @@ export default async function DashboardPage() {
         {/* Right column: Calendar + Expenses + AI Coach */}
         <div className="space-y-6">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <PnlCalendar trades={list} />
+            <PnlCalendar trades={list} monthPnl={monthPnl} />
           </div>
 
           {/* Expense Summary */}
