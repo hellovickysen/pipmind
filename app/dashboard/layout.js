@@ -101,13 +101,16 @@ export default async function DashboardLayout({ children }) {
     } catch (e) {}
   }
 
+  const isAdmin = user.email === ADMIN_EMAIL;
+  const initial = user.email ? user.email.charAt(0).toUpperCase() : '?';
+
   return (
     <div className="flex min-h-screen">
-      <Sidebar email={user.email} credits={prefs.referral_balance} avatarUrl={prefs.avatar_url} isAdmin={user.email === ADMIN_EMAIL} adminNotifCount={adminNotifCount} />
+      <Sidebar email={user.email} credits={prefs.referral_balance} avatarUrl={prefs.avatar_url} isAdmin={isAdmin} adminNotifCount={adminNotifCount} />
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="relative flex items-center justify-between border-b border-white/10 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <MobileNav />
+            <MobileNav email={user.email} avatarUrl={prefs.avatar_url} isAdmin={isAdmin} adminNotifCount={adminNotifCount} credits={prefs.referral_balance} />
             <Link href="/dashboard" className="sm:hidden">
               <Logo size={28} wordmarkClassName="font-display text-base font-bold" />
             </Link>
@@ -120,6 +123,19 @@ export default async function DashboardLayout({ children }) {
               <span className={'font-mono text-xs font-semibold sm:text-sm ' + tone}>{fmtMoney(todayPnl)}</span>
             </div>
             <span className="hidden font-mono text-xs text-white/55 sm:block">{user.email}</span>
+            {/* Mobile avatar in header */}
+            <Link href="/dashboard/settings" className="sm:hidden">
+              {prefs.avatar_url ? (
+                <img src={prefs.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover border border-white/10" />
+              ) : (
+                <div
+                  className="grid h-8 w-8 place-items-center rounded-full text-xs font-bold text-[#08080f]"
+                  style={{ background: 'linear-gradient(135deg,#a78bfa,#22d3ee)' }}
+                >
+                  {initial}
+                </div>
+              )}
+            </Link>
           </div>
         </header>
         <main className="flex-1">{children}</main>
