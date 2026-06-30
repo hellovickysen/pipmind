@@ -34,7 +34,8 @@ export default function CookieBanner() {
         <div className="flex items-center gap-3">
           <button
             onClick={accept}
-            className="rounded-lg border border-amber-400/50 bg-amber-500/15 px-4 py-1.5 text-xs font-semibold text-amber-300 transition-colors hover:bg-amber-500/25"
+            className="rounded-lg px-4 py-1.5 text-xs font-semibold text-[#08080f] transition-opacity hover:opacity-90"
+            style={{ background: 'linear-gradient(120deg, #a78bfa, #22d3ee)' }}
           >
             Accept
           </button>
