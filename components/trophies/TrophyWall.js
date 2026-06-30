@@ -226,7 +226,7 @@ function UploadTrophyForm({ onSave, onCancel, firmNames }) {
 function TrophyCard({ trophy, onView, onTogglePublic, onDelete, onCopyLink }) {
   const cat = getCategoryStyle(trophy.category);
   return (
-    <div className="group rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden transition-all hover:border-white/20 hover:bg-white/[0.05]">
+    <div className="group flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden transition-all hover:border-white/20 hover:bg-white/[0.05]">
       {/* Image */}
       <button onClick={() => onView(trophy)} className="block w-full">
         <div className="relative aspect-[4/3] overflow-hidden bg-black/40">
@@ -241,13 +241,13 @@ function TrophyCard({ trophy, onView, onTogglePublic, onDelete, onCopyLink }) {
       </button>
 
       {/* Info */}
-      <div className="p-4">
-        <h3 className="font-display text-sm font-semibold leading-tight">{trophy.title}</h3>
+      <div className="flex flex-1 flex-col p-4">
+        <h3 className="font-display text-sm font-semibold leading-tight line-clamp-2">{trophy.title}</h3>
         {trophy.description && <p className="mt-1 text-xs text-white/45 line-clamp-2">{trophy.description}</p>}
         <div className="mt-2 font-mono text-[11px] text-white/35">{fmtDate(trophy.created_at)}</div>
 
-        {/* Actions */}
-        <div className="mt-3 flex items-center gap-1.5 border-t border-white/5 pt-3">
+        {/* Actions — pinned to bottom */}
+        <div className="mt-auto flex items-center gap-1.5 border-t border-white/5 pt-3">
           <button
             onClick={() => onTogglePublic(trophy.id, !trophy.is_public)}
             className={'rounded-lg border px-2 py-1.5 text-[11px] font-semibold ' + (trophy.is_public ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-300' : 'border-white/10 bg-white/5 text-white/50')}
