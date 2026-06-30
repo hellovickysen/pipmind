@@ -31,7 +31,7 @@ export default async function CalendarPage({ searchParams }) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Calculate the start and end of the displayed month
+  // Calculate the start and end of the displayed month for date-range filtering
   const monthStartDate = `${year}-${pad2(month + 1)}-01`;
   const nextMonthVal = month === 11 ? 0 : month + 1;
   const nextYearVal = month === 11 ? year + 1 : year;
@@ -39,7 +39,7 @@ export default async function CalendarPage({ searchParams }) {
 
   const { data: trades, error: tradesError } = await supabase
     .from('trades')
-    .select('id, pair, direction, pnl, r_multiple, setup, timeframe, session, trade_date, closed_at, created_at')
+    .select('id, pair, direction, pnl, r_multiple, setup, timeframe, session, trade_date, closed_at, created_at, entry_price, exit_price')
     .eq('user_id', user.id)
     .gte('trade_date', monthStartDate)
     .lt('trade_date', monthEndDate)
@@ -64,6 +64,33 @@ export default async function CalendarPage({ searchParams }) {
 
   const list = trades || [];
 
+  // Empty state — user has no trades at all
+  if (totalTradeCount === 0) {
+    return (
+      <div className="px-4 py-8 sm:px-6">
+        <h1 className="font-display text-2xl font-bold">Calendar</h1>
+        <div className="mt-12 flex flex-col items-center justify-center text-center">
+          <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+            </svg>
+          </div>
+          <h2 className="font-display text-lg font-semibold text-white/70">No trades yet</h2>
+          <p className="mt-2 max-w-sm text-sm text-white/45">
+            Once you log your first trade, your calendar will light up with daily P&L and trade history.
+          </p>
+          <Link
+            href="/dashboard/trades/new"
+            className="mt-6 rounded-xl bg-cyan-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition-colors hover:bg-cyan-400"
+          >
+            Log Your First Trade
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Fetch journal entries for the trades in this month
   const tradeIds = list.map((t) => t.id);
   let journalMap = {};
   if (tradeIds.length > 0) {
@@ -77,9 +104,43 @@ export default async function CalendarPage({ searchParams }) {
     });
   }
 
-  // Build day map for the calendar
+  // Enrich trade objects with _journal metadata (used by TradeTable)
+  const enrichedTrades = list.map((t) => {
+    const j = journalMap[t.id];
+    if (!j) return t;
+    return {
+      ...t,
+      _journal: {
+        emotions: j.emotions || [],
+        hasNote: !!(j.note && j.note.trim()),
+        hasImages: !!(j.screenshot_url || (j.screenshot_urls && j.screenshot_urls.length > 0)),
+        confidence: j.confidence != null ? j.confidence : null,
+      },
+    };
+  });
+
+  // Calculate monthly P/L (CalendarMonth expects this as a prop)
+  const monthlyPnl = enrichedTrades.reduce((sum, t) => sum + num(t.pnl), 0);
+
+  // Build journalDays map: { dayNumber: true } for days that have journal entries
+  const journalDays = {};
+  for (const t of enrichedTrades) {
+    if (t._journal) {
+      const raw = t.trade_date || t.closed_at || t.created_at;
+      if (!raw) continue;
+      const d = new Date(raw);
+      if (d.getUTCFullYear() === year && d.getUTCMonth() === month) {
+        journalDays[d.getUTCDate()] = true;
+      }
+    }
+  }
+
+  // The monthParam string that CalendarMonth uses for building links
+  const monthParam = `${year}-${pad2(month + 1)}`;
+
+  // Build day map for selected-date trades lookup
   const dayMap = {};
-  for (const t of list) {
+  for (const t of enrichedTrades) {
     const key = t.trade_date ? t.trade_date.slice(0, 10) : null;
     if (!key) continue;
     if (!dayMap[key]) dayMap[key] = { pnl: 0, trades: [] };
@@ -100,7 +161,11 @@ export default async function CalendarPage({ searchParams }) {
     <div className="px-4 py-8 sm:px-6">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
         <h1 className="font-display text-2xl font-bold">Calendar</h1>
-        <div className="flex items-center gap-2">
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        {/* Month navigation in the calendar card header */}
+        <div className="mb-4 flex items-center justify-between">
           <Link
             href={`?month=${prevParam}`}
             className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-sm hover:bg-white/[0.06]"
@@ -117,12 +182,20 @@ export default async function CalendarPage({ searchParams }) {
             {MONTHS_SHORT[nextMonth.getMonth()]} &#8594;
           </Link>
         </div>
+
+        {/* CalendarMonth with the correct props it expects */}
+        <CalendarMonth
+          trades={enrichedTrades}
+          year={year}
+          month={month}
+          selected={selected}
+          monthParam={monthParam}
+          monthlyPnl={monthlyPnl}
+          journalDays={journalDays}
+        />
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-        <CalendarMonth year={year} month={month} dayMap={dayMap} selected={selected} />
-      </div>
-
+      {/* Day trades section below the calendar */}
       {selected && (
         <div className="mt-6">
           <div className="mb-3 font-display text-lg font-bold">
@@ -136,7 +209,7 @@ export default async function CalendarPage({ searchParams }) {
           {selectedTrades.length === 0 ? (
             <p className="text-sm text-white/55">No trades on this date.</p>
           ) : (
-            <TradeTable trades={selectedTrades} journals={[]} />
+            <TradeTable rows={selectedTrades} compact />
           )}
         </div>
       )}
