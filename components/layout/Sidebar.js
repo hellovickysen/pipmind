@@ -47,29 +47,31 @@ export default function Sidebar({ email, credits, avatarUrl, isAdmin, adminNotif
 
   return (
     <aside
-      className="hidden flex-shrink-0 border-r border-white/10 bg-[#0b0b14] sm:block transition-all duration-300 ease-in-out"
+      className="relative hidden flex-shrink-0 overflow-visible border-r border-white/10 bg-[#0b0b14] sm:block transition-all duration-300 ease-in-out"
       style={{ width: collapsed ? 60 : 200 }}
     >
       <div className="sticky top-0 flex h-dvh flex-col py-5" style={{ width: collapsed ? 60 : 200, transition: 'width 300ms ease-in-out' }}>
 
-        {/* ── Logo + Toggle ── */}
-        <div className={'mb-5 flex items-center ' + (collapsed ? 'flex-col gap-2 px-2' : 'justify-between px-3')}>
+        {/* ── Logo ── */}
+        <div className={'mb-5 ' + (collapsed ? 'flex justify-center px-2' : 'px-3')}>
           <Link href="/dashboard" title="Dashboard">
             {collapsed
               ? <LogoMark size={28} rounded="rounded-lg" />
               : <Logo size={32} wordmarkClassName="font-display text-base font-bold" />
             }
           </Link>
-          <button
-            onClick={toggleCollapsed}
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className="grid h-7 w-7 place-items-center rounded-lg text-white/30 transition-colors hover:bg-white/[0.06] hover:text-white/60"
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className={'transition-transform duration-300 ' + (collapsed ? 'rotate-180' : '')}>
-              <path d="M10 4L6 8L10 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
         </div>
+
+        {/* ── Collapse/Expand toggle — vertically centered on right edge ── */}
+        <button
+          onClick={toggleCollapsed}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="absolute right-0 top-1/2 z-10 -translate-y-1/2 translate-x-1/2 grid h-6 w-6 place-items-center rounded-full border border-white/15 bg-[#12121a] text-white/40 shadow-lg transition-colors hover:bg-[#1a1a2e] hover:text-white/70"
+        >
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" className={'transition-transform duration-300 ' + (collapsed ? 'rotate-180' : '')}>
+            <path d="M10 4L6 8L10 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
 
         {/* ── New Trade ── */}
         <div className={collapsed ? 'mb-4 px-2' : 'mb-5 px-3'}>
