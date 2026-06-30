@@ -231,14 +231,12 @@ function TrophyCard({ trophy, onView, onTogglePublic, onDelete, onCopyLink }) {
       <button onClick={() => onView(trophy)} className="block w-full">
         <div className="relative aspect-[4/3] overflow-hidden bg-black/40">
           <img src={trophy.file_url} alt={trophy.title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
-          <div className="absolute left-2 top-2 flex items-center gap-1.5">
-            <span className={'rounded-full border px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm ' + cat.color}>{cat.label}</span>
+          <div className="absolute left-2 right-2 top-2 flex flex-wrap gap-1">
+            <span className={'max-w-full truncate rounded-full border px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm ' + cat.color}>{cat.label}</span>
+            {trophy.firm_name && (
+              <span className="max-w-full truncate rounded-full border border-white/20 bg-black/50 px-2 py-0.5 text-[10px] font-semibold text-white/80 backdrop-blur-sm">{trophy.firm_name}</span>
+            )}
           </div>
-          {trophy.firm_name && (
-            <div className="absolute right-2 top-2">
-              <span className="rounded-full border border-white/20 bg-black/50 px-2 py-0.5 text-[10px] font-semibold text-white/80 backdrop-blur-sm">{trophy.firm_name}</span>
-            </div>
-          )}
         </div>
       </button>
 
@@ -249,24 +247,24 @@ function TrophyCard({ trophy, onView, onTogglePublic, onDelete, onCopyLink }) {
         <div className="mt-2 font-mono text-[11px] text-white/35">{fmtDate(trophy.created_at)}</div>
 
         {/* Actions */}
-        <div className="mt-3 flex items-center gap-2 border-t border-white/5 pt-3">
+        <div className="mt-3 flex items-center gap-1.5 border-t border-white/5 pt-3">
           <button
             onClick={() => onTogglePublic(trophy.id, !trophy.is_public)}
-            className={'rounded-lg border px-2.5 py-2 text-[11px] font-semibold ' + (trophy.is_public ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-300' : 'border-white/10 bg-white/5 text-white/50')}
+            className={'rounded-lg border px-2 py-1.5 text-[11px] font-semibold ' + (trophy.is_public ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-300' : 'border-white/10 bg-white/5 text-white/50')}
           >
-            {trophy.is_public ? '🌐 Public' : '🔒 Private'}
+            {trophy.is_public ? 'Public' : 'Private'}
           </button>
           {trophy.is_public && trophy.share_id && (
             <button
               onClick={() => onCopyLink(trophy.share_id)}
-              className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-[11px] text-white/50 hover:text-cyan-300"
+              className="rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-[11px] text-white/50 hover:text-cyan-300"
             >
-              Copy link
+              Link
             </button>
           )}
           <button
             onClick={() => onDelete(trophy.id)}
-            className="ml-auto rounded-lg border border-red-400/20 bg-red-500/10 px-2.5 py-2 text-[11px] text-red-300 hover:bg-red-500/20"
+            className="ml-auto rounded-lg border border-red-400/20 bg-red-500/10 px-2 py-1.5 text-[11px] text-red-300 hover:bg-red-500/20"
           >
             Delete
           </button>
