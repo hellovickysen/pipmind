@@ -611,14 +611,18 @@ export default function TradeForm({ mode = 'create', tradeId = null, initial = n
           <span className={'ml-1 text-xs ' + (form.direction === 'long' ? 'text-emerald-400' : 'text-red-400')}>{form.direction.toUpperCase()}</span>
         </div>
         {form.setup && (
-          <div className="mt-2 flex flex-wrap gap-1">
-            {form.setup.split(', ').map((s) => (
-              <span key={s} className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2 py-0.5 text-xs text-cyan-300">{s}</span>
-            ))}
+          <div className="mt-2">
+            <div className="flex flex-wrap gap-1">
+              {form.setup.split(', ').map((s) => (
+                <span key={s} className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2 py-0.5 text-xs text-cyan-300">{s}</span>
+              ))}
+            </div>
             {form.setup_followed && (
-              <span className={'rounded-full px-2 py-0.5 text-xs ' + (form.setup_followed === 'yes' ? 'bg-emerald-500/15 text-emerald-300' : form.setup_followed === 'partial' ? 'bg-amber-500/15 text-amber-300' : 'bg-red-500/15 text-red-300')}>
-                {form.setup_followed === 'yes' ? 'Followed' : form.setup_followed === 'partial' ? 'Partial' : 'Not followed'}
-              </span>
+              <div className="mt-1.5">
+                <span className={'rounded-full px-2 py-0.5 text-xs ' + (form.setup_followed === 'yes' ? 'bg-emerald-500/15 text-emerald-300' : form.setup_followed === 'partial' ? 'bg-amber-500/15 text-amber-300' : 'bg-red-500/15 text-red-300')}>
+                  {form.setup_followed === 'yes' ? 'Followed' : form.setup_followed === 'partial' ? 'Partial' : 'Not followed'}
+                </span>
+              </div>
             )}
           </div>
         )}
